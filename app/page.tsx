@@ -13,7 +13,7 @@ export default function Home() {
   const [showHeadingCursor, setShowHeadingCursor] = useState(true)
   const [showDescriptionCursor, setShowDescriptionCursor] = useState(false)
   
-  const fullHeading = "executable code datasets for AI"
+  const fullHeading = "<codeset>"
   const fullDescription = "building large-scale code datasets to train and evaluate code agents"
   
   useEffect(() => {
@@ -199,20 +199,20 @@ export default function Home() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 {/* Service Cards */}
                 <div className="bg-white/5 backdrop-blur-sm p-6 rounded-lg border border-white/10 hover:border-white/20 transition-all">
-                  <h3 className="text-xl text-white mb-3">🚀 Train Smarter</h3>
-                  <p className="text-white/70">Use Codeset's high-quality datasets crafted for real-world LLM training.</p>
+                  <h3 className="text-xl text-white mb-3">🚀 Coding Gym</h3>
+                  <p className="text-white/70">Train code agents on large-scale datasets in a RL gym with real-world coding tasks.</p>
                 </div>
                 <div className="bg-white/5 backdrop-blur-sm p-6 rounded-lg border border-white/10 hover:border-white/20 transition-all">
                   <h3 className="text-xl text-white mb-3">🔍 Reliable Benchmarks</h3>
-                  <p className="text-white/70">Evaluate LLM capabilities with Codeset's reliable, software-engineering-focused benchmarks.</p>
+                  <p className="text-white/70">Evaluate agents capabilities with Codeset's reliable benchmarks.</p>
                 </div>
                 <div className="bg-white/5 backdrop-blur-sm p-6 rounded-lg border border-white/10 hover:border-white/20 transition-all">
-                  <h3 className="text-xl text-white mb-3">🏢 Tailor-Made Datasets</h3>
-                  <p className="text-white/70">Create custom datasets from your internal codebase, ensuring AI models align with your unique needs.</p>
+                  <h3 className="text-xl text-white mb-3">🏢 Bespoke Datasets</h3>
+                  <p className="text-white/70">Create bespoke datasets from your internal codebase, tailored to your needs.</p>
                 </div>
                 <div className="bg-white/5 backdrop-blur-sm p-6 rounded-lg border border-white/10 hover:border-white/20 transition-all">
-                  <h3 className="text-xl text-white mb-3">🌐 Seamless Access</h3>
-                  <p className="text-white/70">Leverage our web-based platform and API to integrate directly into your workflow.</p>
+                  <h3 className="text-xl text-white mb-3">🌐 Platform</h3>
+                  <p className="text-white/70">Leverage our platform to monitor the training and evaluation of your code agents on your benchmarks.</p>
                 </div>
               </div>
               
@@ -313,7 +313,7 @@ export default function Home() {
               
               {/* Added collaborative project information */}
               <div className="mt-12 bg-white/5 backdrop-blur-sm p-6 rounded-lg border border-white/10 hover:border-white/20 transition-all text-center max-w-2xl mx-auto">
-                <p className="text-white/80 text-md font-bold">Co-creators of <a href="https://github.com/gitbugactions/gitbugactions" target="_blank" rel="noopener noreferrer" className="underline hover:text-white/80">GitBug-Actions</a>, a tool for generating executable and reproducible datasets to advance AI-driven program repair and fault localization.</p>
+                <p className="text-white/80 text-md font-bold">Co-creators of <a href="https://github.com/gitbugactions/gitbugactions" target="_blank" rel="noopener noreferrer" className="underline hover:text-white/80">GitBug-Actions</a>, a tool for generating executable and reproducible datasets to advance AI-driven software development.</p>
               </div>
             </div>
           </div>
@@ -342,12 +342,12 @@ export default function Home() {
       </main>
       
       {/* Code comments */}
-      <div className="fixed inset-0 w-full h-full pointer-events-none z-[1]">
+      {/* <div className="fixed inset-0 w-full h-full pointer-events-none z-[1]">
         <div className="absolute top-[43%] left-[35%] max-2xl:left-[30%] text-white opacity-40 text-sm hidden lg:block">// datasets</div>
         <div className="absolute top-[47%] left-[60%] max-2xl:left-[67%] text-white opacity-40 text-sm hidden lg:block">// agents</div>
         <div className="absolute bottom-[30%] left-[28%] max-2xl:left-[23%] text-white opacity-40 text-sm hidden lg:block">// reliable</div>
         <div className="absolute bottom-[25%] right-[30%] max-2xl:right-[23%] text-white opacity-40 text-sm hidden lg:block">// software engineering</div>
-      </div>
+      </div> */}
     </div>
   )
 }
