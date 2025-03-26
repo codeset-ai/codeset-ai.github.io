@@ -9,7 +9,8 @@ const ibmPlexMono = IBM_Plex_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "codeset",
+  // Title only talks about train due to title being cut otherwise
+  title: "codeset - Building large-scale code datasets to train code agents.",
   description:
     "Training and evaluating autonomous software development agents and LLMs with high-quality, executable code datasets.",
   generator: 'v0.dev',
