@@ -212,7 +212,7 @@ export default function Home() {
                 </div>
                 <div className="bg-white/5 backdrop-blur-sm p-6 rounded-lg border border-white/10 hover:border-white/20 transition-all">
                   <h3 className="text-xl text-white mb-3">🌐 Platform</h3>
-                  <p className="text-white/70">Leverage our platform to monitor the training and evaluation of your code agents on your benchmarks.</p>
+                  <p className="text-white/70">Leverage our platform to monitor the training and evaluation of your code agents on your datasets.</p>
                 </div>
               </div>
               
