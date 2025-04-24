@@ -93,11 +93,11 @@ export default function Home() {
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            <Link href="#services" onClick={(e) => {
+            <Link href="#solutions" onClick={(e) => {
               e.preventDefault();
-              document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' });
+              document.getElementById('solutions')?.scrollIntoView({ behavior: 'smooth' });
             }} className="text-sm text-white opacity-80 hover:opacity-100 transition-opacity">
-              services
+              solutions
             </Link>
             <Link href="#team" onClick={(e) => {
               e.preventDefault();
@@ -131,15 +131,15 @@ export default function Home() {
           <div className="md:hidden fixed inset-0 bg-black/80 backdrop-blur-md z-40 flex items-center justify-center">
             <div className="flex flex-col items-center space-y-8 p-8 w-full max-w-sm">
               <Link 
-                href="#services" 
+                href="#solutions" 
                 className="text-xl text-white font-medium opacity-90 hover:opacity-100 transition-all hover:scale-105"
                 onClick={(e) => {
                   e.preventDefault();
                   setMobileMenuOpen(false);
-                  document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' });
+                  document.getElementById('solutions')?.scrollIntoView({ behavior: 'smooth' });
                 }}
               >
-                services
+                solutions
               </Link>
               <Link 
                 href="#team" 
@@ -191,13 +191,13 @@ export default function Home() {
         
         {/* Additional Sections - Combined with continuous gradient */}
         <section className="bg-gradient-to-b from-transparent via-black/70 to-black/90 backdrop-blur-md relative z-10">
-          {/* Services Section */}
-          <div id="services" className="min-h-screen py-24">
+          {/* Solutions Section */}
+          <div id="solutions" className="min-h-screen py-24">
             <div className="max-w-7xl mx-auto px-4">
-              <h2 className="text-3xl md:text-4xl text-white mb-12 text-center">Our Services</h2>
+              <h2 className="text-3xl md:text-4xl text-white mb-12 text-center">Our Solutions</h2>
               {/* <ConveyorBeltAnimation className="mb-12" /> */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                {/* Service Cards */}
+                {/* Solutions Cards */}
                 <div className="bg-white/5 backdrop-blur-sm p-6 rounded-lg border border-white/10 hover:border-white/20 transition-all">
                   <h3 className="text-xl text-white mb-3">🚀 Coding Gym</h3>
                   <p className="text-white/70">Train code agents on large-scale datasets in a RL gym with real-world coding tasks.</p>
