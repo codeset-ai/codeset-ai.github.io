@@ -28,11 +28,14 @@ export default function Header() {
           <Link href="/pricing" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
             Pricing
           </Link>
+          <Link href="/team" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
+            Team
+          </Link>
           <Link href="/#" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
             Docs
           </Link>
-          <Link href="/contact" className="px-4 py-2 text-sm font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors ml-2">
-            Request a Demo
+          <Link href="https://calendly.com/andre-codeset/intro-to-codeset" className="px-4 py-2 text-sm font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors ml-2">
+            Book a Demo
           </Link>
         </div>
 
@@ -61,6 +64,13 @@ export default function Header() {
               Pricing
             </Link>
             <Link 
+              href="/team" 
+              className="text-lg font-medium text-black hover:scale-105 transition-all"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Team
+            </Link>
+            <Link 
               href="/#" 
               className="text-lg font-medium text-black hover:scale-105 transition-all"
               onClick={() => setMobileMenuOpen(false)}
@@ -68,8 +78,8 @@ export default function Header() {
               Docs
             </Link>
             <div className="pt-4 border-t border-black/10 w-full mt-4">
-              <Link href="/contact" className="w-full block text-center px-4 py-3 text-lg font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors">
-                Request a Demo
+              <Link href="https://calendly.com/andre-codeset/intro-to-codeset" className="w-full block text-center px-4 py-3 text-lg font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors">
+                Book a Demo
               </Link>
             </div>
           </div>

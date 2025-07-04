@@ -10,7 +10,7 @@ export default function Footer() {
             <Link href="/" className="text-sm text-gray-500 hover:text-black transition-colors">Home</Link>
             <Link href="/pricing" className="text-sm text-gray-500 hover:text-black transition-colors">Pricing</Link>
             <Link href="/team" className="text-sm text-gray-500 hover:text-black transition-colors">Team</Link>
-            <Link href="/contact" className="text-sm text-gray-500 hover:text-black transition-colors">Contact Us</Link>
+            <Link href="https://calendly.com/andre-codeset/intro-to-codeset" className="text-sm text-gray-500 hover:text-black transition-colors">Book a Demo</Link>
           </div>
         </div>
       </div>

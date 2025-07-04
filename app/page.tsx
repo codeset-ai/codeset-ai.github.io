@@ -40,8 +40,8 @@ print(verification_result)
               A platform for training and evaluating agentic code models with large-scale datasets of reproducible, sandboxed environments.
             </p>
             <div className="flex justify-center md:justify-start gap-4">
-              <Link href="/contact" className="px-6 py-3 text-base font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors">
-                Request a Demo
+              <Link href="https://calendly.com/andre-codeset/intro-to-codeset" className="px-6 py-3 text-base font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors">
+                Book a Demo
               </Link>
               <Link href="/#" className="px-6 py-3 text-base font-medium text-black bg-gray-100 border border-gray-200 rounded-md hover:bg-gray-200 transition-colors">
                 Read the Docs
