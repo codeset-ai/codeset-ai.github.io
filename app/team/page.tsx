@@ -92,9 +92,9 @@ export default function Team() {
             <p className="text-lg text-gray-600 mb-8">
               We'd love to hear from you. Feel free to reach out to us directly.
             </p>
-            <a href="mailto:andre@codeset.ai,nuno@codeset.ai" className="px-6 py-3 text-base font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors">
-              Email Us
-            </a>
+            <Link href="/contact" className="px-6 py-3 text-base font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors">
+              Contact Us
+            </Link>
           </div>
         </div>
       </main>

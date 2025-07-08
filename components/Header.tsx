@@ -34,6 +34,9 @@ export default function Header() {
           <Link href="/#" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
             Docs
           </Link>
+          <Link href="/contact" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
+            Contact
+          </Link>
           <Link href="https://calendly.com/andre-codeset/intro-to-codeset" className="px-4 py-2 text-sm font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors ml-2">
             Book a Demo
           </Link>
@@ -76,6 +79,13 @@ export default function Header() {
               onClick={() => setMobileMenuOpen(false)}
             >
               Docs
+            </Link>
+            <Link 
+              href="/contact" 
+              className="text-lg font-medium text-black hover:scale-105 transition-all"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Contact
             </Link>
             <div className="pt-4 border-t border-black/10 w-full mt-4">
               <Link href="https://calendly.com/andre-codeset/intro-to-codeset" className="w-full block text-center px-4 py-3 text-lg font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors">
