@@ -7,7 +7,7 @@ export default function Pricing() {
       <Header />
       <main className="flex-grow pt-20">
         <div className="max-w-5xl mx-auto px-4 py-24 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">Flexible Pricing for Company</h1>
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">Flexible pricing for your company</h1>
           <p className="text-lg text-gray-600 mb-16">Choose the plan that's right for your needs.</p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -29,7 +29,7 @@ export default function Pricing() {
               <p className="text-gray-500 mb-6">For large organizations with specific needs.</p>
               <ul className="text-left space-y-3 text-gray-700 mb-8">
                 <li className="flex items-center gap-2">✅ Dedicated support</li>
-                <li className="flex items-center gap-2">✅ Creation of tailored datasets</li>
+                <li className="flex items-center gap-2">✅ Comission of datasets</li>
                 <li className="flex items-center gap-2">✅ Integrate custom verifiers</li>
               </ul>
               <button className="w-full py-3 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-lg transition-colors">Contact Sales</button>
