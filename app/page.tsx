@@ -46,7 +46,7 @@ print(verification_result)
               <Link href="/contact" className="px-6 py-3 text-base font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors">
                 Get In Touch
               </Link>
-              <Link href="/#" className="px-6 py-3 text-base font-medium text-black bg-gray-100 border border-gray-200 rounded-md hover:bg-gray-200 transition-colors">
+              <Link href="https://docs.codeset.ai" className="px-6 py-3 text-base font-medium text-black bg-gray-100 border border-gray-200 rounded-md hover:bg-gray-200 transition-colors">
                 Read the Docs
               </Link>
             </div>

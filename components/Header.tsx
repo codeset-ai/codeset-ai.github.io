@@ -31,7 +31,7 @@ export default function Header() {
           <Link href="/team" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
             Team
           </Link>
-          <Link href="/#" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
+          <Link href="https://docs.codeset.ai" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
             Docs
           </Link>
           <Link href="/contact" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
@@ -74,7 +74,7 @@ export default function Header() {
               Team
             </Link>
             <Link 
-              href="/#" 
+              href="https://docs.codeset.ai" 
               className="text-lg font-medium text-black hover:scale-105 transition-all"
               onClick={() => setMobileMenuOpen(false)}
             >
