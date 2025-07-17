@@ -9,14 +9,14 @@ export default function Home() {
 
   const sdkCode = `from codeset import Codeset
 
-# Create a session with a sample task
+# Create a session for a task
 client = Codeset()
 session = client.sessions.create(sample_id="swe-task-1")
 
-# Your agent interacts with the environment
+# Agent interacts with the session's environment
 client.sessions.execute_command(session.session_id, command)
 
-# Verify your trajectory
+# Check if the state of the session is correct
 verification_result = client.sessions.verify(session)
 
 # Log the result and use as a reward signal during training
