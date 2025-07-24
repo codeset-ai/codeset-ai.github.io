@@ -34,10 +34,10 @@ print(verification_result)
               &lt;codeset&gt;
             </h1>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-medium text-gray-600 mb-6">
-              Accelerate your AI Code Agents
+              Accelerate your agentic models
             </h2>
             <p className="max-w-md md:max-w-none mx-auto md:mx-0 text-gray-500 mb-10">
-              A platform for training and evaluating agentic code models with large-scale datasets of reproducible, sandboxed environments.
+              A platform for training and evaluating agentic models with large-scale datasets of reproducible, sandboxed environments.
             </p>
             <div className="flex justify-center md:justify-start gap-4">
               <Link href="https://calendly.com/andre-codeset/intro-to-codeset" className="px-6 py-3 text-base font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors">

@@ -54,7 +54,7 @@ export default function Team() {
               Meet Our Team
             </h1>
             <h2 className="text-lg text-gray-600 mb-8">
-              We are dedicated to building the future of AI code agents.
+              We are dedicated to building the future of agentic models.
             </h2>
           </div>
 
