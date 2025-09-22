@@ -10,6 +10,10 @@ interface ApiKeyCreateResponse {
   api_key: ApiKey;
 }
 
+interface ApiKeyRevokeRequest {
+  key_id: string;
+}
+
 interface ApiKeyRevokeResponse {
   message: string;
   revoked_key_id: string;
@@ -48,23 +52,25 @@ export class ApiService {
     return data.api_key;
   }
 
-  static async revokeApiKey(keyId: string): Promise<void> {
+  static async revokeApiKey(request: ApiKeyRevokeRequest): Promise<void> {
     const token = AuthService.getStoredToken();
     if (!token) {
       throw new Error('No authentication token found');
     }
 
-    const response = await fetch(`${API_BASE_URL}/users/me/api-keys/${keyId}`, {
+    const response = await fetch(`${API_BASE_URL}/users/me/api-keys`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify(request),
     });
 
     if (response.status === 401) {
       const refreshResult = await AuthService.refreshToken();
       if (refreshResult) {
-        return this.revokeApiKey(keyId);
+        return this.revokeApiKey(request);
       }
       throw new Error('Authentication failed');
     }
@@ -76,4 +82,4 @@ export class ApiService {
   }
 }
 
-export type { ApiKeyCreateRequest, ApiKeyCreateResponse, ApiKeyRevokeResponse };
+export type { ApiKeyCreateRequest, ApiKeyCreateResponse, ApiKeyRevokeRequest, ApiKeyRevokeResponse };
