@@ -1,14 +1,14 @@
 "use client"
 
-"use client"
-
 import Link from "next/link"
 import Image from "next/image"
 import { useState } from "react"
-import { Menu, X } from "lucide-react"
+import { Menu, X, User, LogOut } from "lucide-react"
+import { useAuth } from "@/contexts/AuthContext"
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { user, login, logout, loading } = useAuth()
 
   return (
     <header className="fixed top-0 left-0 right-0 z-20 px-4 py-3 bg-white/80 backdrop-blur-sm border-b border-gray-200">
@@ -40,9 +40,37 @@ export default function Header() {
           <Link href="/contact" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
             Contact
           </Link>
-          {/* <Link href="https://calendly.com/andre-codeset/intro-to-codeset" className="px-4 py-2 text-sm font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors ml-2">
-            Book a Demo
-          </Link> */}
+
+          {!loading && (
+            user ? (
+              <div className="flex items-center gap-3">
+                <Link href="/dashboard" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
+                  <User size={16} />
+                  {user.name}
+                </Link>
+                <button
+                  onClick={logout}
+                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-black transition-colors"
+                >
+                  <LogOut size={16} />
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Link href="https://calendly.com/andre-codeset/intro-to-codeset" className="px-4 py-2 text-sm font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors">
+                  Book a Demo
+                </Link>
+                <button
+                  onClick={login}
+                  className="px-4 py-2 text-sm font-medium text-black bg-gray-100 border border-gray-200 rounded-md hover:bg-gray-200 transition-colors"
+                >
+                  Sign In
+                </button>
+              </div>
+            )
+          )}
+>>>>>>> c7b7975 (add initial dashboard impl)
         </div>
 
         {/* Mobile Menu Button */}
@@ -102,6 +130,48 @@ export default function Header() {
                 Book a Demo
               </Link>
             </div> */}
+
+            {!loading && (
+              <div className="pt-4 border-t border-black/10 w-full mt-4 space-y-3">
+                {user ? (
+                  <>
+                    <Link
+                      href="/dashboard"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 text-lg font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <User size={18} />
+                      Dashboard
+                    </Link>
+                    <button
+                      onClick={() => {
+                        logout();
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 text-lg font-medium text-black bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+                    >
+                      <LogOut size={18} />
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link href="https://calendly.com/andre-codeset/intro-to-codeset" className="w-full block text-center px-4 py-3 text-lg font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors">
+                      Book a Demo
+                    </Link>
+                    <button
+                      onClick={() => {
+                        login();
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full px-4 py-3 text-lg font-medium text-black bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+                    >
+                      Sign In
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
