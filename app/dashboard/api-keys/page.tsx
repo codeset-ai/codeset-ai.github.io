@@ -51,7 +51,7 @@ export default function ApiKeysPage() {
     setRevokingKeys(newRevokingKeys);
 
     try {
-      await ApiService.revokeApiKey(keyId);
+      await ApiService.revokeApiKey({ key_id: keyId });
       await refreshUser();
       toast.success('API key revoked successfully!');
       setRevokeConfirmDialog(null);
