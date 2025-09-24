@@ -19,6 +19,31 @@ interface ApiKeyRevokeResponse {
   revoked_key_id: string;
 }
 
+interface UserCredits {
+  user_id: string;
+  balance: number;
+  total_deposited: number;
+  total_spent: number;
+  stripe_customer_id?: string;
+  last_updated: string;
+}
+
+interface PricingInfo {
+  cost_per_minute_cents: number;
+  cost_per_minute_dollars: number;
+}
+
+interface MoneyDepositRequest {
+  amount_cents: number;
+  currency: string;
+}
+
+interface MoneyDepositResponse {
+  checkout_url: string;
+  amount_cents: number;
+  currency: string;
+}
+
 export class ApiService {
   static async createApiKey(name?: string): Promise<ApiKey> {
     const token = AuthService.getStoredToken();
@@ -80,6 +105,85 @@ export class ApiService {
       throw new Error(errorData.detail?.message || errorData.message || 'Failed to revoke API key');
     }
   }
+
+  static async getUserCredits(): Promise<UserCredits> {
+    const token = AuthService.getStoredToken();
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/billing/balance`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (response.status === 401) {
+      const refreshResult = await AuthService.refreshToken();
+      if (refreshResult) {
+        return this.getUserCredits();
+      }
+      throw new Error('Authentication failed');
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail?.message || errorData.message || 'Failed to get user credits');
+    }
+
+    return response.json();
+  }
+
+  static async getPricingInfo(): Promise<PricingInfo> {
+    const response = await fetch(`${API_BASE_URL}/billing/pricing`);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail?.message || errorData.message || 'Failed to get pricing info');
+    }
+
+    return response.json();
+  }
+
+  static async createDepositSession(request: MoneyDepositRequest): Promise<MoneyDepositResponse> {
+    const token = AuthService.getStoredToken();
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/billing/deposit`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (response.status === 401) {
+      const refreshResult = await AuthService.refreshToken();
+      if (refreshResult) {
+        return this.createDepositSession(request);
+      }
+      throw new Error('Authentication failed');
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail?.message || errorData.message || 'Failed to create deposit session');
+    }
+
+    return response.json();
+  }
 }
 
-export type { ApiKeyCreateRequest, ApiKeyCreateResponse, ApiKeyRevokeRequest, ApiKeyRevokeResponse };
+export type {
+  ApiKeyCreateRequest,
+  ApiKeyCreateResponse,
+  ApiKeyRevokeRequest,
+  ApiKeyRevokeResponse,
+  UserCredits,
+  PricingInfo,
+  MoneyDepositRequest,
+  MoneyDepositResponse
+};
