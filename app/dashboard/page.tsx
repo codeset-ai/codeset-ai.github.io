@@ -1,11 +1,42 @@
 "use client"
 
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { User, Key, Calendar, Activity } from 'lucide-react';
+import { User, Key, Calendar, Activity, DollarSign, CreditCard } from 'lucide-react';
+import { ApiService, UserCredits } from '@/lib/api';
 import Link from 'next/link';
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const [credits, setCredits] = useState<UserCredits | null>(null);
+  const [creditsLoading, setCreditsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadCredits = async () => {
+      try {
+        const creditsData = await ApiService.getUserCredits();
+        setCredits(creditsData);
+      } catch (error) {
+        console.error('Failed to load credits:', error);
+      } finally {
+        setCreditsLoading(false);
+      }
+    };
+
+    if (user) {
+      loadCredits();
+    }
+
+    // Refresh credits when page becomes visible (user returns from payment)
+    const handleVisibilityChange = () => {
+      if (!document.hidden && user) {
+        loadCredits();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [user]);
 
   if (!user) return null;
 
@@ -15,6 +46,13 @@ export default function Dashboard() {
       month: 'long',
       day: 'numeric',
     });
+  };
+
+  const formatCurrency = (cents: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(cents / 100);
   };
 
   return (
@@ -30,7 +68,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {/* API Keys */}
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
@@ -49,6 +87,40 @@ export default function Dashboard() {
           >
             Manage keys →
           </Link>
+        </div>
+
+        {/* Credits Balance */}
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-2">
+              <DollarSign className="text-green-600" size={20} />
+              <h3 className="text-lg font-medium text-gray-900">Credits</h3>
+            </div>
+          </div>
+          {creditsLoading ? (
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-200 rounded w-1/2 mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            </div>
+          ) : credits ? (
+            <>
+              <div className="text-3xl font-semibold text-gray-900 mb-2">
+                {formatCurrency(credits.balance)}
+              </div>
+              <p className="text-sm text-gray-600">Current balance</p>
+              <Link
+                href="/dashboard/credits"
+                className="inline-block mt-4 text-green-600 text-sm font-medium hover:text-green-700"
+              >
+                Manage credits →
+              </Link>
+            </>
+          ) : (
+            <>
+              <div className="text-lg text-gray-500 mb-2">Error loading</div>
+              <p className="text-sm text-gray-600">Failed to load balance</p>
+            </>
+          )}
         </div>
 
         {/* Account Info */}
