@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { User, Key, Home, CreditCard } from 'lucide-react';
+import { User, Key, Home, CreditCard, BarChart3 } from 'lucide-react';
 
 export default function DashboardLayout({
   children,
@@ -76,6 +76,13 @@ export default function DashboardLayout({
               >
                 <CreditCard size={16} />
                 <span>Credits</span>
+              </Link>
+              <Link
+                href="/dashboard/usage"
+                className="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-gray-700 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+              >
+                <BarChart3 size={16} />
+                <span>Usage History</span>
               </Link>
             </nav>
           </div>

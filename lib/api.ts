@@ -44,6 +44,29 @@ interface MoneyDepositResponse {
   currency: string;
 }
 
+interface UsageTransaction {
+  id: string;
+  type: 'deposit' | 'session_usage' | 'refund';
+  amount_cents: number;
+  description: string;
+  created_at: string;
+  session_id?: string;
+  duration_minutes?: number;
+}
+
+interface UsageHistory {
+  current_balance_cents: number;
+  total_deposits_cents: number;
+  total_usage_cents: number;
+  transactions: UsageTransaction[];
+  summary: {
+    total_sessions: number;
+    average_session_cost_cents: number;
+    total_session_duration_minutes: number;
+    average_session_duration_minutes: number;
+  };
+}
+
 export class ApiService {
   static async createApiKey(name?: string): Promise<ApiKey> {
     const token = AuthService.getStoredToken();
@@ -175,6 +198,34 @@ export class ApiService {
 
     return response.json();
   }
+
+  static async getUsageHistory(): Promise<UsageHistory> {
+    const token = AuthService.getStoredToken();
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/billing/usage`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (response.status === 401) {
+      const refreshResult = await AuthService.refreshToken();
+      if (refreshResult) {
+        return this.getUsageHistory();
+      }
+      throw new Error('Authentication failed');
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail?.message || errorData.message || 'Failed to get usage history');
+    }
+
+    return response.json();
+  }
 }
 
 export type {
@@ -185,5 +236,7 @@ export type {
   UserCredits,
   PricingInfo,
   MoneyDepositRequest,
-  MoneyDepositResponse
+  MoneyDepositResponse,
+  UsageTransaction,
+  UsageHistory
 };
