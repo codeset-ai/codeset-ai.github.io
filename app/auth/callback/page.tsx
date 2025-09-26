@@ -3,48 +3,83 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { AuthService } from '@/lib/auth';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function AuthCallback() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [error, setError] = useState<string>('');
+  const [processed, setProcessed] = useState(false);
+  const [attempts, setAttempts] = useState(0);
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { refreshUser } = useAuth();
 
   useEffect(() => {
     const handleCallback = async () => {
+      if (processed) {
+        console.log('OAuth already processed, skipping...');
+        return;
+      }
+
       const code = searchParams.get('code');
       const state = searchParams.get('state');
       const errorParam = searchParams.get('error');
 
+      console.log('Processing OAuth callback...', { code: code?.substring(0, 10) + '...', state, error: errorParam });
+
       if (errorParam) {
         setError(errorParam);
         setStatus('error');
+        setProcessed(true);
         return;
       }
 
       if (!code) {
         setError('No authorization code received');
         setStatus('error');
+        setProcessed(true);
         return;
       }
 
-      try {
-        await AuthService.githubOAuth(code, state || undefined);
-        setStatus('success');
+      setProcessed(true);
 
-        // Redirect to dashboard after successful auth
-        setTimeout(() => {
-          router.push('/dashboard');
-        }, 1500);
-      } catch (err) {
-        console.error('OAuth error:', err);
-        setError(err instanceof Error ? err.message : 'Authentication failed');
-        setStatus('error');
-      }
+      const attemptOAuth = async (retryCount = 0): Promise<void> => {
+        try {
+          console.log(`OAuth attempt ${retryCount + 1}...`);
+          const oauthResult = await AuthService.githubOAuth(code, state || undefined);
+          console.log('OAuth successful, result:', oauthResult);
+
+          setStatus('success');
+
+          // Give the token a moment to be valid, then update user data and redirect
+          setTimeout(async () => {
+            console.log('Refreshing user data after delay...');
+            await refreshUser();
+            console.log('User data refreshed, redirecting...');
+            router.push('/dashboard');
+          }, 500);
+        } catch (err) {
+          console.error(`OAuth attempt ${retryCount + 1} failed:`, err);
+
+          // Retry once if it's the first attempt
+          if (retryCount === 0) {
+            console.log('Retrying OAuth in 1 second...');
+            setTimeout(() => attemptOAuth(1), 1000);
+            return;
+          }
+
+          // After retries failed, show error
+          console.error('All OAuth attempts failed');
+          setError(err instanceof Error ? err.message : 'Authentication failed');
+          setStatus('error');
+        }
+      };
+
+      await attemptOAuth();
     };
 
     handleCallback();
-  }, [searchParams, router]);
+  }, [searchParams, router, refreshUser]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white">
@@ -67,7 +102,7 @@ export default function AuthCallback() {
           </div>
         )}
 
-        {status === 'error' && (
+        {status === 'error' && processed && (
           <div>
             <div className="text-red-600 mb-4">
               <svg className="w-8 h-8 mx-auto" fill="currentColor" viewBox="0 0 20 20">

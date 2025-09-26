@@ -63,6 +63,8 @@ export class AuthService {
   }
 
   static async githubOAuth(code: string, state?: string): Promise<GitHubOAuthResponse> {
+    console.log('Calling OAuth endpoint:', `${API_BASE_URL}/auth/github`);
+
     const response = await fetch(`${API_BASE_URL}/auth/github`, {
       method: 'POST',
       headers: {
@@ -71,8 +73,11 @@ export class AuthService {
       body: JSON.stringify({ code, state }),
     });
 
+    console.log('OAuth response status:', response.status);
+
     if (!response.ok) {
       const errorText = await response.text();
+      console.log('OAuth error response:', errorText);
       let errorData;
       try {
         errorData = JSON.parse(errorText);
@@ -83,6 +88,7 @@ export class AuthService {
     }
 
     const data: GitHubOAuthResponse = await response.json();
+    console.log('OAuth success, storing tokens');
     this.storeTokens(data.access_token, data.refresh_token);
     return data;
   }
