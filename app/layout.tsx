@@ -20,6 +20,9 @@ export const metadata: Metadata = {
   },
 }
 
+import { AuthProvider } from '@/contexts/AuthContext'
+import { Toaster } from 'sonner'
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -40,7 +43,10 @@ export default function RootLayout({
         `}
       </Script>
       <body>
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+        <Toaster position="top-right" />
         <Suspense>
           <GoogleAnalytics />
         </Suspense>
