@@ -65,6 +65,14 @@ interface UsageHistory {
     total_session_duration_minutes: number;
     average_session_duration_minutes: number;
   };
+  pagination: {
+    current_page: number;
+    total_pages: number;
+    total_items: number;
+    items_per_page: number;
+    has_previous: boolean;
+    has_next: boolean;
+  };
 }
 
 export class ApiService {
@@ -199,13 +207,17 @@ export class ApiService {
     return response.json();
   }
 
-  static async getUsageHistory(): Promise<UsageHistory> {
+  static async getUsageHistory(page: number = 1, limit: number = 25): Promise<UsageHistory> {
     const token = AuthService.getStoredToken();
     if (!token) {
       throw new Error('No authentication token found');
     }
 
-    const response = await fetch(`${API_BASE_URL}/billing/usage`, {
+    const url = new URL(`${API_BASE_URL}/billing/usage`);
+    url.searchParams.append('page', page.toString());
+    url.searchParams.append('limit', limit.toString());
+
+    const response = await fetch(url.toString(), {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
@@ -214,7 +226,7 @@ export class ApiService {
     if (response.status === 401) {
       const refreshResult = await AuthService.refreshToken();
       if (refreshResult) {
-        return this.getUsageHistory();
+        return this.getUsageHistory(page, limit);
       }
       throw new Error('Authentication failed');
     }
