@@ -9,16 +9,18 @@ export default function UsagePage() {
   const [usageData, setUsageData] = useState<UsageHistory | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(25);
 
   useEffect(() => {
     loadUsageData();
-  }, []);
+  }, [currentPage]);
 
   const loadUsageData = async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await ApiService.getUsageHistory();
+      const data = await ApiService.getUsageHistory(currentPage, itemsPerPage);
       setUsageData(data);
     } catch (err) {
       console.error('Error loading usage data:', err);
@@ -26,6 +28,10 @@ export default function UsagePage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
   const formatCurrency = (cents: number) => {
@@ -231,6 +237,77 @@ export default function UsagePage() {
         {usageData.transactions.length === 0 && (
           <div className="p-6 text-center text-gray-500">
             No usage history available yet.
+          </div>
+        )}
+
+        {/* Pagination */}
+        {usageData.pagination && usageData.pagination.total_pages > 1 && (
+          <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-gray-700">
+                Showing page {usageData.pagination.current_page} of {usageData.pagination.total_pages}
+                ({usageData.pagination.total_items} total items)
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => handlePageChange(usageData.pagination.current_page - 1)}
+                  disabled={!usageData.pagination.has_previous}
+                  className={`px-3 py-2 text-sm font-medium rounded-lg border transition-colors ${
+                    usageData.pagination.has_previous
+                      ? 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                      : 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
+                  }`}
+                >
+                  Previous
+                </button>
+
+                {/* Page numbers */}
+                <div className="flex items-center space-x-1">
+                  {Array.from({ length: Math.min(5, usageData.pagination.total_pages) }, (_, i) => {
+                    // Calculate start page to center around current page
+                    const totalPages = usageData.pagination.total_pages;
+                    const currentPage = usageData.pagination.current_page;
+                    const maxButtons = Math.min(5, totalPages);
+
+                    let startPage = Math.max(1, currentPage - Math.floor(maxButtons / 2));
+                    if (startPage + maxButtons - 1 > totalPages) {
+                      startPage = Math.max(1, totalPages - maxButtons + 1);
+                    }
+
+                    const page = startPage + i;
+
+                    if (page > totalPages) return null;
+
+                    return (
+                      <button
+                        key={page}
+                        onClick={() => handlePageChange(page)}
+                        className={`px-3 py-2 text-sm font-medium rounded-lg border transition-colors ${
+                          page === usageData.pagination.current_page
+                            ? 'bg-blue-600 border-blue-600 text-white'
+                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <button
+                  onClick={() => handlePageChange(usageData.pagination.current_page + 1)}
+                  disabled={!usageData.pagination.has_next}
+                  className={`px-3 py-2 text-sm font-medium rounded-lg border transition-colors ${
+                    usageData.pagination.has_next
+                      ? 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                      : 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
+                  }`}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
