@@ -31,6 +31,9 @@ export default function Header() {
           <Link href="/team" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
             Team
           </Link>
+          <Link href="/blog" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
+            Blog
+          </Link>
           <Link href="https://docs.codeset.ai" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
             Docs
           </Link>
@@ -59,29 +62,36 @@ export default function Header() {
       {mobileMenuOpen && (
         <div className="md:hidden absolute top-full left-0 w-full bg-white/90 backdrop-blur-md z-40 shadow-lg">
           <div className="flex flex-col items-center space-y-4 p-6">
-            <Link 
-              href="/pricing" 
+            <Link
+              href="/pricing"
               className="text-lg font-medium text-black hover:scale-105 transition-all"
               onClick={() => setMobileMenuOpen(false)}
             >
               Pricing
             </Link>
-            <Link 
-              href="/team" 
+            <Link
+              href="/team"
               className="text-lg font-medium text-black hover:scale-105 transition-all"
               onClick={() => setMobileMenuOpen(false)}
             >
               Team
             </Link>
-            <Link 
-              href="https://docs.codeset.ai" 
+            <Link
+              href="/blog"
+              className="text-lg font-medium text-black hover:scale-105 transition-all"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Blog
+            </Link>
+            <Link
+              href="https://docs.codeset.ai"
               className="text-lg font-medium text-black hover:scale-105 transition-all"
               onClick={() => setMobileMenuOpen(false)}
             >
               Docs
             </Link>
-            <Link 
-              href="/contact" 
+            <Link
+              href="/contact"
               className="text-lg font-medium text-black hover:scale-105 transition-all"
               onClick={() => setMobileMenuOpen(false)}
             >
