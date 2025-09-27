@@ -4,14 +4,13 @@ import LandingLayout from "../landing-layout"
 
 export default function BlogPage() {
   const posts = getAllPosts()
-
   return (
     <LandingLayout>
       <div className="min-h-screen bg-white text-black font-mono py-24">
         <div className="max-w-4xl mx-auto px-8">
           <h1 className="text-4xl font-medium mb-8">Blog</h1>
           <p className="text-gray-600 mb-12 max-w-2xl">
-            Updates, insights, and news from the Codeset team about advancing agentic AI models.
+            Updates from the Codeset team.
           </p>
 
           {posts.length === 0 ? (
