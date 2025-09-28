@@ -15,5 +15,3 @@ Second, we aim to provide better and stonger verification while dramatically red
 We're soon making our platform publicly available, together with a dataset composed of novel software engineering tasks not available in any other public dataset. This dataset will be available to use via the Codeset platform from day one.
 
 Stay tuned for more updates, and don't hesitate to reach out if you have questions or suggestions.
-
-Ready to get started? [Book a demo](https://calendly.com/andre-codeset/intro-to-codeset) or [read our documentation](https://docs.codeset.ai).
