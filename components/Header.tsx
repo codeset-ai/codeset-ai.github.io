@@ -25,9 +25,9 @@ export default function Header() {
         
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-6">
-          <Link href="/pricing" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
+          {/* <Link href="/pricing" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
             Pricing
-          </Link>
+          </Link> */}
           <Link href="/team" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
             Team
           </Link>
@@ -40,9 +40,9 @@ export default function Header() {
           <Link href="/contact" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
             Contact
           </Link>
-          <Link href="https://calendly.com/andre-codeset/intro-to-codeset" className="px-4 py-2 text-sm font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors ml-2">
+          {/* <Link href="https://calendly.com/andre-codeset/intro-to-codeset" className="px-4 py-2 text-sm font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors ml-2">
             Book a Demo
-          </Link>
+          </Link> */}
         </div>
 
         {/* Mobile Menu Button */}
@@ -62,13 +62,13 @@ export default function Header() {
       {mobileMenuOpen && (
         <div className="md:hidden absolute top-full left-0 w-full bg-white/90 backdrop-blur-md z-40 shadow-lg">
           <div className="flex flex-col items-center space-y-4 p-6">
-            <Link
+            {/* <Link
               href="/pricing"
               className="text-lg font-medium text-black hover:scale-105 transition-all"
               onClick={() => setMobileMenuOpen(false)}
             >
               Pricing
-            </Link>
+            </Link> */}
             <Link
               href="/team"
               className="text-lg font-medium text-black hover:scale-105 transition-all"
@@ -97,11 +97,11 @@ export default function Header() {
             >
               Contact
             </Link>
-            <div className="pt-4 border-t border-black/10 w-full mt-4">
+            {/* <div className="pt-4 border-t border-black/10 w-full mt-4">
               <Link href="https://calendly.com/andre-codeset/intro-to-codeset" className="w-full block text-center px-4 py-3 text-lg font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors">
                 Book a Demo
               </Link>
-            </div>
+            </div> */}
           </div>
         </div>
       )}

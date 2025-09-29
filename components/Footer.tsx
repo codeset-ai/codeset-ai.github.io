@@ -8,10 +8,10 @@ export default function Footer() {
           <p className="text-gray-500 text-sm">&copy; {new Date().getFullYear()} Codeset. All rights reserved.</p>
           <div className="flex gap-6 mt-6 md:mt-0">
             <Link href="/" className="text-sm text-gray-500 hover:text-black transition-colors">Home</Link>
-            <Link href="/pricing" className="text-sm text-gray-500 hover:text-black transition-colors">Pricing</Link>
+{/* <Link href="/pricing" className="text-sm text-gray-500 hover:text-black transition-colors">Pricing</Link> */}
             <Link href="/team" className="text-sm text-gray-500 hover:text-black transition-colors">Team</Link>
             <Link href="/contact" className="text-sm text-gray-500 hover:text-black transition-colors">Contact</Link>
-            <Link href="https://calendly.com/andre-codeset/intro-to-codeset" className="text-sm text-gray-500 hover:text-black transition-colors">Book a Demo</Link>
+{/* <Link href="https://calendly.com/andre-codeset/intro-to-codeset" className="text-sm text-gray-500 hover:text-black transition-colors">Book a Demo</Link> */}
           </div>
         </div>
       </div>
