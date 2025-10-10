@@ -58,9 +58,6 @@ export default function Header() {
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <Link href="https://calendly.com/andre-codeset/intro-to-codeset" className="px-4 py-2 text-sm font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors">
-                  Book a Demo
-                </Link>
                 <button
                   onClick={login}
                   className="px-4 py-2 text-sm font-medium text-black bg-gray-100 border border-gray-200 rounded-md hover:bg-gray-200 transition-colors"
@@ -70,7 +67,6 @@ export default function Header() {
               </div>
             )
           )}
->>>>>>> c7b7975 (add initial dashboard impl)
         </div>
 
         {/* Mobile Menu Button */}
@@ -156,9 +152,6 @@ export default function Header() {
                   </>
                 ) : (
                   <>
-                    <Link href="https://calendly.com/andre-codeset/intro-to-codeset" className="w-full block text-center px-4 py-3 text-lg font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors">
-                      Book a Demo
-                    </Link>
                     <button
                       onClick={() => {
                         login();
