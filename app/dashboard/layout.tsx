@@ -4,14 +4,14 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { User, Key, Home, CreditCard, BarChart3, Database } from 'lucide-react';
+import { User, Key, Home, CreditCard, BarChart3, LogOut, Database } from 'lucide-react';
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { user, loading } = useAuth();
+  const { user, loading, logout } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -44,9 +44,18 @@ export default function DashboardLayout({
             <span className="text-gray-400">/</span>
             <span className="text-gray-600">Dashboard</span>
           </div>
-          <div className="flex items-center space-x-2 text-sm">
-            <User size={16} />
-            <span>{user.name}</span>
+          <div className="flex items-center space-x-4 text-sm">
+            <div className="flex items-center space-x-2">
+              <User size={16} />
+              <span>{user.name}</span>
+            </div>
+            <button
+              onClick={logout}
+              className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+            >
+              <LogOut size={16} />
+              <span>Logout</span>
+            </button>
           </div>
         </div>
       </div>

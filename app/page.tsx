@@ -40,9 +40,9 @@ print(verification_result)
               A platform for training and evaluating agentic models with large-scale datasets of reproducible, sandboxed environments.
             </p>
             <div className="flex justify-center md:justify-start gap-4">
-              <Link href="https://calendly.com/andre-codeset/intro-to-codeset" className="px-6 py-3 text-base font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors">
+{/* <Link href="https://calendly.com/andre-codeset/intro-to-codeset" className="px-6 py-3 text-base font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors">
                 Book a Demo
-              </Link>
+              </Link> */}
               <Link href="/contact" className="px-6 py-3 text-base font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors">
                 Get In Touch
               </Link>

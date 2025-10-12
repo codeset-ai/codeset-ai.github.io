@@ -238,7 +238,8 @@ export class ApiService {
     return response.json();
   }
 
-  static async getUsageHistory(): Promise<UsageHistory> {
+  static async getUsageHistory(page: number = 1, limit: number = 25):
+      Promise<UsageHistory> {
     const token = AuthService.getStoredToken();
     if (!token) {
       throw new Error('No authentication token found');
@@ -253,7 +254,7 @@ export class ApiService {
     if (response.status === 401) {
       const refreshResult = await AuthService.refreshToken();
       if (refreshResult) {
-        return this.getUsageHistory();
+        return this.getUsageHistory(page, limit);
       }
       throw new Error('Authentication failed');
     }
@@ -327,7 +328,7 @@ export class ApiService {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(
           errorData.detail?.message || errorData.message ||
-          'Failed to get samples');
+          'Failed to get usage history');
     }
 
     return response.json();

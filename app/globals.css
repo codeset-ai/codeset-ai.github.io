@@ -92,3 +92,15 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Ensure blog code blocks match homepage exactly */
+.blog-code-block .hljs {
+  background: #1f2937 !important;
+  color: #f9fafb !important;
+}
+
+.blog-code-block code {
+  background: transparent !important;
+  color: inherit !important;
+}
+
