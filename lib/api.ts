@@ -1,6 +1,7 @@
-import { AuthService, ApiKey } from './auth';
+import {ApiKey, AuthService} from './auth';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.codeset.ai/api/v1';
+const API_BASE_URL =
+    process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.codeset.ai/api/v1';
 
 interface ApiKeyCreateRequest {
   name?: string;
@@ -46,7 +47,7 @@ interface MoneyDepositResponse {
 
 interface UsageTransaction {
   id: string;
-  type: 'deposit' | 'session_usage' | 'refund';
+  type: 'deposit'|'session_usage'|'refund';
   amount_cents: number;
   description: string;
   created_at: string;
@@ -60,11 +61,40 @@ interface UsageHistory {
   total_usage_cents: number;
   transactions: UsageTransaction[];
   summary: {
-    total_sessions: number;
-    average_session_cost_cents: number;
+    total_sessions: number; average_session_cost_cents: number;
     total_session_duration_minutes: number;
     average_session_duration_minutes: number;
   };
+}
+
+interface Dataset {
+  name: string;
+  description?: string;
+  sample_count?: number;
+}
+
+interface Sample {
+  sample_id: string;
+  description: string;
+  language: string;
+  verifier: string;
+  dataset: string;
+  version: number;
+  version_description: string;
+  latest: boolean;
+  created_at: string;
+  instance_id: string;
+  repo: string;
+  base_commit: string;
+  patch: string;
+  non_code_patch: string;
+  test_patch: string;
+  problem_statement: string;
+  hints_text: string;
+  environment_setup_commit: string;
+  fail_to_pass: string[];
+  pass_to_pass: string[];
+  fail_to_fail: string[];
 }
 
 export class ApiService {
@@ -80,7 +110,7 @@ export class ApiService {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ name }),
+      body: JSON.stringify({name}),
     });
 
     if (response.status === 401) {
@@ -125,7 +155,9 @@ export class ApiService {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail?.message || errorData.message || 'Failed to revoke API key');
+      throw new Error(
+          errorData.detail?.message || errorData.message ||
+          'Failed to revoke API key');
     }
   }
 
@@ -151,7 +183,9 @@ export class ApiService {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail?.message || errorData.message || 'Failed to get user credits');
+      throw new Error(
+          errorData.detail?.message || errorData.message ||
+          'Failed to get user credits');
     }
 
     return response.json();
@@ -162,13 +196,16 @@ export class ApiService {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail?.message || errorData.message || 'Failed to get pricing info');
+      throw new Error(
+          errorData.detail?.message || errorData.message ||
+          'Failed to get pricing info');
     }
 
     return response.json();
   }
 
-  static async createDepositSession(request: MoneyDepositRequest): Promise<MoneyDepositResponse> {
+  static async createDepositSession(request: MoneyDepositRequest):
+      Promise<MoneyDepositResponse> {
     const token = AuthService.getStoredToken();
     if (!token) {
       throw new Error('No authentication token found');
@@ -193,7 +230,9 @@ export class ApiService {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail?.message || errorData.message || 'Failed to create deposit session');
+      throw new Error(
+          errorData.detail?.message || errorData.message ||
+          'Failed to create deposit session');
     }
 
     return response.json();
@@ -221,14 +260,81 @@ export class ApiService {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail?.message || errorData.message || 'Failed to get usage history');
+      throw new Error(
+          errorData.detail?.message || errorData.message ||
+          'Failed to get usage history');
+    }
+
+    return response.json();
+  }
+
+  static async getDatasets(): Promise<Dataset[]> {
+    const token = AuthService.getStoredToken();
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/datasets`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (response.status === 401) {
+      const refreshResult = await AuthService.refreshToken();
+      if (refreshResult) {
+        return this.getDatasets();
+      }
+      throw new Error('Authentication failed');
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+          errorData.detail?.message || errorData.message ||
+          'Failed to get datasets');
+    }
+
+    return response.json();
+  }
+
+  static async getSamples(dataset?: string): Promise<Sample[]> {
+    const token = AuthService.getStoredToken();
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
+    const url = new URL(`${API_BASE_URL}/samples`);
+    if (dataset) {
+      url.searchParams.append('dataset', dataset);
+    }
+
+    const response = await fetch(url.toString(), {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (response.status === 401) {
+      const refreshResult = await AuthService.refreshToken();
+      if (refreshResult) {
+        return this.getSamples(dataset);
+      }
+      throw new Error('Authentication failed');
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+          errorData.detail?.message || errorData.message ||
+          'Failed to get samples');
     }
 
     return response.json();
   }
 }
 
-export type {
+export type{
   ApiKeyCreateRequest,
   ApiKeyCreateResponse,
   ApiKeyRevokeRequest,
@@ -238,5 +344,7 @@ export type {
   MoneyDepositRequest,
   MoneyDepositResponse,
   UsageTransaction,
-  UsageHistory
+  UsageHistory,
+  Dataset,
+  Sample
 };

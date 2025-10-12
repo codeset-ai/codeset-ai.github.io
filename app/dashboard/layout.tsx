@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { User, Key, Home, CreditCard, BarChart3 } from 'lucide-react';
+import { User, Key, Home, CreditCard, BarChart3, Database } from 'lucide-react';
 
 export default function DashboardLayout({
   children,
@@ -69,6 +69,13 @@ export default function DashboardLayout({
               >
                 <Key size={16} />
                 <span>API Keys</span>
+              </Link>
+              <Link
+                href="/dashboard/datasets"
+                className="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-gray-700 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+              >
+                <Database size={16} />
+                <span>Datasets</span>
               </Link>
               <Link
                 href="/dashboard/credits"

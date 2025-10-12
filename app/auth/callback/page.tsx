@@ -47,7 +47,6 @@ export default function AuthCallback() {
         try {
           console.log(`OAuth attempt ${retryCount + 1}...`);
           const oauthResult = await AuthService.githubOAuth(code, state || undefined);
-          console.log('OAuth successful, result:', oauthResult);
 
           setStatus('success');
 
