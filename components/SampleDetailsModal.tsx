@@ -75,11 +75,11 @@ export default function SampleDetailsModal({ sample, isOpen, onClose }: SampleDe
           Diff - {language}
         </div>
         <div className="overflow-x-auto">
-          <pre className="text-sm">
+          <div className="text-sm">
             {parsedDiff.map((line, index) => (
               <div
                 key={index}
-                className={`px-4 py-1.5 ${
+                className={`px-4 py-1.5 flex ${
                   line.type === 'addition'
                     ? 'bg-green-900 text-green-100'
                     : line.type === 'deletion'
@@ -89,13 +89,13 @@ export default function SampleDetailsModal({ sample, isOpen, onClose }: SampleDe
                     : 'text-gray-300'
                 }`}
               >
-                <span className="inline-block w-10 text-gray-500 text-xs mr-4">
+                <span className="w-12 text-gray-500 text-xs mr-4 flex-shrink-0">
                   {line.lineNumber}
                 </span>
-                {line.content}
+                <span className="break-all font-mono">{line.content}</span>
               </div>
             ))}
-          </pre>
+          </div>
         </div>
       </div>
     );
@@ -129,9 +129,12 @@ export default function SampleDetailsModal({ sample, isOpen, onClose }: SampleDe
             padding: '1rem',
             fontSize: '0.875rem',
             lineHeight: '1.5',
+            wordWrap: 'break-word',
+            whiteSpace: 'pre-wrap',
           }}
           showLineNumbers
           wrapLines
+          wrapLongLines
         >
           {code}
         </SyntaxHighlighter>
@@ -175,7 +178,7 @@ export default function SampleDetailsModal({ sample, isOpen, onClose }: SampleDe
           <div className="mt-3 max-h-60 overflow-y-auto">
             <div className="space-y-1">
               {tests.map((test, index) => (
-                <div key={index} className="text-sm font-mono bg-white bg-opacity-50 p-2 rounded border-l-2 border-current">
+                <div key={index} className="text-sm font-mono bg-white bg-opacity-50 p-2 rounded border-l-2 border-current break-words">
                   {test}
                 </div>
               ))}
@@ -188,7 +191,7 @@ export default function SampleDetailsModal({ sample, isOpen, onClose }: SampleDe
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto border-2 border-gray-300">
+      <DialogContent className="w-[90vw] max-w-7xl max-h-[90vh] overflow-y-auto border-2 border-gray-300">
         <DialogHeader className="border-b border-gray-200 pb-4">
           <DialogTitle className="flex items-center gap-3">
             <FileText size={20} />
@@ -199,15 +202,10 @@ export default function SampleDetailsModal({ sample, isOpen, onClose }: SampleDe
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 p-1">
+        <div className="space-y-6 p-4">
           {/* Basic Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="space-y-3">
-              <div>
-                <h4 className="font-medium text-gray-900 mb-1">Description</h4>
-                <p className="text-sm text-gray-600">{sample.description}</p>
-              </div>
-              
               <div>
                 <h4 className="font-medium text-gray-900 mb-1">Problem Statement</h4>
                 <p className="text-sm text-gray-600">{sample.problem_statement}</p>
@@ -235,10 +233,7 @@ export default function SampleDetailsModal({ sample, isOpen, onClose }: SampleDe
             <div className="space-y-3">
               <div>
                 <h4 className="font-medium text-gray-900 mb-1">Version</h4>
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline">v{sample.version}</Badge>
-                  <span className="text-sm text-gray-600">{sample.version_description}</span>
-                </div>
+                <Badge variant="outline">v{sample.version}</Badge>
               </div>
 
               <div>
