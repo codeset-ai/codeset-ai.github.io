@@ -270,24 +270,7 @@ export class ApiService {
   }
 
   static async getDatasets(): Promise<Dataset[]> {
-    const token = AuthService.getStoredToken();
-    if (!token) {
-      throw new Error('No authentication token found');
-    }
-
-    const response = await fetch(`${API_BASE_URL}/datasets`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-    });
-
-    if (response.status === 401) {
-      const refreshResult = await AuthService.refreshToken();
-      if (refreshResult) {
-        return this.getDatasets();
-      }
-      throw new Error('Authentication failed');
-    }
+    const response = await fetch(`${API_BASE_URL}/datasets`);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -300,35 +283,18 @@ export class ApiService {
   }
 
   static async getSamples(dataset?: string): Promise<Sample[]> {
-    const token = AuthService.getStoredToken();
-    if (!token) {
-      throw new Error('No authentication token found');
-    }
-
     const url = new URL(`${API_BASE_URL}/samples`);
     if (dataset) {
       url.searchParams.append('dataset', dataset);
     }
 
-    const response = await fetch(url.toString(), {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-    });
-
-    if (response.status === 401) {
-      const refreshResult = await AuthService.refreshToken();
-      if (refreshResult) {
-        return this.getSamples(dataset);
-      }
-      throw new Error('Authentication failed');
-    }
+    const response = await fetch(url.toString());
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(
           errorData.detail?.message || errorData.message ||
-          'Failed to get usage history');
+          'Failed to get samples');
     }
 
     return response.json();

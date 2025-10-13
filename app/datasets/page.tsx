@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
 import { ApiService, Dataset, Sample } from '@/lib/api';
 import { Database, FileText, Calendar, Tag, Code, Eye } from 'lucide-react';
 import { toast } from 'sonner';
@@ -9,7 +8,6 @@ import SampleDetailsModal from '@/components/SampleDetailsModal';
 import LandingLayout from '../landing-layout';
 
 export default function DatasetsPage() {
-  const { user } = useAuth();
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [samples, setSamples] = useState<Sample[]>([]);
   const [selectedDataset, setSelectedDataset] = useState<string>('');
@@ -34,10 +32,8 @@ export default function DatasetsPage() {
       }
     };
 
-    if (user) {
-      loadDatasets();
-    }
-  }, [user]);
+    loadDatasets();
+  }, []);
 
   useEffect(() => {
     const loadSamples = async () => {
@@ -95,26 +91,10 @@ export default function DatasetsPage() {
         <div className="max-w-6xl mx-auto px-8">
           <h1 className="text-4xl font-medium mb-8">Datasets</h1>
           <p className="text-gray-600 mb-12 max-w-2xl">
-            Explore our collection of coding problems and solutions across different programming languages.
+          Explore our dataset visualiser, where you can browse the datasets available to use in our platform. Private datasets require signing in.
           </p>
 
-          {!user ? (
-            <div className="text-center py-16">
-              <div className="bg-gray-50 rounded-lg p-8 max-w-md mx-auto">
-                <Database size={48} className="mx-auto text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Sign in required</h3>
-                <p className="text-gray-600 mb-4">
-                  Please sign in to view datasets and samples.
-                </p>
-                <button
-                  onClick={() => window.location.href = '/dashboard'}
-                  className="px-4 py-2 text-sm font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors"
-                >
-                  Sign In
-                </button>
-              </div>
-            </div>
-          ) : loadingDatasets ? (
+          {loadingDatasets ? (
             <div className="text-center py-16">
               <div className="flex items-center justify-center space-x-2">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-black"></div>
