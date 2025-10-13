@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ApiService, Dataset, Sample } from '@/lib/api';
-import { Database, FileText, Calendar, Tag, Code, Eye } from 'lucide-react';
+import { Database, FileText, Calendar, Tag, Code, Eye, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import SampleDetailsModal from '@/components/SampleDetailsModal';
 import LandingLayout from '../landing-layout';
@@ -15,6 +15,11 @@ export default function DatasetsPage() {
   const [loadingSamples, setLoadingSamples] = useState(false);
   const [selectedSample, setSelectedSample] = useState<Sample | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalSamples, setTotalSamples] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
 
   useEffect(() => {
     const loadDatasets = async () => {
@@ -23,6 +28,9 @@ export default function DatasetsPage() {
         setDatasets(datasetsData);
         if (datasetsData.length > 0) {
           setSelectedDataset(datasetsData[0].name);
+          setCurrentPage(1);
+          setSearchQuery('');
+          setDebouncedSearchQuery('');
         }
       } catch (error) {
         console.error('Failed to load datasets:', error);
@@ -40,11 +48,11 @@ export default function DatasetsPage() {
       if (!selectedDataset) return;
 
       setLoadingSamples(true);
-      try {
-        const samplesData = await ApiService.getSamples(selectedDataset);
-        console.log(samplesData);
-        setSamples(samplesData);
-      } catch (error) {
+        try {
+          const response = await ApiService.getSamples(selectedDataset, currentPage, pageSize, debouncedSearchQuery);
+          setSamples(response.samples);
+          setTotalSamples(response.total_count || 0);
+        } catch (error) {
         console.error('Failed to load samples:', error);
         toast.error('Failed to load samples');
       } finally {
@@ -53,7 +61,16 @@ export default function DatasetsPage() {
     };
 
     loadSamples();
-  }, [selectedDataset]);
+  }, [selectedDataset, currentPage, pageSize, debouncedSearchQuery]);
+
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 500); // 500ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'Unknown';
@@ -68,6 +85,24 @@ export default function DatasetsPage() {
     setSelectedSample(sample);
     setIsModalOpen(true);
   };
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPageSize(newPageSize);
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+    setCurrentPage(1);
+  };
+
+  const totalPages = Math.ceil(totalSamples / pageSize);
+  const startIndex = (currentPage - 1) * pageSize + 1;
+  const endIndex = Math.min(currentPage * pageSize, totalSamples);
 
   const getLanguageColor = (language: string) => {
     const colors: { [key: string]: string } = {
@@ -118,7 +153,12 @@ export default function DatasetsPage() {
                   {datasets.map((dataset) => (
                     <button
                       key={dataset.name}
-                      onClick={() => setSelectedDataset(dataset.name)}
+                      onClick={() => {
+                        setSelectedDataset(dataset.name);
+                        setCurrentPage(1);
+                        setSearchQuery('');
+                        setDebouncedSearchQuery('');
+                      }}
                       className={`p-4 rounded-lg border-2 text-left transition-colors ${
                         selectedDataset === dataset.name
                           ? 'border-black bg-white'
@@ -146,7 +186,7 @@ export default function DatasetsPage() {
               {selectedDataset && (
                 <div className="bg-white border border-gray-200 rounded-lg">
                   <div className="p-6 border-b border-gray-200">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mb-4">
                       <div>
                         <h3 className="text-lg font-medium text-gray-900">
                           {selectedDatasetInfo?.name || selectedDataset}
@@ -158,8 +198,20 @@ export default function DatasetsPage() {
                         )}
                       </div>
                       <div className="text-sm text-gray-500">
-                        {samples.length} samples
+                        {totalSamples > 0 ? `${startIndex}-${endIndex} of ${totalSamples} samples` : '0 samples'}
                       </div>
+                    </div>
+                    
+                    {/* Search Input */}
+                    <div className="relative">
+                      <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                      <input
+                        type="text"
+                        placeholder="Search by instance ID..."
+                        value={searchQuery}
+                        onChange={(e) => handleSearchChange(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                      />
                     </div>
                   </div>
 
@@ -227,6 +279,72 @@ export default function DatasetsPage() {
                       <p className="text-gray-600">
                         This dataset doesn't contain any samples yet.
                       </p>
+                    </div>
+                  )}
+
+                  {/* Pagination Controls */}
+                  {samples.length > 0 && (
+                    <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <div className="flex items-center space-x-2">
+                            <label htmlFor="page-size" className="text-sm text-gray-700">
+                              Show:
+                            </label>
+                            <select
+                              id="page-size"
+                              value={pageSize}
+                              onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+                              className="border border-gray-300 rounded px-2 py-1 text-sm"
+                            >
+                              <option value={5}>5</option>
+                              <option value={10}>10</option>
+                              <option value={25}>25</option>
+                              <option value={50}>50</option>
+                            </select>
+                            <span className="text-sm text-gray-700">per page</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            className="p-2 rounded border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+                          >
+                            <ChevronLeft size={16} />
+                          </button>
+                          
+                          <div className="flex items-center space-x-1">
+                            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                              const pageNum = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + i;
+                              if (pageNum > totalPages) return null;
+                              
+                              return (
+                                <button
+                                  key={pageNum}
+                                  onClick={() => handlePageChange(pageNum)}
+                                  className={`px-3 py-1 text-sm rounded ${
+                                    currentPage === pageNum
+                                      ? 'bg-black text-white'
+                                      : 'border border-gray-300 hover:bg-gray-100'
+                                  }`}
+                                >
+                                  {pageNum}
+                                </button>
+                              );
+                            })}
+                          </div>
+
+                          <button
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            className="p-2 rounded border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
+                          >
+                            <ChevronRight size={16} />
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>

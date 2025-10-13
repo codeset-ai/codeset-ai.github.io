@@ -84,8 +84,8 @@ export default function CreditsPage() {
   };
 
   const handleDeposit = async () => {
-    if (depositAmount < 1) {
-      toast.error('Minimum deposit is $1.00');
+    if (depositAmount < 5) {
+      toast.error('Minimum deposit is $5.00');
       return;
     }
 
@@ -321,7 +321,7 @@ export default function CreditsPage() {
                     <input
                       type="number"
                       id="customAmount"
-                      min="1"
+                      min="5"
                       max="10000"
                       value={depositAmount}
                       onChange={(e) => setDepositAmount(Number(e.target.value))}
@@ -351,7 +351,7 @@ export default function CreditsPage() {
               </button>
               <button
                 onClick={handleDeposit}
-                disabled={depositAmount < 1}
+                disabled={depositAmount < 5}
                 className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Add {formatCurrency(depositAmount * 100)}
