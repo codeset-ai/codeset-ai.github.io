@@ -97,6 +97,14 @@ interface Sample {
   fail_to_fail: string[];
 }
 
+interface SampleListResponse {
+  samples: Sample[];
+  total_count: number;
+  page: number;
+  page_size: number;
+  has_more: boolean;
+}
+
 export class ApiService {
   static async createApiKey(name?: string): Promise<ApiKey> {
     const token = AuthService.getStoredToken();
@@ -282,10 +290,21 @@ export class ApiService {
     return response.json();
   }
 
-  static async getSamples(dataset?: string): Promise<Sample[]> {
+  static async getSamples(
+      dataset?: string, page?: number, pageSize?: number,
+      search?: string): Promise<SampleListResponse> {
     const url = new URL(`${API_BASE_URL}/samples`);
     if (dataset) {
       url.searchParams.append('dataset', dataset);
+    }
+    if (search) {
+      url.searchParams.append('search', search);
+    }
+    if (page) {
+      url.searchParams.append('page', page.toString());
+    }
+    if (pageSize) {
+      url.searchParams.append('page_size', pageSize.toString());
     }
 
     const response = await fetch(url.toString());
@@ -313,5 +332,6 @@ export type{
   UsageTransaction,
   UsageHistory,
   Dataset,
-  Sample
+  Sample,
+  SampleListResponse
 };
