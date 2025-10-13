@@ -11,18 +11,28 @@ export default function Home() {
 
   const sdkCode = `from codeset import Codeset
 
+# Initialize client with your API key
+client = Codeset(api_key="your_api_key")
+
 # Create a session for a task
-client = Codeset()
-session = client.sessions.create(sample_id="swe-task-1")
+session = client.sessions.create(
+    dataset="codeset-gym-python",
+    sample_id="mapbox__tilesets-cli-81"
+)
 
-# Agent interacts with the session's environment
-client.sessions.execute_command(session.session_id, command)
+# Execute commands in the environment
+result = client.sessions.execute_command(
+    session_id=session.session_id,
+    command="pytest tests/"
+)
 
-# Check if the state of the session is correct
-verification_result = client.sessions.verify(session)
+# Start verification
+verify = client.sessions.verify.start(
+    session_id=session.session_id
+)
 
-# Log the result and use as a reward signal during training
-print(verification_result)
+# Close session when done
+client.sessions.close(session_id=session.session_id)
 `
 
   return (

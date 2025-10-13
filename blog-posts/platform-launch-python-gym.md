@@ -36,6 +36,7 @@ pip install codeset
 Get started with a simple example:
 ```python
 from codeset import Codeset
+import time
 
 # Initialize client
 client = Codeset(api_key="your_api_key")
@@ -43,17 +44,36 @@ client = Codeset(api_key="your_api_key")
 # Create a session for a Python task
 session = client.sessions.create(
     dataset="codeset-gym-python",
-    sample_id="psf__requests-6091"
+    sample_id="mapbox__tilesets-cli-81"
 )
 
 # Execute commands in the sandboxed environment
 response = client.sessions.execute_command(
     session_id=session.session_id,
-    command="pytest tests/test_requests.py"
+    command="pwd && ls -la"
 )
+print(response.stdout)
 
-# Run verification
-result = client.sessions.verify.start(session_id=session.session_id)
+# Start verification
+verify = client.sessions.verify.start(session_id=session.session_id)
+
+# Poll for verification completion
+while True:
+    status = client.sessions.verify.status(
+        job_id=verify.job_id,
+        session_id=session.session_id
+    )
+    if status.status in ["completed", "error", "cancelled"]:
+        break
+    time.sleep(1)
+
+# Check result
+if status.result:
+    print(f"Success: {status.result.is_success}")
+    print(f"Tests: {status.result.passed}/{status.result.total}")
+
+# Close session
+client.sessions.close(session_id=session.session_id)
 ```
 
 Read our [documentation](https://docs.codeset.ai) to learn more about the SDK, session lifecycle, and verification system.
