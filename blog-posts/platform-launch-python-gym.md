@@ -1,6 +1,6 @@
 ---
 title: "Introducing Codeset Platform and Codeset-Gym"
-date: "2025-10-13"
+date: "2025-10-14"
 excerpt: "Our platform for training and evaluating agentic code models is now live, featuring the first batch of codeset-gym-python containing 1,000 novel SWE tasks from 274 real-world Python repositories."
 ---
 
@@ -10,7 +10,7 @@ We're excited to announce that the Codeset platform is now publicly available, a
 
 **Codeset Platform** provides API access to sandboxed, reproducible environments for training and evaluating code agents. Each environment comes pre-configured with dependencies, test suites, and verification scripts—accessible through a simple Python SDK.
 
-**codeset-gym-python** is our first training dataset: 1,000 real-world bug-fixing tasks spanning 274 Python repositories, complete with issue descriptions, commit history, and comprehensive test suites. These samples are drawn from permissively licensed repositories and include novel tasks not found in existing public datasets. We'll be releasing additional samples in the coming weeks.
+**codeset-gym-python** is our first training dataset: 1,000 real-world bug-fixing tasks spanning 274 Python repositories, complete with issue descriptions, commit history, and comprehensive test suites. These samples are drawn from permissively licensed repositories and include **novel samples** not found in any existing public datasets¹. We'll be releasing additional samples in the coming weeks. **codeset-gym-python** is available on [HF](XXX) and on the **Codeset Platform** from day one!
 
 ## Why This Matters
 
@@ -20,9 +20,9 @@ Our platform spins up isolated containers for each task, handles all dependency 
 
 ## What's Next
 
-We're actively expanding our dataset coverage to additional programming languages (Java, JavaScript, Rust, Go, C++, C#) and task types beyond bug-fixing. Our infrastructure is built on GitBug-Actions, a system for mining and reproducing GitHub repository states with their CI environments intact.
+We're actively expanding our dataset coverage to additional programming languages (Java, JavaScript, Rust, Go, C++, C#) and task types beyond issue resolution. We plan to add support for other publicly available datasets, so that researchers and developers can use our platform as their one-stop-shop of code datasets. We're also building custom datasets on commission for training runs with specific requirements. If you need tailored data for your code models, reach out.
 
-We're also building custom datasets on commission for training runs with specific requirements. If you need tailored data for your code models, reach out.
+In the longer run, we will start rolling out better and stronger verifiers which aim to both reduce the time it takes to verify solutions as well as improve the confidence in the evaluation.
 
 ## Try It Now
 
@@ -59,3 +59,7 @@ result = client.sessions.verify.start(session_id=session.session_id)
 Read our [documentation](https://docs.codeset.ai) to learn more about the SDK, session lifecycle, and verification system.
 
 We're building this for research teams and practitioners working on the next generation of code agents. If that's you, we'd love to hear your feedback.
+
+---
+
+1. nebius/SWE-rebench, SWE-Gym/SWE-Gym, R2E-Gym/R2E-Gym-V1, SWE-bench/SWE-bench, ScaleAI/SWE-bench\_Pro
