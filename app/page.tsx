@@ -17,21 +17,21 @@ client = Codeset(api_key="your_api_key")
 # Create a session for a task
 session = client.sessions.create(
     dataset="codeset-gym-python",
-    sample_id="mapbox__tilesets-cli-81"
+    sample_id="matiasb__python-unidiff-19"
 )
 
-# Execute commands in the environment
+# Interact with the environment
 result = client.sessions.execute_command(
     session_id=session.session_id,
-    command="pytest tests/"
+    command="ls -lah"
 )
 
-# Start verification
+# Start a verification job
 verify = client.sessions.verify.start(
     session_id=session.session_id
 )
 
-# Close session when done
+# Close session
 client.sessions.close(session_id=session.session_id)
 `
 

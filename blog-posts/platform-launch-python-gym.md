@@ -44,13 +44,13 @@ client = Codeset(api_key="your_api_key")
 # Create a session for a Python task
 session = client.sessions.create(
     dataset="codeset-gym-python",
-    sample_id="mapbox__tilesets-cli-81"
+    sample_id="matiasb__python-unidiff-19"
 )
 
 # Execute commands in the sandboxed environment
 response = client.sessions.execute_command(
     session_id=session.session_id,
-    command="pwd && ls -la"
+    command="ls -lah"
 )
 print(response.stdout)
 
