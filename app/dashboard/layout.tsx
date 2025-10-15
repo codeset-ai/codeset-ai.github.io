@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { User, Key, Home, CreditCard, BarChart3, LogOut } from 'lucide-react';
+import { User, Key, Home, CreditCard, BarChart3, LogOut, BookOpen } from 'lucide-react';
 
 export default function DashboardLayout({
   children,
@@ -49,6 +49,15 @@ export default function DashboardLayout({
               <User size={16} />
               <span>{user.name}</span>
             </div>
+            <Link
+              href="https://docs.codeset.ai"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+            >
+              <BookOpen size={16} />
+              <span>Docs</span>
+            </Link>
             <button
               onClick={logout}
               className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
