@@ -1,7 +1,7 @@
 ---
 title: "Introducing Codeset Platform and Codeset-Gym"
-date: "2025-10-14"
-excerpt: "Our platform for training and evaluating agentic code models is now live, featuring the first batch of codeset-gym-python containing 1,000 novel SWE tasks from 274 real-world Python repositories."
+date: "2025-10-15"
+excerpt: "Our platform for training and evaluating agentic code models is now live, featuring the first batch of codeset-gym-python containing 1,000 novel SWE tasks from 291 real-world Python repositories."
 ---
 
 We're excited to announce that the Codeset platform is now publicly available, along with our first dataset: **codeset-gym-python**.
@@ -10,7 +10,7 @@ We're excited to announce that the Codeset platform is now publicly available, a
 
 **Codeset Platform** provides API access to sandboxed, reproducible environments for training and evaluating code agents. Each environment comes pre-configured with dependencies, test suites, and verification scripts—accessible through a simple Python SDK.
 
-**codeset-gym-python** is our first training dataset: 1,000 real-world bug-fixing tasks spanning 274 Python repositories, complete with issue descriptions, commit history, and comprehensive test suites. These samples are drawn from permissively licensed repositories and include **novel samples** not found in any existing public datasets¹. We'll be releasing additional samples in the coming weeks. **codeset-gym-python** is available on [HF](XXX) and on the **Codeset Platform** from day one!
+**codeset-gym-python** is our first training dataset: 1,000 real-world bug-fixing tasks spanning 291 Python repositories, complete with issue descriptions, commit history, and comprehensive test suites. These samples are drawn from permissively licensed repositories and include **novel samples** not found in any existing public datasets¹. We'll be releasing additional samples in the coming weeks. **codeset-gym-python** is available on [HF](https://huggingface.co/datasets/codeset/codeset-gym-python) and on the **Codeset Platform** from day one!
 
 ## Why This Matters
 
