@@ -50,7 +50,6 @@ function AuthCallbackContent() {
 
           setStatus('success');
 
-          // Give the token a moment to be valid, then update user data and redirect
           setTimeout(async () => {
             console.log('Refreshing user data after delay...');
             await refreshUser();
@@ -60,14 +59,12 @@ function AuthCallbackContent() {
         } catch (err) {
           console.error(`OAuth attempt ${retryCount + 1} failed:`, err);
 
-          // Retry once if it's the first attempt
           if (retryCount === 0) {
             console.log('Retrying OAuth in 1 second...');
             setTimeout(() => attemptOAuth(1), 1000);
             return;
           }
 
-          // After retries failed, show error
           console.error('All OAuth attempts failed');
           setError(err instanceof Error ? err.message : 'Authentication failed');
           setStatus('error');

@@ -105,6 +105,55 @@ interface SampleListResponse {
   has_more: boolean;
 }
 
+interface GitHubRepoItem {
+  full_name: string;
+  private: boolean;
+  html_url: string;
+}
+
+interface GitHubReposResponse {
+  repos: GitHubRepoItem[];
+}
+
+interface AgentJobCreateRequest {
+  repo: string;
+  ref?: string;
+  agent_id: string;
+}
+
+interface AgentJobCreateResponse {
+  job_id: string;
+  status: string;
+}
+
+interface AgentJobListItem {
+  job_id: string;
+  repo: string;
+  status: string;
+  created_at: string;
+  progress_pct?: number;
+  progress_stage?: string;
+  completed_at?: string;
+  error_message?: string;
+}
+
+interface AgentJobListResponse {
+  jobs: AgentJobListItem[];
+  has_more: boolean;
+  next_cursor?: string;
+}
+
+interface AgentJobResponse {
+  job_id: string;
+  status: string;
+  created_at: string;
+  progress_pct?: number;
+  progress_stage?: string;
+  result_available: boolean;
+  completed_at?: string;
+  error_message?: string;
+}
+
 export class ApiService {
   static async createApiKey(name?: string): Promise<ApiKey> {
     const token = AuthService.getStoredToken();
@@ -318,6 +367,133 @@ export class ApiService {
 
     return response.json();
   }
+
+  static async getRepos(): Promise<GitHubReposResponse> {
+    const token = AuthService.getStoredToken();
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+    const response = await fetch(`${API_BASE_URL}/repos`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    if (response.status === 401) {
+      const refreshResult = await AuthService.refreshToken();
+      if (refreshResult) return this.getRepos();
+      throw new Error('Authentication failed');
+    }
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const code = errorData.detail?.code ?? errorData.code;
+      const message = errorData.detail?.message ?? errorData.message ?? 'Failed to get repos';
+      const err = new Error(message) as Error & { code?: string };
+      if (code) err.code = code;
+      throw err;
+    }
+    return response.json();
+  }
+
+  static async createAgentJob(
+    repo: string,
+    agentId: string,
+    ref?: string
+  ): Promise<AgentJobCreateResponse> {
+    const token = AuthService.getStoredToken();
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+    const body: AgentJobCreateRequest = { repo, agent_id: agentId };
+    if (ref) body.ref = ref;
+    const response = await fetch(`${API_BASE_URL}/agent-jobs`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+    if (response.status === 401) {
+      const refreshResult = await AuthService.refreshToken();
+      if (refreshResult) return this.createAgentJob(repo, agentId, ref);
+      throw new Error('Authentication failed');
+    }
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const code = errorData.detail?.code || errorData.code;
+      const message = errorData.detail?.message || errorData.message || 'Failed to create agent job';
+      const err = new Error(message) as Error & { code?: string };
+      if (code) err.code = code;
+      throw err;
+    }
+    return response.json();
+  }
+
+  static async getAgentJob(jobId: string): Promise<AgentJobResponse> {
+    const token = AuthService.getStoredToken();
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+    const response = await fetch(`${API_BASE_URL}/agent-jobs/${jobId}`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    if (response.status === 401) {
+      const refreshResult = await AuthService.refreshToken();
+      if (refreshResult) return this.getAgentJob(jobId);
+      throw new Error('Authentication failed');
+    }
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.detail?.message || errorData.message || 'Failed to get agent job');
+    }
+    return response.json();
+  }
+
+  static async listAgentJobs(
+    limit?: number,
+    cursor?: string
+  ): Promise<AgentJobListResponse> {
+    const token = AuthService.getStoredToken();
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+    const url = new URL(`${API_BASE_URL}/agent-jobs`);
+    if (limit != null) url.searchParams.set('limit', String(limit));
+    if (cursor) url.searchParams.set('cursor', cursor);
+    const response = await fetch(url.toString(), {
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    if (response.status === 401) {
+      const refreshResult = await AuthService.refreshToken();
+      if (refreshResult) return this.listAgentJobs(limit, cursor);
+      throw new Error('Authentication failed');
+    }
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.detail?.message || errorData.message || 'Failed to list agent jobs');
+    }
+    return response.json();
+  }
+
+  static async getAgentJobResultDownloadUrl(jobId: string): Promise<string> {
+    const token = AuthService.getStoredToken();
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+    const response = await fetch(`${API_BASE_URL}/agent-jobs/${jobId}/result`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+      redirect: 'follow',
+    });
+    if (response.status === 401) {
+      const refreshResult = await AuthService.refreshToken();
+      if (refreshResult) return this.getAgentJobResultDownloadUrl(jobId);
+      throw new Error('Authentication failed');
+    }
+    if (!response.ok) {
+      throw new Error('Result not available');
+    }
+    return response.url;
+  }
 }
 
 export type{
@@ -333,5 +509,12 @@ export type{
   UsageHistory,
   Dataset,
   Sample,
-  SampleListResponse
+  SampleListResponse,
+  GitHubRepoItem,
+  GitHubReposResponse,
+  AgentJobCreateRequest,
+  AgentJobCreateResponse,
+  AgentJobListItem,
+  AgentJobListResponse,
+  AgentJobResponse,
 };

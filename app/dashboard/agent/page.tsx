@@ -1,0 +1,361 @@
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
+import {
+  ApiService,
+  GitHubRepoItem,
+  AgentJobListItem,
+  AgentJobResponse,
+} from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
+import { Bot, Download, AlertCircle, Loader2 } from 'lucide-react';
+
+const POLL_INTERVAL_MS = 3000;
+const GITHUB_APP_INSTALL_URL =
+  process.env.NEXT_PUBLIC_GITHUB_APP_INSTALL_URL || '';
+
+export default function AgentPage() {
+  const { user } = useAuth();
+  const [repos, setRepos] = useState<GitHubRepoItem[]>([]);
+  const [reposLoading, setReposLoading] = useState(true);
+  const [reposError, setReposError] = useState<string | null>(null);
+  const [appNotInstalled, setAppNotInstalled] = useState(false);
+  const [selectedRepo, setSelectedRepo] = useState('');
+  const [ref, setRef] = useState('');
+  const [agentId, setAgentId] = useState('');
+  const [createLoading, setCreateLoading] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [currentJobId, setCurrentJobId] = useState<string | null>(null);
+  const [jobStatus, setJobStatus] = useState<AgentJobResponse | null>(null);
+  const [downloadLoading, setDownloadLoading] = useState(false);
+  const [jobs, setJobs] = useState<AgentJobListItem[]>([]);
+  const [jobsLoading, setJobsLoading] = useState(false);
+
+  const loadRepos = useCallback(async () => {
+    setReposLoading(true);
+    setReposError(null);
+    setAppNotInstalled(false);
+    try {
+      const data = await ApiService.getRepos();
+      setRepos(data.repos ?? []);
+    } catch (err) {
+      setRepos([]);
+      const code = (err as Error & { code?: string }).code;
+      const message = err instanceof Error ? err.message : 'Failed to load repos';
+      setReposError(message);
+      setAppNotInstalled(
+        !!code ||
+        /install|not installed|github app/i.test(message)
+      );
+    } finally {
+      setReposLoading(false);
+    }
+  }, []);
+
+  const loadJobs = useCallback(async () => {
+    try {
+      setJobsLoading(true);
+      const data = await ApiService.listAgentJobs(20);
+      setJobs(data.jobs || []);
+    } catch {
+      setJobs([]);
+    } finally {
+      setJobsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      loadRepos();
+      loadJobs();
+    }
+  }, [user, loadRepos, loadJobs]);
+
+  useEffect(() => {
+    if (!currentJobId) return;
+    const status = jobStatus?.status;
+    if (status === 'completed' || status === 'error') return;
+
+    const poll = async () => {
+      try {
+        const next = await ApiService.getAgentJob(currentJobId);
+        setJobStatus(next);
+        if (next.status === 'completed' || next.status === 'error') {
+          loadJobs();
+        }
+      } catch {
+        setJobStatus(null);
+      }
+    };
+
+    const t = setInterval(poll, POLL_INTERVAL_MS);
+    poll();
+    return () => clearInterval(t);
+  }, [currentJobId, jobStatus?.status, loadJobs]);
+
+  const handleRunAgent = async () => {
+    if (!selectedRepo || !agentId.trim()) {
+      setCreateError('Select a repository and enter an agent id.');
+      return;
+    }
+    try {
+      setCreateLoading(true);
+      setCreateError(null);
+      const res = await ApiService.createAgentJob(
+        selectedRepo,
+        agentId.trim(),
+        ref.trim() || undefined
+      );
+      setCurrentJobId(res.job_id);
+      setJobStatus({
+        job_id: res.job_id,
+        status: res.status,
+        created_at: new Date().toISOString(),
+        result_available: false,
+      });
+      loadJobs();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to create job';
+      const code = (err as Error & { code?: string }).code;
+      setCreateError(message);
+      if (code === 'GITHUB_APP_NOT_INSTALLED' && GITHUB_APP_INSTALL_URL) {
+        setReposError('Install the Codeset GitHub App on this repository.');
+      }
+    } finally {
+      setCreateLoading(false);
+    }
+  };
+
+  const handleDownloadResult = async (jobId: string) => {
+    try {
+      setDownloadLoading(true);
+      const url = await ApiService.getAgentJobResultDownloadUrl(jobId);
+      window.open(url, '_blank');
+    } catch {
+      setCreateError('Download failed or result not available.');
+    } finally {
+      setDownloadLoading(false);
+    }
+  };
+
+  const needInstallApp = !reposLoading && repos.length === 0;
+
+  if (!user) return null;
+
+  return (
+    <div className="space-y-8">
+      <h1 className="text-2xl font-bold text-gray-900">Agent</h1>
+
+      {reposLoading ? (
+        <div className="flex items-center gap-2 text-gray-600">
+          <Loader2 size={18} className="animate-spin" />
+          Loading…
+        </div>
+      ) : needInstallApp && (appNotInstalled || GITHUB_APP_INSTALL_URL) ? (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
+          <p className="font-medium text-amber-800">
+            Install the Codeset GitHub App to select repositories and run the agent.
+          </p>
+          {GITHUB_APP_INSTALL_URL ? (
+            <>
+              <a
+                href={GITHUB_APP_INSTALL_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-flex items-center gap-2 rounded-md bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700"
+              >
+                <Bot size={16} />
+                Install the Codeset GitHub App
+              </a>
+              <p className="mt-2 text-sm text-amber-700">
+                After installing, refresh this page to see your repositories.
+              </p>
+            </>
+          ) : (
+            <p className="mt-2 text-sm text-amber-700">{reposError}</p>
+          )}
+        </div>
+      ) : needInstallApp && reposError ? (
+        <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800">
+          <AlertCircle size={18} />
+          {reposError}
+        </div>
+      ) : null}
+
+      {!reposLoading && repos.length > 0 && (
+        <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+          <h2 className="mb-4 text-lg font-semibold text-gray-900">
+            Run agent
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                Repository
+              </label>
+              <select
+                value={selectedRepo}
+                onChange={(e) => setSelectedRepo(e.target.value)}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+              >
+                <option value="">Select a repository</option>
+                {repos.map((r) => (
+                  <option key={r.full_name} value={r.full_name}>
+                    {r.full_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                Agent ID
+              </label>
+              <input
+                type="text"
+                value={agentId}
+                onChange={(e) => setAgentId(e.target.value)}
+                placeholder="e.g. cursor"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                Ref / branch (optional)
+              </label>
+              <input
+                type="text"
+                value={ref}
+                onChange={(e) => setRef(e.target.value)}
+                placeholder="e.g. main"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+              />
+            </div>
+          </div>
+          {createError && (
+            <div className="mt-3 flex items-center gap-2 text-sm text-red-600">
+              <AlertCircle size={16} />
+              {createError}
+              {GITHUB_APP_INSTALL_URL &&
+                createError.toLowerCase().includes('install') && (
+                  <a
+                    href={GITHUB_APP_INSTALL_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline"
+                  >
+                    Install app
+                  </a>
+                )}
+            </div>
+          )}
+          <button
+            onClick={handleRunAgent}
+            disabled={createLoading}
+            className="mt-4 flex items-center gap-2 rounded-md bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
+          >
+            {createLoading ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              <Bot size={16} />
+            )}
+            Run agent
+          </button>
+        </div>
+      )}
+
+      {currentJobId && jobStatus && (
+        <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+          <h2 className="mb-3 text-lg font-semibold text-gray-900">
+            Current job
+          </h2>
+          <div className="space-y-2 text-sm">
+            <p>
+              <span className="font-medium">Job ID:</span> {jobStatus.job_id}
+            </p>
+            <p>
+              <span className="font-medium">Status:</span> {jobStatus.status}
+            </p>
+            {jobStatus.progress_pct != null && (
+              <p>
+                <span className="font-medium">Progress:</span>{' '}
+                {jobStatus.progress_pct}%
+                {jobStatus.progress_stage
+                  ? ` — ${jobStatus.progress_stage}`
+                  : ''}
+              </p>
+            )}
+            {jobStatus.error_message && (
+              <p className="text-red-600">{jobStatus.error_message}</p>
+            )}
+            {jobStatus.status === 'completed' &&
+              jobStatus.result_available && (
+                <button
+                  onClick={() => handleDownloadResult(jobStatus.job_id)}
+                  disabled={downloadLoading}
+                  className="mt-2 flex items-center gap-2 rounded-md border border-gray-300 px-3 py-2 text-sm hover:bg-gray-50 disabled:opacity-50"
+                >
+                  {downloadLoading ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    <Download size={14} />
+                  )}
+                  Download result
+                </button>
+              )}
+          </div>
+        </div>
+      )}
+
+      <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+        <h2 className="mb-3 text-lg font-semibold text-gray-900">
+          Job history
+        </h2>
+        {jobsLoading ? (
+          <div className="flex items-center gap-2 text-gray-600">
+            <Loader2 size={16} className="animate-spin" />
+            Loading…
+          </div>
+        ) : jobs.length === 0 ? (
+          <p className="text-sm text-gray-500">No jobs yet.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-200 text-left text-gray-600">
+                  <th className="pb-2 pr-4">Job ID</th>
+                  <th className="pb-2 pr-4">Repo</th>
+                  <th className="pb-2 pr-4">Status</th>
+                  <th className="pb-2 pr-4">Created</th>
+                  <th className="pb-2"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {jobs.map((j) => (
+                  <tr key={j.job_id} className="border-b border-gray-100">
+                    <td className="py-2 pr-4 font-mono text-xs">{j.job_id}</td>
+                    <td className="py-2 pr-4">{j.repo}</td>
+                    <td className="py-2 pr-4">{j.status}</td>
+                    <td className="py-2 pr-4 text-gray-500">
+                      {new Date(j.created_at).toLocaleString()}
+                    </td>
+                    <td className="py-2">
+                      {j.status === 'completed' && (
+                        <button
+                          onClick={() => handleDownloadResult(j.job_id)}
+                          disabled={downloadLoading}
+                          className="flex items-center gap-1 text-gray-600 hover:text-black disabled:opacity-50"
+                        >
+                          <Download size={14} />
+                          Download
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

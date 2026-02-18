@@ -153,7 +153,7 @@ export class AuthService {
     this.clearTokens();
   }
 
-  static getGitHubOAuthUrl(): string {
+  static getGitHubOAuthUrl(state?: string): string {
     const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID;
     if (!clientId) {
       throw new Error('GitHub client ID not configured');
@@ -163,7 +163,7 @@ export class AuthService {
       client_id: clientId,
       redirect_uri: `${window.location.origin}/auth/callback`,
       scope: 'user:email',
-      state: Math.random().toString(36).substring(7),
+      state: state ?? Math.random().toString(36).substring(7),
     });
 
     return `https://github.com/login/oauth/authorize?${params.toString()}`;

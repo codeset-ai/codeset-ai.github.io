@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useState } from "react"
-import { Menu, X, User, LogOut } from "lucide-react"
+import { Menu, X, User, LogOut, Bot } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 
 export default function Header() {
@@ -50,6 +50,10 @@ export default function Header() {
                 <Link href="/dashboard" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
                   <User size={16} />
                   {user.name}
+                </Link>
+                <Link href="/dashboard/agent" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
+                  <Bot size={16} />
+                  Agent
                 </Link>
                 <button
                   onClick={logout}
@@ -148,6 +152,14 @@ export default function Header() {
                     >
                       <User size={18} />
                       Dashboard
+                    </Link>
+                    <Link
+                      href="/dashboard/agent"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 text-lg font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Bot size={18} />
+                      Agent
                     </Link>
                     <button
                       onClick={() => {
