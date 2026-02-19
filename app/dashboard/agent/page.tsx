@@ -6,9 +6,20 @@ import {
   GitHubRepoItem,
   AgentJobListItem,
   AgentJobResponse,
+  PricingInfo,
 } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { Bot, Download, AlertCircle, Loader2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const POLL_INTERVAL_MS = 3000;
 const GITHUB_APP_INSTALL_URL =
@@ -30,6 +41,11 @@ export default function AgentPage() {
   const [downloadLoading, setDownloadLoading] = useState(false);
   const [jobs, setJobs] = useState<AgentJobListItem[]>([]);
   const [jobsLoading, setJobsLoading] = useState(false);
+  const [pricing, setPricing] = useState<PricingInfo | null>(null);
+  const [showRunConfirm, setShowRunConfirm] = useState(false);
+
+  const formatCurrency = (cents: number) =>
+    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
 
   const loadRepos = useCallback(async () => {
     setReposLoading(true);
@@ -64,12 +80,22 @@ export default function AgentPage() {
     }
   }, []);
 
+  const loadPricing = useCallback(async () => {
+    try {
+      const data = await ApiService.getPricingInfo();
+      setPricing(data);
+    } catch {
+      setPricing(null);
+    }
+  }, []);
+
   useEffect(() => {
     if (user) {
       loadRepos();
       loadJobs();
+      loadPricing();
     }
-  }, [user, loadRepos, loadJobs]);
+  }, [user, loadRepos, loadJobs, loadPricing]);
 
   useEffect(() => {
     if (!currentJobId) return;
@@ -93,11 +119,12 @@ export default function AgentPage() {
     return () => clearInterval(t);
   }, [currentJobId, jobStatus?.status, loadJobs]);
 
-  const handleRunAgent = async () => {
+  const runAgent = async () => {
     if (!selectedRepo || !agentId.trim()) {
       setCreateError('Select a repository and enter an agent id.');
       return;
     }
+    setShowRunConfirm(false);
     try {
       setCreateLoading(true);
       setCreateError(null);
@@ -126,11 +153,29 @@ export default function AgentPage() {
     }
   };
 
+  const handleRunAgentClick = () => {
+    if (!selectedRepo || !agentId.trim()) {
+      setCreateError('Select a repository and enter an agent id.');
+      return;
+    }
+    if (pricing?.agent_job_cost_cents != null) {
+      setShowRunConfirm(true);
+    } else {
+      runAgent();
+    }
+  };
+
   const handleDownloadResult = async (jobId: string) => {
     try {
       setDownloadLoading(true);
-      const url = await ApiService.getAgentJobResultDownloadUrl(jobId);
-      window.open(url, '_blank');
+      setCreateError(null);
+      const { blob, filename } = await ApiService.getAgentJobResultBlob(jobId);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
     } catch {
       setCreateError('Download failed or result not available.');
     } finally {
@@ -230,6 +275,11 @@ export default function AgentPage() {
               />
             </div>
           </div>
+          {pricing?.agent_job_cost_cents != null && (
+            <p className="mt-2 text-sm text-gray-600">
+              Each run costs {formatCurrency(pricing.agent_job_cost_cents)}.
+            </p>
+          )}
           {createError && (
             <div className="mt-3 flex items-center gap-2 text-sm text-red-600">
               <AlertCircle size={16} />
@@ -248,7 +298,7 @@ export default function AgentPage() {
             </div>
           )}
           <button
-            onClick={handleRunAgent}
+            onClick={handleRunAgentClick}
             disabled={createLoading}
             className="mt-4 flex items-center gap-2 rounded-md bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
           >
@@ -261,6 +311,25 @@ export default function AgentPage() {
           </button>
         </div>
       )}
+
+      <AlertDialog open={showRunConfirm} onOpenChange={setShowRunConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm agent run</AlertDialogTitle>
+            <AlertDialogDescription>
+              {pricing?.agent_job_cost_cents != null
+                ? `You will be charged ${formatCurrency(pricing.agent_job_cost_cents)} for this run. This amount will be deducted from your balance.`
+                : 'Run this agent job?'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={runAgent} disabled={createLoading}>
+              Confirm
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {currentJobId && jobStatus && (
         <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">

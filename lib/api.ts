@@ -32,6 +32,8 @@ interface UserCredits {
 interface PricingInfo {
   cost_per_minute_cents: number;
   cost_per_minute_dollars: number;
+  agent_job_cost_cents?: number;
+  agent_job_cost_dollars?: number;
 }
 
 interface MoneyDepositRequest {
@@ -47,12 +49,32 @@ interface MoneyDepositResponse {
 
 interface UsageTransaction {
   id: string;
-  type: 'deposit'|'session_usage'|'refund';
+  type: 'deposit'|'session_usage'|'refund'|'agent_job_usage'|'agent_job_refund';
   amount_cents: number;
   description: string;
   created_at: string;
   session_id?: string;
   duration_minutes?: number;
+  job_id?: string;
+}
+
+interface UsageHistoryPagination {
+  current_page: number;
+  total_pages: number;
+  total_items: number;
+  items_per_page: number;
+  has_previous: boolean;
+  has_next: boolean;
+}
+
+interface UsageHistorySummary {
+  total_sessions: number;
+  total_deposits?: number;
+  total_agent_jobs?: number;
+  average_session_cost_cents: number;
+  average_agent_job_cost_cents?: number;
+  total_session_duration_minutes?: number;
+  average_session_duration_minutes?: number;
 }
 
 interface UsageHistory {
@@ -60,11 +82,8 @@ interface UsageHistory {
   total_deposits_cents: number;
   total_usage_cents: number;
   transactions: UsageTransaction[];
-  summary: {
-    total_sessions: number; average_session_cost_cents: number;
-    total_session_duration_minutes: number;
-    average_session_duration_minutes: number;
-  };
+  summary: UsageHistorySummary;
+  pagination: UsageHistoryPagination;
 }
 
 interface Dataset {
@@ -107,6 +126,7 @@ interface SampleListResponse {
 
 interface GitHubRepoItem {
   full_name: string;
+
   private: boolean;
   html_url: string;
 }
@@ -374,7 +394,7 @@ export class ApiService {
       throw new Error('No authentication token found');
     }
     const response = await fetch(`${API_BASE_URL}/repos`, {
-      headers: { 'Authorization': `Bearer ${token}` },
+      headers: {'Authorization': `Bearer ${token}`},
     });
     if (response.status === 401) {
       const refreshResult = await AuthService.refreshToken();
@@ -384,24 +404,22 @@ export class ApiService {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       const code = errorData.detail?.code ?? errorData.code;
-      const message = errorData.detail?.message ?? errorData.message ?? 'Failed to get repos';
-      const err = new Error(message) as Error & { code?: string };
+      const message = errorData.detail?.message ?? errorData.message ??
+          'Failed to get repos';
+      const err = new Error(message) as Error & {code?: string};
       if (code) err.code = code;
       throw err;
     }
     return response.json();
   }
 
-  static async createAgentJob(
-    repo: string,
-    agentId: string,
-    ref?: string
-  ): Promise<AgentJobCreateResponse> {
+  static async createAgentJob(repo: string, agentId: string, ref?: string):
+      Promise<AgentJobCreateResponse> {
     const token = AuthService.getStoredToken();
     if (!token) {
       throw new Error('No authentication token found');
     }
-    const body: AgentJobCreateRequest = { repo, agent_id: agentId };
+    const body: AgentJobCreateRequest = {repo, agent_id: agentId};
     if (ref) body.ref = ref;
     const response = await fetch(`${API_BASE_URL}/agent-jobs`, {
       method: 'POST',
@@ -419,8 +437,9 @@ export class ApiService {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       const code = errorData.detail?.code || errorData.code;
-      const message = errorData.detail?.message || errorData.message || 'Failed to create agent job';
-      const err = new Error(message) as Error & { code?: string };
+      const message = errorData.detail?.message || errorData.message ||
+          'Failed to create agent job';
+      const err = new Error(message) as Error & {code?: string};
       if (code) err.code = code;
       throw err;
     }
@@ -433,7 +452,7 @@ export class ApiService {
       throw new Error('No authentication token found');
     }
     const response = await fetch(`${API_BASE_URL}/agent-jobs/${jobId}`, {
-      headers: { 'Authorization': `Bearer ${token}` },
+      headers: {'Authorization': `Bearer ${token}`},
     });
     if (response.status === 401) {
       const refreshResult = await AuthService.refreshToken();
@@ -443,15 +462,14 @@ export class ApiService {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(
-        errorData.detail?.message || errorData.message || 'Failed to get agent job');
+          errorData.detail?.message || errorData.message ||
+          'Failed to get agent job');
     }
     return response.json();
   }
 
-  static async listAgentJobs(
-    limit?: number,
-    cursor?: string
-  ): Promise<AgentJobListResponse> {
+  static async listAgentJobs(limit?: number, cursor?: string):
+      Promise<AgentJobListResponse> {
     const token = AuthService.getStoredToken();
     if (!token) {
       throw new Error('No authentication token found');
@@ -460,7 +478,7 @@ export class ApiService {
     if (limit != null) url.searchParams.set('limit', String(limit));
     if (cursor) url.searchParams.set('cursor', cursor);
     const response = await fetch(url.toString(), {
-      headers: { 'Authorization': `Bearer ${token}` },
+      headers: {'Authorization': `Bearer ${token}`},
     });
     if (response.status === 401) {
       const refreshResult = await AuthService.refreshToken();
@@ -470,29 +488,34 @@ export class ApiService {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(
-        errorData.detail?.message || errorData.message || 'Failed to list agent jobs');
+          errorData.detail?.message || errorData.message ||
+          'Failed to list agent jobs');
     }
     return response.json();
   }
 
-  static async getAgentJobResultDownloadUrl(jobId: string): Promise<string> {
+  static async getAgentJobResultBlob(jobId: string):
+      Promise<{blob: Blob; filename: string}> {
     const token = AuthService.getStoredToken();
     if (!token) {
       throw new Error('No authentication token found');
     }
     const response = await fetch(`${API_BASE_URL}/agent-jobs/${jobId}/result`, {
-      headers: { 'Authorization': `Bearer ${token}` },
-      redirect: 'follow',
+      headers: {'Authorization': `Bearer ${token}`},
     });
     if (response.status === 401) {
       const refreshResult = await AuthService.refreshToken();
-      if (refreshResult) return this.getAgentJobResultDownloadUrl(jobId);
+      if (refreshResult) return this.getAgentJobResultBlob(jobId);
       throw new Error('Authentication failed');
     }
     if (!response.ok) {
       throw new Error('Result not available');
     }
-    return response.url;
+    const blob = await response.blob();
+    const disposition = response.headers.get('Content-Disposition');
+    const filenameMatch = disposition?.match(/filename="?([^";]+)"?/);
+    const filename = filenameMatch?.[1]?.trim() || `${jobId}.tar.gz`;
+    return {blob, filename};
   }
 }
 

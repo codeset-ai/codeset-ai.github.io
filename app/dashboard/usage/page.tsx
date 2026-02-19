@@ -146,16 +146,23 @@ export default function UsagePage() {
 
           <div>
             <div className="text-lg font-medium text-gray-900">
-              {formatDuration(usageData.summary.total_session_duration_minutes)}
+              {formatDuration(usageData.summary.total_session_duration_minutes ?? 0)}
             </div>
             <div className="text-sm text-gray-600">Total Session Time</div>
           </div>
 
           <div>
             <div className="text-lg font-medium text-gray-900">
-              {formatDuration(usageData.summary.average_session_duration_minutes)}
+              {formatDuration(usageData.summary.average_session_duration_minutes ?? 0)}
             </div>
             <div className="text-sm text-gray-600">Average Session Duration</div>
+          </div>
+
+          <div>
+            <div className="text-lg font-medium text-gray-900">
+              {usageData.summary.total_agent_jobs ?? 0}
+            </div>
+            <div className="text-sm text-gray-600">Agent jobs</div>
           </div>
         </div>
       </div>
@@ -197,6 +204,10 @@ export default function UsagePage() {
                           ? 'bg-green-100 text-green-800'
                           : transaction.type === 'refund'
                           ? 'bg-blue-100 text-blue-800'
+                          : transaction.type === 'agent_job_refund'
+                          ? 'bg-blue-100 text-blue-800'
+                          : transaction.type === 'agent_job_usage'
+                          ? 'bg-amber-100 text-amber-800'
                           : 'bg-red-100 text-red-800'
                       }`}
                     >
@@ -204,7 +215,11 @@ export default function UsagePage() {
                         ? 'Deposit'
                         : transaction.type === 'refund'
                         ? 'Refund'
-                        : 'Session Usage'}
+                        : transaction.type === 'agent_job_usage'
+                        ? 'Agent job'
+                        : transaction.type === 'agent_job_refund'
+                        ? 'Agent job refund'
+                        : 'Session usage'}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-900">
