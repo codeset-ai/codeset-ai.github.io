@@ -21,7 +21,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
-const POLL_INTERVAL_MS = 3000;
+const POLL_INTERVAL_MS = 15_000;
 const GITHUB_APP_INSTALL_URL =
   process.env.NEXT_PUBLIC_GITHUB_APP_INSTALL_URL || '';
 
@@ -41,6 +41,7 @@ export default function AgentPage() {
   const [downloadLoading, setDownloadLoading] = useState(false);
   const [jobs, setJobs] = useState<AgentJobListItem[]>([]);
   const [jobsLoading, setJobsLoading] = useState(false);
+  const [jobDetails, setJobDetails] = useState<Record<string, AgentJobResponse>>({});
   const [pricing, setPricing] = useState<PricingInfo | null>(null);
   const [showRunConfirm, setShowRunConfirm] = useState(false);
 
@@ -97,27 +98,52 @@ export default function AgentPage() {
     }
   }, [user, loadRepos, loadJobs, loadPricing]);
 
+  const terminalStatuses = ['completed', 'error'];
+  const isTerminal = (s: string) => terminalStatuses.includes(s);
+  const runningJobs = jobs.filter((j) => !isTerminal(j.status));
+  const completedJobs = jobs.filter((j) => isTerminal(j.status));
+  const runningDisplayList: AgentJobListItem[] =
+    currentJobId &&
+    (!jobStatus?.status || !isTerminal(jobStatus.status)) &&
+    !runningJobs.some((j) => j.job_id === currentJobId)
+      ? [
+          {
+            job_id: currentJobId,
+            repo: selectedRepo || '—',
+            status: jobStatus?.status ?? 'pending',
+            created_at: jobStatus?.created_at ?? new Date().toISOString(),
+          },
+          ...runningJobs,
+        ]
+      : runningJobs;
+  const hasRunningJobs = runningDisplayList.length > 0;
+
   useEffect(() => {
-    if (!currentJobId) return;
-    const status = jobStatus?.status;
-    if (status === 'completed' || status === 'error') return;
+    if (!hasRunningJobs) return;
 
     const poll = async () => {
-      try {
-        const next = await ApiService.getAgentJob(currentJobId);
-        setJobStatus(next);
-        if (next.status === 'completed' || next.status === 'error') {
-          loadJobs();
-        }
-      } catch {
-        setJobStatus(null);
-      }
+      const ids = runningDisplayList.map((j) => j.job_id);
+      const results = await Promise.allSettled(
+        ids.map((id) => ApiService.getAgentJob(id))
+      );
+      let anyTerminal = false;
+      setJobDetails((prev) => {
+        const next = { ...prev };
+        results.forEach((r, i) => {
+          if (r.status === 'fulfilled') {
+            next[ids[i]] = r.value;
+            if (isTerminal(r.value.status)) anyTerminal = true;
+          }
+        });
+        return next;
+      });
+      if (anyTerminal) loadJobs();
     };
 
     const t = setInterval(poll, POLL_INTERVAL_MS);
     poll();
     return () => clearInterval(t);
-  }, [currentJobId, jobStatus?.status, loadJobs]);
+  }, [currentJobId, jobStatus?.status, runningJobs.length, loadJobs]);
 
   const runAgent = async () => {
     if (!selectedRepo || !agentId.trim()) {
@@ -134,12 +160,14 @@ export default function AgentPage() {
         ref.trim() || undefined
       );
       setCurrentJobId(res.job_id);
-      setJobStatus({
+      const initial: AgentJobResponse = {
         job_id: res.job_id,
         status: res.status,
         created_at: new Date().toISOString(),
         result_available: false,
-      });
+      };
+      setJobStatus(initial);
+      setJobDetails((prev) => ({ ...prev, [res.job_id]: initial }));
       loadJobs();
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to create job';
@@ -331,45 +359,65 @@ export default function AgentPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {currentJobId && jobStatus && (
+      {runningDisplayList.length > 0 && (
         <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
           <h2 className="mb-3 text-lg font-semibold text-gray-900">
-            Current job
+            Running jobs
           </h2>
-          <div className="space-y-2 text-sm">
-            <p>
-              <span className="font-medium">Job ID:</span> {jobStatus.job_id}
-            </p>
-            <p>
-              <span className="font-medium">Status:</span> {jobStatus.status}
-            </p>
-            {jobStatus.progress_pct != null && (
-              <p>
-                <span className="font-medium">Progress:</span>{' '}
-                {jobStatus.progress_pct}%
-                {jobStatus.progress_stage
-                  ? ` — ${jobStatus.progress_stage}`
-                  : ''}
-              </p>
-            )}
-            {jobStatus.error_message && (
-              <p className="text-red-600">{jobStatus.error_message}</p>
-            )}
-            {jobStatus.status === 'completed' &&
-              jobStatus.result_available && (
-                <button
-                  onClick={() => handleDownloadResult(jobStatus.job_id)}
-                  disabled={downloadLoading}
-                  className="mt-2 flex items-center gap-2 rounded-md border border-gray-300 px-3 py-2 text-sm hover:bg-gray-50 disabled:opacity-50"
-                >
-                  {downloadLoading ? (
-                    <Loader2 size={14} className="animate-spin" />
-                  ) : (
-                    <Download size={14} />
-                  )}
-                  Download result
-                </button>
-              )}
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-200 text-left text-gray-600">
+                  <th className="pb-2 pr-4">Job ID</th>
+                  <th className="pb-2 pr-4">Repo</th>
+                  <th className="pb-2 pr-4">Status</th>
+                  <th className="pb-2 pr-4">Progress</th>
+                  <th className="pb-2 pr-4">Created</th>
+                  <th className="pb-2"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {runningDisplayList.map((j) => {
+                  const d = jobDetails[j.job_id];
+                  const status = d?.status ?? j.status;
+                  const isComplete = status === 'completed' && d?.result_available;
+                  return (
+                    <tr key={j.job_id} className="border-b border-gray-100">
+                      <td className="py-2 pr-4 font-mono text-xs">{j.job_id}</td>
+                      <td className="py-2 pr-4">{j.repo}</td>
+                      <td className="py-2 pr-4">{status}</td>
+                      <td className="py-2 pr-4 text-gray-600">
+                        {d?.error_message ? (
+                          <span className="text-red-600 text-xs">{d.error_message}</span>
+                        ) : d?.progress_pct != null ? (
+                          <>
+                            {d.progress_pct}%
+                            {d.progress_stage ? ` — ${d.progress_stage}` : ''}
+                          </>
+                        ) : (
+                          '—'
+                        )}
+                      </td>
+                      <td className="py-2 pr-4 text-gray-500">
+                        {new Date(j.created_at).toLocaleString()}
+                      </td>
+                      <td className="py-2">
+                        {isComplete && (
+                          <button
+                            onClick={() => handleDownloadResult(j.job_id)}
+                            disabled={downloadLoading}
+                            className="flex items-center gap-1 text-gray-600 hover:text-black disabled:opacity-50"
+                          >
+                            <Download size={14} />
+                            Download
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
@@ -383,7 +431,7 @@ export default function AgentPage() {
             <Loader2 size={16} className="animate-spin" />
             Loading…
           </div>
-        ) : jobs.length === 0 ? (
+        ) : completedJobs.length === 0 ? (
           <p className="text-sm text-gray-500">No jobs yet.</p>
         ) : (
           <div className="overflow-x-auto">
@@ -398,7 +446,7 @@ export default function AgentPage() {
                 </tr>
               </thead>
               <tbody>
-                {jobs.map((j) => (
+                {completedJobs.map((j) => (
                   <tr key={j.job_id} className="border-b border-gray-100">
                     <td className="py-2 pr-4 font-mono text-xs">{j.job_id}</td>
                     <td className="py-2 pr-4">{j.repo}</td>
