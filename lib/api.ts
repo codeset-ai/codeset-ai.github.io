@@ -138,7 +138,7 @@ interface GitHubReposResponse {
 interface AgentJobCreateRequest {
   repo: string;
   ref?: string;
-  agent_id: string;
+  agent_id?: string;
 }
 
 interface AgentJobCreateResponse {
@@ -315,14 +315,29 @@ export class ApiService {
     return response.json();
   }
 
-  static async getUsageHistory(page: number = 1, limit: number = 25):
-      Promise<UsageHistory> {
+  static async getUsageHistory(
+      page: number = 1,
+      limit: number = 25,
+      startDate?: string,
+      endDate?: string,
+      transactionTypes?: string[],
+  ): Promise<UsageHistory> {
     const token = AuthService.getStoredToken();
     if (!token) {
       throw new Error('No authentication token found');
     }
 
-    const response = await fetch(`${API_BASE_URL}/billing/usage`, {
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+      max_items: '10000',
+    });
+    if (startDate) params.set('start_date', startDate);
+    if (endDate) params.set('end_date', endDate);
+    if (transactionTypes?.length) {
+      transactionTypes.forEach((t) => params.append('transaction_types', t));
+    }
+    const response = await fetch(`${API_BASE_URL}/billing/usage?${params}`, {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
@@ -331,7 +346,7 @@ export class ApiService {
     if (response.status === 401) {
       const refreshResult = await AuthService.refreshToken();
       if (refreshResult) {
-        return this.getUsageHistory(page, limit);
+        return this.getUsageHistory(page, limit, startDate, endDate, transactionTypes);
       }
       throw new Error('Authentication failed');
     }
@@ -413,13 +428,13 @@ export class ApiService {
     return response.json();
   }
 
-  static async createAgentJob(repo: string, agentId: string, ref?: string):
+  static async createAgentJob(repo: string, ref?: string):
       Promise<AgentJobCreateResponse> {
     const token = AuthService.getStoredToken();
     if (!token) {
       throw new Error('No authentication token found');
     }
-    const body: AgentJobCreateRequest = {repo, agent_id: agentId};
+    const body: AgentJobCreateRequest = {repo, agent_id: 'claude_code'};
     if (ref) body.ref = ref;
     const response = await fetch(`${API_BASE_URL}/agent-jobs`, {
       method: 'POST',
@@ -431,7 +446,7 @@ export class ApiService {
     });
     if (response.status === 401) {
       const refreshResult = await AuthService.refreshToken();
-      if (refreshResult) return this.createAgentJob(repo, agentId, ref);
+      if (refreshResult) return this.createAgentJob(repo, ref);
       throw new Error('Authentication failed');
     }
     if (!response.ok) {
@@ -494,18 +509,22 @@ export class ApiService {
     return response.json();
   }
 
-  static async getAgentJobResultBlob(jobId: string):
+  static async getAgentJobResultBlob(jobId: string, agentIds?: string[]):
       Promise<{blob: Blob; filename: string}> {
     const token = AuthService.getStoredToken();
     if (!token) {
       throw new Error('No authentication token found');
     }
-    const response = await fetch(`${API_BASE_URL}/agent-jobs/${jobId}/result`, {
+    const url = new URL(`${API_BASE_URL}/agent-jobs/${jobId}/result`);
+    if (agentIds?.length) {
+      agentIds.forEach((id) => url.searchParams.append('agent_id', id));
+    }
+    const response = await fetch(url.toString(), {
       headers: {'Authorization': `Bearer ${token}`},
     });
     if (response.status === 401) {
       const refreshResult = await AuthService.refreshToken();
-      if (refreshResult) return this.getAgentJobResultBlob(jobId);
+      if (refreshResult) return this.getAgentJobResultBlob(jobId, agentIds);
       throw new Error('Authentication failed');
     }
     if (!response.ok) {

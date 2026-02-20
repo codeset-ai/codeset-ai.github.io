@@ -21,19 +21,25 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 const POLL_INTERVAL_MS = 15_000;
 const GITHUB_APP_INSTALL_URL =
   process.env.NEXT_PUBLIC_GITHUB_APP_INSTALL_URL || '';
 
-const AGENT_OPTIONS = [
-  { label: 'Claude Code', value: 'claude-code' },
+const DOWNLOAD_AGENT_OPTIONS = [
+  { label: 'Claude Code', value: 'claude_code' },
   { label: 'Cursor', value: 'cursor' },
-  { label: 'GitHub Copilot', value: 'github-copilot' },
-  { label: 'Other (custom)', value: 'other' },
+  { label: 'Codex', value: 'codex' },
+  { label: 'GitHub Copilot', value: 'copilot' },
+  { label: 'Gemini CLI', value: 'gemini_cli' },
 ];
-
-const KNOWN_AGENT_VALUES = AGENT_OPTIONS.filter((o) => o.value !== 'other').map((o) => o.value);
 
 function AgentPageContent() {
   const { user } = useAuth();
@@ -45,8 +51,6 @@ function AgentPageContent() {
   const [appNotInstalled, setAppNotInstalled] = useState(false);
   const [selectedRepo, setSelectedRepo] = useState('');
   const [ref, setRef] = useState('');
-  const [agentType, setAgentType] = useState('claude-code');
-  const [customAgentId, setCustomAgentId] = useState('');
   const [createLoading, setCreateLoading] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const [currentJobId, setCurrentJobId] = useState<string | null>(null);
@@ -57,8 +61,9 @@ function AgentPageContent() {
   const [jobDetails, setJobDetails] = useState<Record<string, AgentJobResponse>>({});
   const [pricing, setPricing] = useState<PricingInfo | null>(null);
   const [showRunConfirm, setShowRunConfirm] = useState(false);
-
-  const effectiveAgentId = agentType === 'other' ? customAgentId.trim() : agentType;
+  const [downloadDialogJobId, setDownloadDialogJobId] = useState<string | null>(null);
+  const [downloadAgentIds, setDownloadAgentIds] = useState<string[]>([]);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
 
   const formatCurrency = (cents: number) =>
     new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
@@ -105,23 +110,9 @@ function AgentPageContent() {
     }
   }, []);
 
-  // Consume query params and sessionStorage on mount
   useEffect(() => {
     const repoParam = searchParams.get('repo');
-    const agentParam = searchParams.get('agent');
-
-    if (repoParam) {
-      setSelectedRepo(repoParam);
-    }
-    if (agentParam) {
-      if (KNOWN_AGENT_VALUES.includes(agentParam)) {
-        setAgentType(agentParam);
-      } else {
-        setAgentType('other');
-        setCustomAgentId(agentParam);
-      }
-    }
-
+    if (repoParam) setSelectedRepo(repoParam);
     sessionStorage.removeItem('codeset_pending_agent_job');
   }, [searchParams]);
 
@@ -181,8 +172,8 @@ function AgentPageContent() {
   }, [currentJobId, jobStatus?.status, runningJobs.length, loadJobs]);
 
   const runAgent = async () => {
-    if (!selectedRepo || !effectiveAgentId) {
-      setCreateError('Select a repository and enter an agent id.');
+    if (!selectedRepo) {
+      setCreateError('Select a repository.');
       return;
     }
     setShowRunConfirm(false);
@@ -191,7 +182,6 @@ function AgentPageContent() {
       setCreateError(null);
       const res = await ApiService.createAgentJob(
         selectedRepo,
-        effectiveAgentId,
         ref.trim() || undefined
       );
       setCurrentJobId(res.job_id);
@@ -217,8 +207,8 @@ function AgentPageContent() {
   };
 
   const handleRunAgentClick = () => {
-    if (!selectedRepo || !effectiveAgentId) {
-      setCreateError('Select a repository and enter an agent id.');
+    if (!selectedRepo) {
+      setCreateError('Select a repository.');
       return;
     }
     if (pricing?.agent_job_cost_cents != null) {
@@ -228,19 +218,40 @@ function AgentPageContent() {
     }
   };
 
-  const handleDownloadResult = async (jobId: string) => {
+  const openDownloadDialog = (jobId: string) => {
+    setDownloadDialogJobId(jobId);
+    setDownloadAgentIds([]);
+  };
+
+  const toggleDownloadAgent = (value: string) => {
+    setDownloadAgentIds((prev) =>
+      prev.includes(value) ? prev.filter((id) => id !== value) : [...prev, value]
+    );
+  };
+
+  const handleDownloadConfirm = async () => {
+    if (!downloadDialogJobId) return;
+    if (!downloadAgentIds.length) {
+      setCreateError('Select at least one agent.');
+      return;
+    }
     try {
       setDownloadLoading(true);
       setCreateError(null);
-      const { blob, filename } = await ApiService.getAgentJobResultBlob(jobId);
+      const { blob, filename } = await ApiService.getAgentJobResultBlob(
+        downloadDialogJobId,
+        downloadAgentIds
+      );
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = filename;
       a.click();
       URL.revokeObjectURL(url);
+      setDownloadDialogJobId(null);
     } catch {
-      setCreateError('Download failed or result not available.');
+      setDownloadDialogJobId(null);
+      setDownloadError('Download failed or result not available.');
     } finally {
       setDownloadLoading(false);
     }
@@ -315,29 +326,6 @@ function AgentPageContent() {
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700">
-                Agent
-              </label>
-              <select
-                value={agentType}
-                onChange={(e) => setAgentType(e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black bg-white"
-              >
-                {AGENT_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
-              {agentType === 'other' && (
-                <input
-                  type="text"
-                  value={customAgentId}
-                  onChange={(e) => setCustomAgentId(e.target.value)}
-                  placeholder="Custom agent ID"
-                  className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
-                />
-              )}
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
                 Ref / branch (optional)
               </label>
               <input
@@ -405,6 +393,68 @@ function AgentPageContent() {
         </AlertDialogContent>
       </AlertDialog>
 
+      <AlertDialog open={!!downloadError} onOpenChange={(open) => !open && setDownloadError(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader className="text-left">
+            <AlertDialogTitle className="text-xl font-semibold leading-tight text-gray-900">
+              {downloadError}
+            </AlertDialogTitle>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setDownloadError(null)}>OK</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <Dialog
+        open={!!downloadDialogJobId}
+        onOpenChange={(open) => !open && setDownloadDialogJobId(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Download result</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            {DOWNLOAD_AGENT_OPTIONS.map((opt) => (
+              <label
+                key={opt.value}
+                className="flex items-center gap-3 cursor-pointer text-sm text-gray-700 hover:text-gray-900"
+              >
+                <input
+                  type="checkbox"
+                  checked={downloadAgentIds.includes(opt.value)}
+                  onChange={() => toggleDownloadAgent(opt.value)}
+                  className="h-4 w-4 rounded border-gray-300 accent-black focus:ring-black focus:ring-offset-0"
+                />
+                <span>{opt.label}</span>
+              </label>
+            ))}
+          </div>
+          <DialogFooter>
+            <button
+              type="button"
+              onClick={() => setDownloadDialogJobId(null)}
+              className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleDownloadConfirm}
+              disabled={downloadLoading || !downloadAgentIds.length}
+              className="flex items-center gap-2 rounded-md bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
+            >
+              {downloadLoading ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <Download size={16} />
+              )}
+              Download
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {runningDisplayList.length > 0 && (
         <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
           <h2 className="mb-3 text-lg font-semibold text-gray-900">
@@ -450,7 +500,7 @@ function AgentPageContent() {
                       <td className="py-2">
                         {isComplete && (
                           <button
-                            onClick={() => handleDownloadResult(j.job_id)}
+                            onClick={() => openDownloadDialog(j.job_id)}
                             disabled={downloadLoading}
                             className="flex items-center gap-1 text-gray-600 hover:text-black disabled:opacity-50"
                           >
@@ -503,7 +553,7 @@ function AgentPageContent() {
                     <td className="py-2">
                       {j.status === 'completed' && (
                         <button
-                          onClick={() => handleDownloadResult(j.job_id)}
+                          onClick={() => openDownloadDialog(j.job_id)}
                           disabled={downloadLoading}
                           className="flex items-center gap-1 text-gray-600 hover:text-black disabled:opacity-50"
                         >

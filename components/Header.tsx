@@ -26,7 +26,10 @@ export default function Header() {
             <div className="flex items-center gap-3">
               <Link href="/dashboard" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
                 <User size={16} />
-                {user.name}
+                <div className="flex flex-col">
+                  <span>{user.name}</span>
+                  <span className="text-xs text-gray-500">Dashboard</span>
+                </div>
               </Link>
               <button
                 onClick={logout}

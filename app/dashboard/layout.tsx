@@ -34,6 +34,9 @@ export default function DashboardLayout({
   }
 
   const isAgentTab = pathname?.startsWith('/dashboard/agent');
+  const isPlatformTab = pathname === '/dashboard' || pathname === '/dashboard/api-keys' || pathname === '/dashboard/datasets' || pathname === '/dashboard/pricing';
+  const isCreditsTab = pathname === '/dashboard/credits';
+  const isUsageTab = pathname === '/dashboard/usage';
 
   return (
     <div className="min-h-screen bg-gray-50 font-mono">
@@ -87,17 +90,37 @@ export default function DashboardLayout({
               Codeset Agent
             </Link>
             <Link
-              href="/dashboard/api-keys"
+              href="/dashboard"
               className={`px-4 py-2 text-sm font-medium rounded-t-md transition-colors ${
-                !isAgentTab
+                isPlatformTab
                   ? 'bg-black text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
               Codeset Platform
             </Link>
+            <Link
+              href="/dashboard/credits"
+              className={`px-4 py-2 text-sm font-medium rounded-t-md transition-colors ${
+                isCreditsTab
+                  ? 'bg-black text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              Credits
+            </Link>
+            <Link
+              href="/dashboard/usage"
+              className={`px-4 py-2 text-sm font-medium rounded-t-md transition-colors ${
+                isUsageTab
+                  ? 'bg-black text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              Usage History
+            </Link>
           </div>
-          {!isAgentTab && (
+          {isPlatformTab && (
             <div className="flex items-center gap-6 py-3 border-t border-gray-100">
               <Link
                 href="/dashboard"
@@ -110,6 +133,16 @@ export default function DashboardLayout({
                 Overview
               </Link>
               <Link
+                href="/dashboard/datasets"
+                className={`text-sm font-medium transition-colors ${
+                  pathname === '/dashboard/datasets'
+                    ? 'text-black underline underline-offset-4'
+                    : 'text-gray-500 hover:text-black'
+                }`}
+              >
+                Datasets
+              </Link>
+              <Link
                 href="/dashboard/api-keys"
                 className={`text-sm font-medium transition-colors ${
                   pathname === '/dashboard/api-keys'
@@ -120,24 +153,14 @@ export default function DashboardLayout({
                 API Keys
               </Link>
               <Link
-                href="/dashboard/credits"
+                href="/dashboard/pricing"
                 className={`text-sm font-medium transition-colors ${
-                  pathname === '/dashboard/credits'
+                  pathname === '/dashboard/pricing'
                     ? 'text-black underline underline-offset-4'
                     : 'text-gray-500 hover:text-black'
                 }`}
               >
-                Credits
-              </Link>
-              <Link
-                href="/dashboard/usage"
-                className={`text-sm font-medium transition-colors ${
-                  pathname === '/dashboard/usage'
-                    ? 'text-black underline underline-offset-4'
-                    : 'text-gray-500 hover:text-black'
-                }`}
-              >
-                Usage History
+                Pricing
               </Link>
             </div>
           )}

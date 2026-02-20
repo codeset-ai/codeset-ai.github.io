@@ -7,13 +7,6 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { useAuth } from "@/contexts/AuthContext"
 
-const AGENT_OPTIONS = [
-  { label: "Claude Code", value: "claude-code" },
-  { label: "Cursor", value: "cursor" },
-  { label: "GitHub Copilot", value: "github-copilot" },
-  { label: "Other (custom)", value: "other" },
-]
-
 const FAQS = [
   {
     q: "How much does it cost?",
@@ -161,40 +154,23 @@ function normalizeRepo(input: string): string {
 function HeroForm({
   onSubmit,
   dark = false,
-  showAgent = true,
 }: {
-  onSubmit: (repo: string, agent: string) => void
+  onSubmit: (repo: string) => void
   dark?: boolean
-  showAgent?: boolean
 }) {
   const [repoInput, setRepoInput] = useState("")
-  const [agentType, setAgentType] = useState("claude-code")
-  const [customAgent, setCustomAgent] = useState("")
 
   const inputCls = dark
     ? "w-full border border-gray-600 bg-gray-900 text-white placeholder-gray-500 rounded-md px-4 py-3 text-sm font-mono focus:outline-none focus:border-gray-300 focus:ring-1 focus:ring-gray-300"
     : "w-full border border-gray-300 bg-white rounded-md px-4 py-3 text-sm font-mono focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
 
-  const selectCls = dark
-    ? "w-full appearance-none border border-gray-600 bg-gray-900 text-white rounded-md pl-4 pr-9 py-3 text-sm font-mono focus:outline-none focus:border-gray-300 focus:ring-1 focus:ring-gray-300"
-    : "w-full appearance-none border border-gray-300 bg-white rounded-md pl-4 pr-9 py-3 text-sm font-mono focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
-
-  const chevronCls = dark ? "text-gray-500" : "text-gray-400"
-
   const btnCls = dark
     ? "px-6 py-3 text-sm font-medium text-black bg-white rounded-md hover:bg-gray-100 transition-colors whitespace-nowrap flex-shrink-0"
     : "px-6 py-3 text-sm font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors whitespace-nowrap flex-shrink-0"
 
-  const effectiveAgent = showAgent
-    ? (agentType === "other" ? customAgent.trim() : agentType)
-    : "claude-code"
-
-  const ctaLabel =
-    "Customize my agents →"
-
   const handleSubmit = () => {
     const repo = normalizeRepo(repoInput)
-    onSubmit(repo, effectiveAgent)
+    onSubmit(repo)
   }
 
   return (
@@ -207,43 +183,9 @@ function HeroForm({
         className={inputCls}
         onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
       />
-      {showAgent ? (
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <select
-              value={agentType}
-              onChange={(e) => setAgentType(e.target.value)}
-              className={selectCls}
-            >
-              {AGENT_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-            <ChevronDown
-              size={14}
-              className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${chevronCls}`}
-            />
-          </div>
-          <button onClick={handleSubmit} className={btnCls}>
-            {ctaLabel}
-          </button>
-        </div>
-      ) : (
-        <button onClick={handleSubmit} className={btnCls}>
-          {ctaLabel}
-        </button>
-      )}
-      {showAgent && agentType === "other" && (
-        <input
-          type="text"
-          value={customAgent}
-          onChange={(e) => setCustomAgent(e.target.value)}
-          placeholder="Custom agent ID"
-          className={inputCls}
-        />
-      )}
+      <button onClick={handleSubmit} className={btnCls}>
+        Customize my agents →
+      </button>
     </div>
   )
 }
@@ -309,16 +251,14 @@ export default function Home() {
   const router = useRouter()
   const [openFaq, setOpenFaq] = useState<number | null>(null)
 
-  const handleGetStarted = (repo: string, agent: string) => {
-    if (!repo || !agent) return
+  const handleGetStarted = (repo: string) => {
+    if (!repo) return
     sessionStorage.setItem(
       "codeset_pending_agent_job",
-      JSON.stringify({ repo, agent })
+      JSON.stringify({ repo })
     )
     if (user) {
-      router.push(
-        `/dashboard/agent?repo=${encodeURIComponent(repo)}&agent=${encodeURIComponent(agent)}`
-      )
+      router.push(`/dashboard/agent?repo=${encodeURIComponent(repo)}`)
     } else {
       login()
     }
@@ -359,7 +299,7 @@ export default function Home() {
               file by file.
             </p>
 
-            <HeroForm onSubmit={handleGetStarted} showAgent={false} />
+            <HeroForm onSubmit={handleGetStarted} />
 
             {/* Price — front and center, not buried */}
             <p className="mt-3 text-xs text-gray-400">
@@ -558,8 +498,7 @@ export default function Home() {
               <div className="text-3xl font-medium text-gray-200 mb-3">01</div>
               <h3 className="font-medium mb-2 text-gray-900 text-sm">Submit your repo</h3>
               <p className="text-sm text-gray-500 leading-relaxed">
-                Paste your GitHub URL and choose your agent. We support Claude Code,
-                Cursor, and GitHub Copilot.
+                Paste your GitHub URL. We support Claude Code, Cursor, and GitHub Copilot.
               </p>
             </div>
             <div className="hidden md:flex items-center justify-center pt-10 text-gray-200 text-lg select-none">
@@ -675,7 +614,7 @@ export default function Home() {
             $3 per repo. One-time — no subscription, no seat licenses.
             Your agent gets wired into your codebase&apos;s history in under an hour.
           </p>
-          <HeroForm onSubmit={handleGetStarted} dark showAgent />
+          <HeroForm onSubmit={handleGetStarted} dark />
         </div>
       </section>
 
