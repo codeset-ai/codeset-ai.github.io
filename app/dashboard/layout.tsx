@@ -1,10 +1,10 @@
 "use client"
 
 import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { User, Key, Home, CreditCard, BarChart3, LogOut, BookOpen, Bot } from 'lucide-react';
+import { User, LogOut, BookOpen } from 'lucide-react';
 
 export default function DashboardLayout({
   children,
@@ -13,6 +13,7 @@ export default function DashboardLayout({
 }) {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -32,9 +33,11 @@ export default function DashboardLayout({
     return null;
   }
 
+  const isAgentTab = pathname?.startsWith('/dashboard/agent');
+
   return (
     <div className="min-h-screen bg-gray-50 font-mono">
-      {/* Header */}
+      {/* Top bar */}
       <div className="bg-white border-b border-gray-200 px-4 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-4">
@@ -69,54 +72,81 @@ export default function DashboardLayout({
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <nav className="space-y-2">
+      {/* Product switcher */}
+      <div className="bg-white border-b border-gray-200 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center gap-2 pt-3">
+            <Link
+              href="/dashboard/agent"
+              className={`px-4 py-2 text-sm font-medium rounded-t-md transition-colors ${
+                isAgentTab
+                  ? 'bg-black text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              Codeset Agent
+            </Link>
+            <Link
+              href="/dashboard/api-keys"
+              className={`px-4 py-2 text-sm font-medium rounded-t-md transition-colors ${
+                !isAgentTab
+                  ? 'bg-black text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              Codeset Platform
+            </Link>
+          </div>
+          {!isAgentTab && (
+            <div className="flex items-center gap-6 py-3 border-t border-gray-100">
               <Link
                 href="/dashboard"
-                className="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-gray-700 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                className={`text-sm font-medium transition-colors ${
+                  pathname === '/dashboard'
+                    ? 'text-black underline underline-offset-4'
+                    : 'text-gray-500 hover:text-black'
+                }`}
               >
-                <Home size={16} />
-                <span>Overview</span>
+                Overview
               </Link>
               <Link
                 href="/dashboard/api-keys"
-                className="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-gray-700 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                className={`text-sm font-medium transition-colors ${
+                  pathname === '/dashboard/api-keys'
+                    ? 'text-black underline underline-offset-4'
+                    : 'text-gray-500 hover:text-black'
+                }`}
               >
-                <Key size={16} />
-                <span>API Keys</span>
+                API Keys
               </Link>
               <Link
                 href="/dashboard/credits"
-                className="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-gray-700 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                className={`text-sm font-medium transition-colors ${
+                  pathname === '/dashboard/credits'
+                    ? 'text-black underline underline-offset-4'
+                    : 'text-gray-500 hover:text-black'
+                }`}
               >
-                <CreditCard size={16} />
-                <span>Credits</span>
+                Credits
               </Link>
               <Link
                 href="/dashboard/usage"
-                className="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-gray-700 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                className={`text-sm font-medium transition-colors ${
+                  pathname === '/dashboard/usage'
+                    ? 'text-black underline underline-offset-4'
+                    : 'text-gray-500 hover:text-black'
+                }`}
               >
-                <BarChart3 size={16} />
-                <span>Usage History</span>
+                Usage History
               </Link>
-              <Link
-                href="/dashboard/agent"
-                className="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-gray-700 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
-              >
-                <Bot size={16} />
-                <span>Agent</span>
-              </Link>
-            </nav>
-          </div>
-
-          {/* Main Content */}
-          <div className="lg:col-span-3">
-            {children}
-          </div>
+            </div>
+          )}
         </div>
+      </div>
+
+      {/* Content */}
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {children}
       </div>
     </div>
   );

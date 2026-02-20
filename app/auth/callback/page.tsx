@@ -9,7 +9,6 @@ function AuthCallbackContent() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [error, setError] = useState<string>('');
   const [processed, setProcessed] = useState(false);
-  const [attempts, setAttempts] = useState(0);
   const searchParams = useSearchParams();
   const router = useRouter();
   const { refreshUser } = useAuth();
@@ -46,7 +45,7 @@ function AuthCallbackContent() {
       const attemptOAuth = async (retryCount = 0): Promise<void> => {
         try {
           console.log(`OAuth attempt ${retryCount + 1}...`);
-          const oauthResult = await AuthService.githubOAuth(code, state || undefined);
+          await AuthService.githubOAuth(code, state || undefined);
 
           setStatus('success');
 
@@ -54,7 +53,18 @@ function AuthCallbackContent() {
             console.log('Refreshing user data after delay...');
             await refreshUser();
             console.log('User data refreshed, redirecting...');
-            router.push('/dashboard');
+
+            const pending = sessionStorage.getItem('codeset_pending_agent_job');
+            if (pending) {
+              try {
+                const { repo, agent } = JSON.parse(pending);
+                router.push(`/dashboard/agent?repo=${encodeURIComponent(repo)}&agent=${encodeURIComponent(agent)}`);
+              } catch {
+                router.push('/dashboard/agent');
+              }
+            } else {
+              router.push('/dashboard');
+            }
           }, 500);
         } catch (err) {
           console.error(`OAuth attempt ${retryCount + 1} failed:`, err);

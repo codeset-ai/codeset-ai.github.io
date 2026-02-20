@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   ApiService,
   GitHubRepoItem,
@@ -25,15 +26,27 @@ const POLL_INTERVAL_MS = 15_000;
 const GITHUB_APP_INSTALL_URL =
   process.env.NEXT_PUBLIC_GITHUB_APP_INSTALL_URL || '';
 
-export default function AgentPage() {
+const AGENT_OPTIONS = [
+  { label: 'Claude Code', value: 'claude-code' },
+  { label: 'Cursor', value: 'cursor' },
+  { label: 'GitHub Copilot', value: 'github-copilot' },
+  { label: 'Other (custom)', value: 'other' },
+];
+
+const KNOWN_AGENT_VALUES = AGENT_OPTIONS.filter((o) => o.value !== 'other').map((o) => o.value);
+
+function AgentPageContent() {
   const { user } = useAuth();
+  const searchParams = useSearchParams();
+
   const [repos, setRepos] = useState<GitHubRepoItem[]>([]);
   const [reposLoading, setReposLoading] = useState(true);
   const [reposError, setReposError] = useState<string | null>(null);
   const [appNotInstalled, setAppNotInstalled] = useState(false);
   const [selectedRepo, setSelectedRepo] = useState('');
   const [ref, setRef] = useState('');
-  const [agentId, setAgentId] = useState('');
+  const [agentType, setAgentType] = useState('claude-code');
+  const [customAgentId, setCustomAgentId] = useState('');
   const [createLoading, setCreateLoading] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const [currentJobId, setCurrentJobId] = useState<string | null>(null);
@@ -44,6 +57,8 @@ export default function AgentPage() {
   const [jobDetails, setJobDetails] = useState<Record<string, AgentJobResponse>>({});
   const [pricing, setPricing] = useState<PricingInfo | null>(null);
   const [showRunConfirm, setShowRunConfirm] = useState(false);
+
+  const effectiveAgentId = agentType === 'other' ? customAgentId.trim() : agentType;
 
   const formatCurrency = (cents: number) =>
     new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
@@ -89,6 +104,26 @@ export default function AgentPage() {
       setPricing(null);
     }
   }, []);
+
+  // Consume query params and sessionStorage on mount
+  useEffect(() => {
+    const repoParam = searchParams.get('repo');
+    const agentParam = searchParams.get('agent');
+
+    if (repoParam) {
+      setSelectedRepo(repoParam);
+    }
+    if (agentParam) {
+      if (KNOWN_AGENT_VALUES.includes(agentParam)) {
+        setAgentType(agentParam);
+      } else {
+        setAgentType('other');
+        setCustomAgentId(agentParam);
+      }
+    }
+
+    sessionStorage.removeItem('codeset_pending_agent_job');
+  }, [searchParams]);
 
   useEffect(() => {
     if (user) {
@@ -146,7 +181,7 @@ export default function AgentPage() {
   }, [currentJobId, jobStatus?.status, runningJobs.length, loadJobs]);
 
   const runAgent = async () => {
-    if (!selectedRepo || !agentId.trim()) {
+    if (!selectedRepo || !effectiveAgentId) {
       setCreateError('Select a repository and enter an agent id.');
       return;
     }
@@ -156,7 +191,7 @@ export default function AgentPage() {
       setCreateError(null);
       const res = await ApiService.createAgentJob(
         selectedRepo,
-        agentId.trim(),
+        effectiveAgentId,
         ref.trim() || undefined
       );
       setCurrentJobId(res.job_id);
@@ -182,7 +217,7 @@ export default function AgentPage() {
   };
 
   const handleRunAgentClick = () => {
-    if (!selectedRepo || !agentId.trim()) {
+    if (!selectedRepo || !effectiveAgentId) {
       setCreateError('Select a repository and enter an agent id.');
       return;
     }
@@ -280,15 +315,26 @@ export default function AgentPage() {
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700">
-                Agent ID
+                Agent
               </label>
-              <input
-                type="text"
-                value={agentId}
-                onChange={(e) => setAgentId(e.target.value)}
-                placeholder="e.g. cursor"
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
-              />
+              <select
+                value={agentType}
+                onChange={(e) => setAgentType(e.target.value)}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black bg-white"
+              >
+                {AGENT_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+              {agentType === 'other' && (
+                <input
+                  type="text"
+                  value={customAgentId}
+                  onChange={(e) => setCustomAgentId(e.target.value)}
+                  placeholder="Custom agent ID"
+                  className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+                />
+              )}
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700">
@@ -474,5 +520,18 @@ export default function AgentPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function AgentPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center gap-2 text-gray-600">
+        <Loader2 size={18} className="animate-spin" />
+        Loading…
+      </div>
+    }>
+      <AgentPageContent />
+    </Suspense>
   );
 }

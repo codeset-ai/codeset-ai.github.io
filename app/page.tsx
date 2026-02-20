@@ -1,97 +1,685 @@
 "use client"
 
-import Link from "next/link"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { ChevronDown } from "lucide-react"
 import Header from "@/components/Header"
-import SyntaxHighlighter from 'react-syntax-highlighter';
-import { atomOneDark } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import Footer from "@/components/Footer"
 import { useAuth } from "@/contexts/AuthContext"
 
+const AGENT_OPTIONS = [
+  { label: "Claude Code", value: "claude-code" },
+  { label: "Cursor", value: "cursor" },
+  { label: "GitHub Copilot", value: "github-copilot" },
+  { label: "Other (custom)", value: "other" },
+]
+
+const FAQS = [
+  {
+    q: "How much does it cost?",
+    a: "$3 per repo, one-time. No subscription, no monthly fees, no seat licenses. You pay once per analysis run and the files are yours — re-run any time as your codebase evolves.",
+  },
+  {
+    q: "Which agents do you support?",
+    a: "Claude Code, Cursor, and GitHub Copilot. Claude Code users receive a CLAUDE.md — Anthropic's standard format for agent instructions. Cursor and GitHub Copilot users receive an AGENTS.md. Additional agents are available on request.",
+  },
+  {
+    q: "Does this work with private repositories?",
+    a: "Yes. We use GitHub OAuth and request only the repository permissions needed to analyze your code. Your source code is never stored after analysis.",
+  },
+  {
+    q: "What exactly do you generate?",
+    a: "A CLAUDE.md / AGENTS.md entry point, a per-file knowledge base (files.json + retrieve_file_info.py), and agent-specific hook configuration. When your agent reads a file, the hooks automatically surface the relevant insights, pitfalls, and caller information for that file.",
+  },
+  {
+    q: "Is this just an automated AGENTS.md generator?",
+    a: "No. AGENTS.md is the entry point, but the real depth is in the per-file knowledge base. We mine your commit history for past bugs and lessons learned, run AST analysis to trace every function caller across the codebase, extract file-specific pitfalls with root causes, and map which tests exercise which files. This gets surfaced to your agent automatically via hooks — not as a static document it has to search through.",
+  },
+  {
+    q: "How is the improvement measured?",
+    a: "We validate using SWE-Bench-Verified, the industry-standard benchmark for AI coding agents. We run a set of real coding tasks against coding agents before and after our configuration and measure the resolution rate.",
+  },
+  {
+    q: "How long does it take?",
+    a: "Under one hour from GitHub connection to downloadable config files.",
+  },
+]
+
+const WHAT_YOU_GET = [
+  "CLAUDE.md / AGENTS.md",
+  "Per-file knowledge base",
+  "Commit history analysis",
+  "Full AST caller graph",
+  "Test-to-file mapping",
+  "Auto-configured agent hooks",
+]
+
+// Shown in "What you get" card 01
+const SAMPLE_CLAUDE_MD = `# CLAUDE.md — acme/webapp
+
+## Architecture
+src/api/        # React Query hooks + axios clients
+src/stores/     # Zustand — one store per domain
+src/pages/      # Route-level components (flat)
+src/components/ # Atomic design UI library
+
+## Key Commands
+pnpm test:unit  # Vitest + Testing Library
+pnpm test:e2e   # Playwright
+pnpm lint:fix   # ESLint + Prettier
+
+## Conventions
+- Functional components only
+- Named exports preferred
+- Mock src/api/* in every unit test
+
+## Gotchas
+Zustand uses the slice pattern.
+See src/stores/README first.
+Never call store actions during SSR.`
+
+// Hero — the WOW artifact
+const FILE_INFO_HERO = `$ python retrieve_file_info.py src/auth.ts
+
+── src/auth.ts ───────────────── Deep Analysis
+
+History:
+  [Bug Fix] Null ptr on session init
+  Root cause: timezone-naive date comparison
+  Fix: always use datetime.timezone.utc
+
+Pitfall:
+  ✗ Don't call authenticate() before db.init()
+  → RuntimeError: connection pool not created
+
+Callers (3 files):
+  api/routes.ts:42      loginHandler()
+  middleware/auth.ts:18  verifyToken()
+  tests/setup.ts:7      mockAuthContext()
+
+Tests → tests/auth.test.ts:
+  test_valid_login
+  test_expired_session
+  test_concurrent_auth`
+
+// "What you get" featured card 02
+const FILE_INFO_CARD = `$ python retrieve_file_info.py src/payments.ts
+
+── src/payments.ts ─────────────── Deep Analysis
+
+History (4 insights):
+  [Bug Fix] Double-charge on retry
+    Root cause: idempotency key not persisted
+    Fix: store key in DB before Stripe call
+  [Breaking Change] Webhook signature v2
+    Migration: update STRIPE_WEBHOOK_SECRET
+
+Pitfalls:
+  ✗ Don't call charge() inside a DB transaction
+  → Stripe call may succeed but rollback fires
+  ✗ Never log the full PaymentIntent object
+  → Contains raw card data (PCI violation)
+
+Callers (6 files):
+  api/checkout.ts:88     handleCheckout()
+  api/subscriptions.ts:41 renewSubscription()
+  workers/retry.ts:15    retryFailedCharges()
+  ... 3 more
+
+Tests → tests/payments.test.ts:
+  test_successful_charge, test_idempotent_retry,
+  test_webhook_verification, test_refund_flow
+
+Co-changes: src/webhooks.ts, src/subscriptions.ts`
+
+// "What you get" card 03
+const HOOKS_SNIPPET = `// .claude/settings.local.json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Read",
+        "hooks": [{
+          "type": "command",
+          "command":
+            "python retrieve_file_info.py $FILE"
+        }]
+      }
+    ]
+  }
+}`
+
+function normalizeRepo(input: string): string {
+  let s = input.trim()
+  s = s.replace(/\.git$/, "")
+  s = s.replace(/\/$/, "")
+  s = s.replace(/^https?:\/\/github\.com\//, "")
+  s = s.replace(/^github\.com\//, "")
+  return s
+}
+
+function HeroForm({
+  onSubmit,
+  dark = false,
+  showAgent = true,
+}: {
+  onSubmit: (repo: string, agent: string) => void
+  dark?: boolean
+  showAgent?: boolean
+}) {
+  const [repoInput, setRepoInput] = useState("")
+  const [agentType, setAgentType] = useState("claude-code")
+  const [customAgent, setCustomAgent] = useState("")
+
+  const inputCls = dark
+    ? "w-full border border-gray-600 bg-gray-900 text-white placeholder-gray-500 rounded-md px-4 py-3 text-sm font-mono focus:outline-none focus:border-gray-300 focus:ring-1 focus:ring-gray-300"
+    : "w-full border border-gray-300 bg-white rounded-md px-4 py-3 text-sm font-mono focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
+
+  const selectCls = dark
+    ? "w-full appearance-none border border-gray-600 bg-gray-900 text-white rounded-md pl-4 pr-9 py-3 text-sm font-mono focus:outline-none focus:border-gray-300 focus:ring-1 focus:ring-gray-300"
+    : "w-full appearance-none border border-gray-300 bg-white rounded-md pl-4 pr-9 py-3 text-sm font-mono focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
+
+  const chevronCls = dark ? "text-gray-500" : "text-gray-400"
+
+  const btnCls = dark
+    ? "px-6 py-3 text-sm font-medium text-black bg-white rounded-md hover:bg-gray-100 transition-colors whitespace-nowrap flex-shrink-0"
+    : "px-6 py-3 text-sm font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors whitespace-nowrap flex-shrink-0"
+
+  const effectiveAgent = showAgent
+    ? (agentType === "other" ? customAgent.trim() : agentType)
+    : "claude-code"
+
+  const ctaLabel =
+    "Customize my agents →"
+
+  const handleSubmit = () => {
+    const repo = normalizeRepo(repoInput)
+    onSubmit(repo, effectiveAgent)
+  }
+
+  return (
+    <div className="flex flex-col gap-3 w-full max-w-xl">
+      <input
+        type="text"
+        value={repoInput}
+        onChange={(e) => setRepoInput(e.target.value)}
+        placeholder="github.com/your-org/your-repo"
+        className={inputCls}
+        onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+      />
+      {showAgent ? (
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <select
+              value={agentType}
+              onChange={(e) => setAgentType(e.target.value)}
+              className={selectCls}
+            >
+              {AGENT_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              size={14}
+              className={`absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none ${chevronCls}`}
+            />
+          </div>
+          <button onClick={handleSubmit} className={btnCls}>
+            {ctaLabel}
+          </button>
+        </div>
+      ) : (
+        <button onClick={handleSubmit} className={btnCls}>
+          {ctaLabel}
+        </button>
+      )}
+      {showAgent && agentType === "other" && (
+        <input
+          type="text"
+          value={customAgent}
+          onChange={(e) => setCustomAgent(e.target.value)}
+          placeholder="Custom agent ID"
+          className={inputCls}
+        />
+      )}
+    </div>
+  )
+}
+
+function CodeWindow({
+  title,
+  content,
+  className = "",
+}: {
+  title: string
+  content: string
+  className?: string
+}) {
+  return (
+    <div className={`border border-gray-200 rounded-lg overflow-hidden shadow-sm ${className}`}>
+      <div className="bg-gray-100 px-4 py-2.5 flex items-center gap-2 border-b border-gray-200">
+        <span className="w-2.5 h-2.5 bg-red-400 rounded-full flex-shrink-0" />
+        <span className="w-2.5 h-2.5 bg-yellow-400 rounded-full flex-shrink-0" />
+        <span className="w-2.5 h-2.5 bg-green-400 rounded-full flex-shrink-0" />
+        <span className="ml-2 text-xs text-gray-400 font-mono truncate">{title}</span>
+      </div>
+      <pre className="bg-gray-950 text-gray-300 text-xs leading-relaxed p-5 overflow-x-auto whitespace-pre">
+        {content}
+      </pre>
+    </div>
+  )
+}
+
+function FaqItem({
+  q,
+  a,
+  open,
+  onToggle,
+}: {
+  q: string
+  a: string
+  open: boolean
+  onToggle: () => void
+}) {
+  return (
+    <div className="border-b border-gray-200 last:border-0">
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center justify-between py-4 text-left text-sm font-medium text-gray-900 hover:text-black transition-colors"
+      >
+        <span>{q}</span>
+        <ChevronDown
+          size={15}
+          className={`ml-4 flex-shrink-0 text-gray-400 transition-transform duration-150 ${
+            open ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+      {open && (
+        <p className="pb-4 text-sm text-gray-500 leading-relaxed">{a}</p>
+      )}
+    </div>
+  )
+}
+
 export default function Home() {
-  const { user, login, loading } = useAuth()
+  const { user, login } = useAuth()
+  const router = useRouter()
+  const [openFaq, setOpenFaq] = useState<number | null>(null)
 
-  const sdkCode = `from codeset import Codeset
+  const handleGetStarted = (repo: string, agent: string) => {
+    if (!repo || !agent) return
+    sessionStorage.setItem(
+      "codeset_pending_agent_job",
+      JSON.stringify({ repo, agent })
+    )
+    if (user) {
+      router.push(
+        `/dashboard/agent?repo=${encodeURIComponent(repo)}&agent=${encodeURIComponent(agent)}`
+      )
+    } else {
+      login()
+    }
+  }
 
-# Initialize client with your API key
-client = Codeset(api_key="your_api_key")
-
-# Create a session for a task
-session = client.sessions.create(
-    dataset="codeset-gym-python",
-    sample_id="matiasb__python-unidiff-19"
-)
-
-# Interact with the environment
-result = client.sessions.execute_command(
-    session_id=session.session_id,
-    command="ls -lah"
-)
-
-# Start a verification job
-verify = client.sessions.verify.start(
-    session_id=session.session_id
-)
-
-# Close session
-client.sessions.close(session_id=session.session_id)
-`
+  const handlePricingCTA = () => {
+    if (user) {
+      router.push("/dashboard/agent")
+    } else {
+      login()
+    }
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-black font-mono">
       <Header />
-      <main className="flex-grow flex items-center justify-center py-16">
-        <div className="w-full mx-auto px-8 flex flex-col md:flex-row items-center gap-12">
-          {/* Left Column: Text Content */}
-          <div className="md:w-1/2 text-center md:text-left">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-medium tracking-tight mb-4">
-              &lt;codeset&gt;
+
+      {/* ── Hero ──────────────────────────────────────────────────────────── */}
+      <section className="pt-28 pb-24 px-8">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-[1fr_1fr] gap-20 items-start">
+          {/* Left */}
+          <div>
+            <h1 className="text-4xl sm:text-5xl font-medium tracking-tight mb-5 leading-[1.1]">
+              Make agents<br />
+              actually know<br />
+              your codebase.
             </h1>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-medium text-gray-600 mb-6">
-              Accelerate your agentic models
-            </h2>
-            <p className="max-w-md md:max-w-none mx-auto md:mx-0 text-gray-500 mb-8">
-              A platform for training and evaluating agentic models with large-scale datasets of reproducible, sandboxed environments.
+
+            {/* Positioning line — visually distinct from body */}
+            <p className="border-l border-gray-300 pl-4 text-sm text-gray-600 mb-4 leading-snug">
+              AGENTS.md tell agents what your code looks like.<br />
+              We tell it what your code has been through.
             </p>
-            <div className="flex flex-col sm:flex-row justify-center md:justify-start gap-4">
-              {!loading && (
-                user ? (
-                  <Link href="/dashboard" className="px-8 py-3 text-base font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors shadow-lg">
-                    Go to Dashboard
-                  </Link>
-                ) : (
-                  <button
-                    onClick={login}
-                    className="px-8 py-3 text-base font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors shadow-lg"
-                  >
-                    Get Started - Free $5 Credits
-                  </button>
-                )
-              )}
-              <Link href="https://docs.codeset.ai" className="px-6 py-3 text-base font-medium text-black bg-gray-100 border border-gray-200 rounded-md hover:bg-gray-200 transition-colors">
-                Documentation
-              </Link>
+
+            <p className="text-sm text-gray-400 mb-8 leading-relaxed max-w-sm">
+              Past bugs, caller graphs, hidden dependencies, test coverage —
+              extracted from your repo and injected into your agent automatically,
+              file by file.
+            </p>
+
+            <HeroForm onSubmit={handleGetStarted} showAgent={false} />
+
+            {/* Price — front and center, not buried */}
+            <p className="mt-3 text-xs text-gray-400">
+              <span className="text-gray-700 font-medium">$3 per repo.</span>
+              {" "}No subscription.
+            </p>
+            {/* <p className="mt-1 text-xs text-gray-400">
+              Also generates AGENTS.md for Cursor and GitHub Copilot.
+            </p> */}
+          </div>
+
+          {/* Right — the WOW artifact */}
+          <div className="mt-8 md:mt-0">
+            <CodeWindow
+              title="retrieve_file_info.py src/auth.ts"
+              content={FILE_INFO_HERO}
+            />
+            <p className="mt-2 text-xs text-gray-400 text-center">
+              Context injected automatically when your agent reads the file.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Credibility bar ───────────────────────────────────────────────── */}
+      <section className="border-t border-b border-gray-100 bg-gray-50 py-4 px-8">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-xs text-gray-400">
+          <span>Your agent learns from past bugs</span>
+          <span className="hidden sm:block text-gray-200">·</span>
+          <span>Full AST caller graph</span>
+          <span className="hidden sm:block text-gray-200">·</span>
+          <span>Test-to-file mapping</span>
+          <span className="hidden sm:block text-gray-200">·</span>
+          <span className="text-gray-500 font-medium">$3 per repo · no subscription</span>
+        </div>
+      </section>
+
+      {/* ── Problem / Positioning ─────────────────────────────────────────── */}
+      <section className="py-24 px-8">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-20">
+          <div>
+            <h2 className="text-2xl font-medium mb-5 leading-snug">
+              Conventions and architecture are easy.<br />
+              The harder knowledge is implicit.
+            </h2>
+            <p className="text-sm text-gray-500 leading-relaxed mb-4">
+              Which files tend to break together. Which functions have been
+              misused before. Which edge cases burned your team three months ago
+              and are about to happen again.
+            </p>
+            <p className="text-sm text-gray-500 leading-relaxed">
+              That knowledge lives in your git history, your test suite, and
+              your AST — not in any README. We extract it automatically and
+              surface it to your agent at the moment it matters.
+            </p>
+          </div>
+          <div>
+            <h3 className="text-xs font-medium mb-5 text-gray-400 uppercase tracking-widest">
+              What we extract
+            </h3>
+            <ul className="space-y-4">
+              {[
+                [
+                  "Commit history insights",
+                  "Past bugs, root causes, failed attempts, and lessons learned — structured and linked to the files they affected.",
+                ],
+                [
+                  "Per-file pitfalls",
+                  "Specific relevant mistakes each file has caused, the consequence, and the prevention. Extracted from your history, not invented.",
+                ],
+                [
+                  "Test coverage map",
+                  "Which test files and functions exercise each source file. Your agent knows exactly where to look after making a change.",
+                ],
+                [
+                  "Co-change patterns",
+                  "Files historically modified together, exposing hidden coupling that imports alone don't reveal.",
+                ],
+                [
+                  "AST caller graph",
+                  "For every function, we know every caller: file, line number, and call context. Your agent understands impact before touching a line.",
+                ],
+
+              ].map(([title, desc]) => (
+                <li key={title} className="flex gap-3 text-sm">
+                  <span className="text-gray-400 mt-0.5 flex-shrink-0">→</span>
+                  <span className="text-gray-600">
+                    <span className="font-medium text-gray-800">{title}. </span>
+                    {desc}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* ── What you get ──────────────────────────────────────────────────── */}
+      <section className="py-24 px-8 bg-gray-50 border-t border-gray-100">
+        <div className="max-w-7xl mx-auto">
+          {/* Title now includes the price — makes it feel like a value reveal */}
+          <h2 className="text-2xl font-medium mb-2">What you get — for $3</h2>
+          <p className="text-sm text-gray-500 mb-10 max-w-lg leading-relaxed">
+            A knowledge base your agent consults automatically as it works, automatically integrated into your agent, and improved CLAUDE.md/AGENTS.md files.
+          </p>
+
+          {/* Top row: two compact cards */}
+          <div className="grid md:grid-cols-2 gap-5 mb-5">
+            <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+              <div className="px-5 py-4 border-b border-gray-100">
+                <div className="text-xs text-gray-400 mb-1">01</div>
+                <h3 className="font-medium text-gray-900 text-sm">AGENTS.md <span className="text-gray-400 font-normal">/ CLAUDE.md</span></h3>
+                <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                  Improved AGENTS.md/CLAUDE.md providing a high-level overview of your codebase.
+                </p>
+              </div>
+              <pre className="bg-gray-950 text-gray-400 text-xs p-4 leading-relaxed overflow-x-auto whitespace-pre">
+                {SAMPLE_CLAUDE_MD}
+              </pre>
             </div>
-            <div className="mt-4 flex justify-center md:justify-start">
-              <Link href="/contact" className="text-sm text-gray-500 hover:text-gray-700 underline">
-                Want to get in touch? Click here
-              </Link>
+
+            <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+              <div className="px-5 py-4 border-b border-gray-100">
+                <div className="text-xs text-gray-400 mb-1">03</div>
+                <h3 className="font-medium text-gray-900 text-sm">Auto-configured hooks</h3>
+                <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                  When your agent reads a file, hooks inject the relevant
+                  insights automatically — no manual lookup, no context lost.
+                </p>
+              </div>
+              <pre className="bg-gray-950 text-gray-400 text-xs p-4 leading-relaxed overflow-x-auto whitespace-pre">
+                {HOOKS_SNIPPET}
+              </pre>
             </div>
           </div>
 
-          {/* Right Column: SDK Code Example */}
-          <div className="md:w-1/2 w-full">
-            <div className="bg-gray-900 border border-gray-200 rounded-lg shadow-lg font-mono text-left text-sm overflow-hidden">
-              <div className="bg-gray-100 px-4 py-2 flex items-center gap-2">
-                <span className="w-3 h-3 bg-red-500 rounded-full"></span>
-                <span className="w-3 h-3 bg-yellow-500 rounded-full"></span>
-                <span className="w-3 h-3 bg-green-500 rounded-full"></span>
+          {/* Bottom: featured full-width card — the differentiator */}
+          <div className="border border-gray-800 rounded-lg overflow-hidden bg-white">
+            <div className="px-5 py-4 border-b border-gray-200">
+              <div className="flex items-center gap-3 mb-1">
+                <span className="text-xs text-gray-400">02</span>
+                <span className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">
+                  What makes this different
+                </span>
               </div>
-              <SyntaxHighlighter language="python" style={atomOneDark} customStyle={{ background: '#1f2937', padding: '1.5rem' }}>
-                {sdkCode}
-              </SyntaxHighlighter>
+              <h3 className="font-medium text-gray-900 text-sm">Per-file knowledge base</h3>
+              <p className="text-xs text-gray-500 mt-1 leading-relaxed max-w-md">
+                For every file in your repo: past bugs with root causes, specific
+                pitfalls with consequences, every function caller with line numbers,
+                and which tests exercise it. Retrieved by your agent via hooks the
+                moment it reads the file.
+              </p>
+            </div>
+            <div className="grid md:grid-cols-[1fr_1fr] divide-y md:divide-y-0 md:divide-x divide-gray-800">
+              <div className="px-5 py-4 bg-gray-950">
+                <pre className="text-gray-300 text-xs leading-relaxed overflow-x-auto whitespace-pre">
+                  {FILE_INFO_CARD}
+                </pre>
+              </div>
+              <div className="px-5 py-4 bg-gray-950 flex flex-col justify-center gap-4">
+                <div>
+                  <p className="text-xs text-gray-500 font-medium uppercase tracking-widest mb-2">
+                    What your agent sees when it reads src/payments.ts
+                  </p>
+                  <ul className="space-y-2 text-xs text-gray-400">
+                    {[
+                      "The double-charge bug that hit production — and the fix.",
+                      "Two pitfalls with consequences: don't call inside a transaction, never log the full object.",
+                      "Six callers across the codebase, with file and line.",
+                      "Four tests, ready to run after any change.",
+                      "Two files that always move with this one.",
+                    ].map((item) => (
+                      <li key={item} className="flex gap-2">
+                        <span className="text-gray-600 flex-shrink-0">›</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <p className="text-xs text-gray-600 leading-relaxed border-t border-gray-800 pt-4">
+                  Generated automatically from your git history and AST.
+                  No manual annotation. No maintenance.
+                </p>
+              </div>
             </div>
           </div>
         </div>
-      </main>
+      </section>
+
+      {/* ── How it works ──────────────────────────────────────────────────── */}
+      <section className="py-24 px-8">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-2xl font-medium mb-12">How it works</h2>
+          <div className="grid md:grid-cols-[1fr_auto_1fr_auto_1fr] gap-6 items-start">
+            <div>
+              <div className="text-3xl font-medium text-gray-200 mb-3">01</div>
+              <h3 className="font-medium mb-2 text-gray-900 text-sm">Submit your repo</h3>
+              <p className="text-sm text-gray-500 leading-relaxed">
+                Paste your GitHub URL and choose your agent. We support Claude Code,
+                Cursor, and GitHub Copilot.
+              </p>
+            </div>
+            <div className="hidden md:flex items-center justify-center pt-10 text-gray-200 text-lg select-none">
+              →
+            </div>
+            <div>
+              <div className="text-3xl font-medium text-gray-200 mb-3">02</div>
+              <h3 className="font-medium mb-2 text-gray-900 text-sm">We analyze your codebase</h3>
+              <p className="text-sm text-gray-500 leading-relaxed">
+                Our pipeline mines your commit history, runs AST analysis across your
+                entire codebase, extracts pitfalls, and maps test coverage. Under one hour.
+              </p>
+            </div>
+            <div className="hidden md:flex items-center justify-center pt-10 text-gray-200 text-lg select-none">
+              →
+            </div>
+            <div>
+              <div className="text-3xl font-medium text-gray-200 mb-3">03</div>
+              <h3 className="font-medium mb-2 text-gray-900 text-sm">Download and commit</h3>
+              <p className="text-sm text-gray-500 leading-relaxed">
+                Get CLAUDE.md, the per-file knowledge base, and auto-configured hooks.
+                Commit them. $3, charged once.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Pricing ───────────────────────────────────────────────────────── */}
+      <section className="py-24 px-8 bg-gray-50 border-t border-gray-100">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-[2fr_3fr] gap-20 items-start">
+          {/* Left: framing */}
+          <div>
+            <h2 className="text-2xl font-medium mb-4">Pricing</h2>
+            <p className="text-sm text-gray-500 leading-relaxed mb-4">
+              One analysis. One cost. The files are yours — commit them to your
+              repo and your agent uses them forever.
+            </p>
+            <p className="text-sm text-gray-500 leading-relaxed">
+              Re-run any time as your codebase evolves. Each run is another $3.
+              No plan upgrades. No per-seat math.
+            </p>
+          </div>
+
+          {/* Right: price card */}
+          <div className="bg-white border border-gray-200 rounded-lg p-8">
+            {/* Price display */}
+            <div className="flex items-baseline gap-2 mb-1">
+              <span className="text-5xl font-medium tracking-tight">$3</span>
+              <span className="text-gray-500 text-sm">per repo</span>
+            </div>
+            <p className="text-sm text-gray-400 mb-7">One-time · No subscription</p>
+
+            {/* What's included */}
+            <ul className="space-y-2.5 mb-8">
+              {WHAT_YOU_GET.map((item) => (
+                <li key={item} className="flex items-center gap-3 text-sm text-gray-600">
+                  <span className="text-black flex-shrink-0">✓</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+
+            {/* CTA */}
+            <button
+              onClick={handlePricingCTA}
+              className="w-full px-6 py-3 text-sm font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors"
+            >
+              Get Started →
+            </button>
+            <p className="mt-3 text-xs text-gray-400 text-center">
+              Free to start — $3 charged when you run the analysis.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ───────────────────────────────────────────────────────────── */}
+      <section className="py-24 px-8">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-[2fr_3fr] gap-20">
+          <div>
+            <h2 className="text-2xl font-medium mb-4">Common questions</h2>
+            <p className="text-sm text-gray-500 leading-relaxed">
+              Anything not covered here — reach out via the{" "}
+              <a href="/contact" className="underline hover:text-black transition-colors">
+                contact page
+              </a>
+              .
+            </p>
+          </div>
+          <div>
+            {FAQS.map((faq, i) => (
+              <FaqItem
+                key={i}
+                q={faq.q}
+                a={faq.a}
+                open={openFaq === i}
+                onToggle={() => setOpenFaq(openFaq === i ? null : i)}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Dark CTA ──────────────────────────────────────────────────────── */}
+      <section className="bg-black text-white py-28 px-8">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl font-medium mb-3 leading-tight">
+            Start with your most important repo.
+          </h2>
+          {/* Price is now explicit here too */}
+          <p className="text-gray-400 text-sm mb-8 max-w-md leading-relaxed">
+            $3 per repo. One-time — no subscription, no seat licenses.
+            Your agent gets wired into your codebase&apos;s history in under an hour.
+          </p>
+          <HeroForm onSubmit={handleGetStarted} dark showAgent />
+        </div>
+      </section>
+
+      <Footer />
     </div>
   )
 }
