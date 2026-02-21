@@ -6,6 +6,7 @@ import { ChevronDown } from "lucide-react"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { useAuth } from "@/contexts/AuthContext"
+import { normalizeRepo } from "@/lib/repo"
 
 const FAQS = [
   {
@@ -141,15 +142,6 @@ const HOOKS_SNIPPET = `// .claude/settings.local.json
     ]
   }
 }`
-
-function normalizeRepo(input: string): string {
-  let s = input.trim()
-  s = s.replace(/\.git$/, "")
-  s = s.replace(/\/$/, "")
-  s = s.replace(/^https?:\/\/github\.com\//, "")
-  s = s.replace(/^github\.com\//, "")
-  return s
-}
 
 function HeroForm({
   onSubmit,
