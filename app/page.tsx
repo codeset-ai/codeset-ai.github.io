@@ -174,7 +174,7 @@ function HeroForm({
   }
 
   return (
-    <div className="flex flex-col gap-3 w-full max-w-xl">
+    <div className="flex flex-col gap-3 w-full">
       <input
         type="text"
         value={repoInput}
@@ -282,33 +282,46 @@ export default function Home() {
           {/* Left */}
           <div>
             <h1 className="text-4xl sm:text-5xl font-medium tracking-tight mb-5 leading-[1.1]">
-              Make agents<br />
-              actually know<br />
-              your codebase.
+              Your coding agent,<br />
+              but better.
             </h1>
 
-            {/* Positioning line — visually distinct from body */}
-            <p className="border-l border-gray-300 pl-4 text-sm text-gray-600 mb-4 leading-snug">
-              AGENTS.md tell agents what your code looks like.<br />
-              We tell it what your code has been through.
+            <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+              Codeset Agent analyzes your entire repo — every commit,
+              every function call, every test — and gives your agent the kind
+              of codebase knowledge that usually takes months on a team to build.
             </p>
 
-            <p className="text-sm text-gray-400 mb-8 leading-relaxed max-w-sm">
-              Past bugs, caller graphs, hidden dependencies, test coverage —
-              extracted from your repo and injected into your agent automatically,
-              file by file.
-            </p>
+            {/* Proof — benchmark numbers */}
+            <div className="flex items-stretch gap-3 mb-8">
+              <div className="border border-gray-200 rounded-lg px-4 py-3 flex-1">
+                <div className="text-xl font-medium tracking-tight leading-tight">52% → 62%</div>
+                <div className="text-[11px] text-gray-400 mt-0.5">Claude Haiku</div>
+              </div>
+              <div className="border border-gray-200 rounded-lg px-4 py-3 flex-1">
+                <div className="text-xl font-medium tracking-tight leading-tight">56% → 63.3%</div>
+                <div className="text-[11px] text-gray-400 mt-0.5">Claude Sonnet</div>
+              </div>
+              <div className="border border-gray-900 bg-gray-50 rounded-lg px-4 py-3 flex-1">
+                <div className="text-xl font-medium tracking-tight leading-tight">⅓ cost</div>
+                <div className="text-[11px] text-gray-400 mt-0.5">Haiku+Codeset vs Sonnet</div>
+              </div>
+            </div>
 
             <HeroForm onSubmit={handleGetStarted} />
 
-            {/* Price — front and center, not buried */}
-            <p className="mt-3 text-xs text-gray-400">
-              <span className="text-gray-700 font-medium">$3 per repo.</span>
-              {" "}No subscription.
-            </p>
-            {/* <p className="mt-1 text-xs text-gray-400">
-              Also generates AGENTS.md for Cursor and GitHub Copilot.
-            </p> */}
+            <div className="mt-3 flex items-center gap-4">
+              <p className="text-xs text-gray-400">
+                <span className="text-gray-700 font-medium">$3 per repo.</span>
+                {" "}One-time. Under 30 minutes.
+              </p>
+              <a
+                href="/blog/introducing-codeset-agent"
+                className="text-xs text-gray-400 underline hover:text-gray-600 transition-colors whitespace-nowrap"
+              >
+                Read the evaluation →
+              </a>
+            </div>
           </div>
 
           {/* Right — the WOW artifact */}
@@ -318,7 +331,7 @@ export default function Home() {
               content={FILE_INFO_HERO}
             />
             <p className="mt-2 text-xs text-gray-400 text-center">
-              Context injected automatically when your agent reads the file.
+              Surfaced automatically when your agent reads a file.
             </p>
           </div>
         </div>
