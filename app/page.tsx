@@ -324,16 +324,22 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Credibility bar ───────────────────────────────────────────────── */}
-      <section className="border-t border-b border-gray-100 bg-gray-50 py-4 px-8">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-xs text-gray-400">
-          <span>Your agent learns from past bugs</span>
-          <span className="hidden sm:block text-gray-200">·</span>
-          <span>Full AST caller graph</span>
-          <span className="hidden sm:block text-gray-200">·</span>
-          <span>Test-to-file mapping</span>
-          <span className="hidden sm:block text-gray-200">·</span>
-          <span className="text-gray-500 font-medium">$3 per repo · no subscription</span>
+      {/* ── Works with ───────────────────────────────────────────────────── */}
+      <section className="border-b border-gray-100 py-10 px-8">
+        <div className="max-w-7xl mx-auto">
+          <p className="text-center text-xs text-gray-400 uppercase tracking-widest mb-8">Works with</p>
+          <div className="flex flex-wrap items-end justify-center gap-10">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logos/claude.svg" alt="Claude Code" className="h-6 opacity-40 grayscale hover:opacity-75 hover:grayscale-0 transition-all duration-200" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logos/cursor.svg" alt="Cursor" className="h-6 opacity-40 grayscale hover:opacity-75 hover:grayscale-0 transition-all duration-200" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logos/github-copilot.svg" alt="GitHub Copilot" className="h-6 opacity-40 grayscale hover:opacity-75 hover:grayscale-0 transition-all duration-200" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logos/openai.svg" alt="OpenAI Codex" className="h-6 opacity-40 grayscale hover:opacity-75 hover:grayscale-0 transition-all duration-200" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logos/gemini.svg" alt="Gemini CLI" className="h-6 mb-1 opacity-40 grayscale hover:opacity-75 hover:grayscale-0 transition-all duration-200" />
+          </div>
         </div>
       </section>
 
