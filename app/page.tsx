@@ -264,21 +264,14 @@ export default function Home() {
     }
   }
 
-  const handlePricingCTA = () => {
-    if (user) {
-      router.push("/dashboard/agent")
-    } else {
-      login()
-    }
-  }
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-black font-mono">
       <Header />
 
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
-      <section className="pt-28 pb-24 px-8">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-[1fr_1fr] gap-20 items-start">
+      <section className="pt-28 pb-24 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-[1fr_1fr] gap-10 md:gap-20 items-start">
           {/* Left */}
           <div>
             <h1 className="text-4xl sm:text-5xl font-medium tracking-tight mb-5 leading-[1.1]">
@@ -293,24 +286,24 @@ export default function Home() {
             </p>
 
             {/* Proof — benchmark numbers */}
-            <div className="flex items-stretch gap-3 mb-8">
-              <div className="border border-gray-200 rounded-lg px-4 py-3 flex-1">
-                <div className="text-xl font-medium tracking-tight leading-tight">52% → 62%</div>
-                <div className="text-[11px] text-gray-400 mt-0.5">Claude Haiku</div>
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-8">
+              <div className="border border-gray-200 rounded-lg px-3 sm:px-4 py-3">
+                <div className="text-base sm:text-xl font-medium tracking-tight leading-tight">52% → 62%</div>
+                <div className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5">Claude Haiku</div>
               </div>
-              <div className="border border-gray-200 rounded-lg px-4 py-3 flex-1">
-                <div className="text-xl font-medium tracking-tight leading-tight">56% → 63.3%</div>
-                <div className="text-[11px] text-gray-400 mt-0.5">Claude Sonnet</div>
+              <div className="border border-gray-200 rounded-lg px-3 sm:px-4 py-3">
+                <div className="text-base sm:text-xl font-medium tracking-tight leading-tight">56% → 63.3%</div>
+                <div className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5">Claude Sonnet</div>
               </div>
-              <div className="border border-gray-900 bg-gray-50 rounded-lg px-4 py-3 flex-1">
-                <div className="text-xl font-medium tracking-tight leading-tight">⅓ cost</div>
-                <div className="text-[11px] text-gray-400 mt-0.5">Haiku+Codeset vs Sonnet</div>
+              <div className="border border-gray-900 bg-gray-50 rounded-lg px-3 sm:px-4 py-3">
+                <div className="text-base sm:text-xl font-medium tracking-tight leading-tight">⅓ cost</div>
+                <div className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5">Haiku+Codeset vs Sonnet</div>
               </div>
             </div>
 
             <HeroForm onSubmit={handleGetStarted} />
 
-            <div className="mt-3 flex items-center gap-4">
+            <div className="mt-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
               <p className="text-xs text-gray-400">
                 <span className="text-gray-700 font-medium">$3 per repo.</span>
                 {" "}One-time. Under 30 minutes.
@@ -329,36 +322,35 @@ export default function Home() {
             <CodeWindow
               title="retrieve_file_info.py src/auth.ts"
               content={FILE_INFO_HERO}
+              className="shadow-2xl shadow-gray-200/60"
             />
-            <p className="mt-2 text-xs text-gray-400 text-center">
+            <p className="mt-3 text-xs text-gray-400 text-center">
               Surfaced automatically when your agent reads a file.
             </p>
           </div>
         </div>
-      </section>
 
-      {/* ── Works with ───────────────────────────────────────────────────── */}
-      <section className="border-b border-gray-100 py-10 px-8">
-        <div className="max-w-7xl mx-auto">
-          <p className="text-center text-xs text-gray-400 uppercase tracking-widest mb-8">Works with</p>
-          <div className="flex flex-wrap items-end justify-center gap-10">
+        {/* Works with — absorbed into hero as a subtle footer */}
+        <div className="max-w-7xl mx-auto mt-12 sm:mt-14 pt-6 border-t border-gray-100">
+          <p className="text-[11px] text-gray-300 uppercase tracking-widest text-center mb-4">Works with</p>
+          <div className="flex flex-wrap items-end justify-center gap-6 sm:gap-10">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logos/claude.svg" alt="Claude Code" className="h-6 opacity-40 grayscale hover:opacity-75 hover:grayscale-0 transition-all duration-200" />
+            <img src="/logos/claude.svg" alt="Claude Code" className="h-5 opacity-30 grayscale hover:opacity-60 hover:grayscale-0 transition-all duration-200" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logos/cursor.svg" alt="Cursor" className="h-6 opacity-40 grayscale hover:opacity-75 hover:grayscale-0 transition-all duration-200" />
+            <img src="/logos/cursor.svg" alt="Cursor" className="h-5 opacity-30 grayscale hover:opacity-60 hover:grayscale-0 transition-all duration-200" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logos/github-copilot.svg" alt="GitHub Copilot" className="h-6 opacity-40 grayscale hover:opacity-75 hover:grayscale-0 transition-all duration-200" />
+            <img src="/logos/github-copilot.svg" alt="GitHub Copilot" className="h-5 opacity-30 grayscale hover:opacity-60 hover:grayscale-0 transition-all duration-200" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logos/openai.svg" alt="OpenAI Codex" className="h-6 opacity-40 grayscale hover:opacity-75 hover:grayscale-0 transition-all duration-200" />
+            <img src="/logos/openai.svg" alt="OpenAI Codex" className="h-5 opacity-30 grayscale hover:opacity-60 hover:grayscale-0 transition-all duration-200" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logos/gemini.svg" alt="Gemini CLI" className="h-6 mb-1 opacity-40 grayscale hover:opacity-75 hover:grayscale-0 transition-all duration-200" />
+            <img src="/logos/gemini.svg" alt="Gemini CLI" className="h-5 mb-0.5 opacity-30 grayscale hover:opacity-60 hover:grayscale-0 transition-all duration-200" />
           </div>
         </div>
       </section>
 
       {/* ── Problem / Positioning ─────────────────────────────────────────── */}
-      <section className="py-24 px-8">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-20">
+      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-10 md:gap-20">
           <div>
             <h2 className="text-2xl font-medium mb-5 leading-snug">
               Conventions and architecture are easy.<br />
@@ -417,7 +409,7 @@ export default function Home() {
       </section>
 
       {/* ── What you get ──────────────────────────────────────────────────── */}
-      <section className="py-24 px-8 bg-gray-50 border-t border-gray-100">
+      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-gray-50 border-t border-gray-100">
         <div className="max-w-7xl mx-auto">
           {/* Title now includes the price — makes it feel like a value reveal */}
           <h2 className="text-2xl font-medium mb-2">What you get — for $3</h2>
@@ -509,95 +501,40 @@ export default function Home() {
       </section>
 
       {/* ── How it works ──────────────────────────────────────────────────── */}
-      <section className="py-24 px-8">
+      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-medium mb-12">How it works</h2>
-          <div className="grid md:grid-cols-[1fr_auto_1fr_auto_1fr] gap-6 items-start">
-            <div>
-              <div className="text-3xl font-medium text-gray-200 mb-3">01</div>
-              <h3 className="font-medium mb-2 text-gray-900 text-sm">Submit your repo</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">
-                Paste your GitHub URL. We support Claude Code, Cursor, and GitHub Copilot.
-              </p>
-            </div>
-            <div className="hidden md:flex items-center justify-center pt-10 text-gray-200 text-lg select-none">
-              →
-            </div>
-            <div>
-              <div className="text-3xl font-medium text-gray-200 mb-3">02</div>
-              <h3 className="font-medium mb-2 text-gray-900 text-sm">We analyze your codebase</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">
-                Our pipeline mines your commit history, runs AST analysis across your
-                entire codebase, extracts pitfalls, and maps test coverage. Under one hour.
-              </p>
-            </div>
-            <div className="hidden md:flex items-center justify-center pt-10 text-gray-200 text-lg select-none">
-              →
-            </div>
-            <div>
-              <div className="text-3xl font-medium text-gray-200 mb-3">03</div>
-              <h3 className="font-medium mb-2 text-gray-900 text-sm">Download and commit</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">
-                Get CLAUDE.md, the per-file knowledge base, and auto-configured hooks.
-                Commit them. $3, charged once.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Pricing ───────────────────────────────────────────────────────── */}
-      <section className="py-24 px-8 bg-gray-50 border-t border-gray-100">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-[2fr_3fr] gap-20 items-start">
-          {/* Left: framing */}
-          <div>
-            <h2 className="text-2xl font-medium mb-4">Pricing</h2>
-            <p className="text-sm text-gray-500 leading-relaxed mb-4">
-              One analysis. One cost. The files are yours — commit them to your
-              repo and your agent uses them forever.
-            </p>
-            <p className="text-sm text-gray-500 leading-relaxed">
-              Re-run any time as your codebase evolves. Each run is another $3.
-              No plan upgrades. No per-seat math.
-            </p>
-          </div>
-
-          {/* Right: price card */}
-          <div className="bg-white border border-gray-200 rounded-lg p-8">
-            {/* Price display */}
-            <div className="flex items-baseline gap-2 mb-1">
-              <span className="text-5xl font-medium tracking-tight">$3</span>
-              <span className="text-gray-500 text-sm">per repo</span>
-            </div>
-            <p className="text-sm text-gray-400 mb-7">One-time · No subscription</p>
-
-            {/* What's included */}
-            <ul className="space-y-2.5 mb-8">
-              {WHAT_YOU_GET.map((item) => (
-                <li key={item} className="flex items-center gap-3 text-sm text-gray-600">
-                  <span className="text-black flex-shrink-0">✓</span>
-                  {item}
-                </li>
-              ))}
-            </ul>
-
-            {/* CTA */}
-            <button
-              onClick={handlePricingCTA}
-              className="w-full px-6 py-3 text-sm font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors"
-            >
-              Get Started →
-            </button>
-            <p className="mt-3 text-xs text-gray-400 text-center">
-              Free to start — $3 charged when you run the analysis.
-            </p>
+          <div className="grid md:grid-cols-3 gap-12">
+            {[
+              {
+                step: "01",
+                title: "Connect your repo",
+                desc: "Paste your GitHub URL and sign in. We support private and public repositories.",
+              },
+              {
+                step: "02",
+                title: "We analyze your codebase",
+                desc: "Our pipeline mines your commit history, traces every function caller, extracts pitfalls, and maps test coverage. Under 30 minutes.",
+              },
+              {
+                step: "03",
+                title: "Download and commit",
+                desc: "Get your AGENTS.md, per-file knowledge base, and auto-configured hooks. Commit them — your agent uses them from now on.",
+              },
+            ].map((item) => (
+              <div key={item.step} className="relative">
+                <div className="text-xs font-medium text-gray-300 uppercase tracking-widest mb-3">{item.step}</div>
+                <h3 className="font-medium mb-2 text-gray-900 text-sm">{item.title}</h3>
+                <p className="text-sm text-gray-500 leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* ── FAQ ───────────────────────────────────────────────────────────── */}
-      <section className="py-24 px-8">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-[2fr_3fr] gap-20">
+      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-[2fr_3fr] gap-8 md:gap-20">
           <div>
             <h2 className="text-2xl font-medium mb-4">Common questions</h2>
             <p className="text-sm text-gray-500 leading-relaxed">
@@ -623,17 +560,31 @@ export default function Home() {
       </section>
 
       {/* ── Dark CTA ──────────────────────────────────────────────────────── */}
-      <section className="bg-black text-white py-28 px-8">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl font-medium mb-3 leading-tight">
-            Start with your most important repo.
-          </h2>
-          {/* Price is now explicit here too */}
-          <p className="text-gray-400 text-sm mb-8 max-w-md leading-relaxed">
-            $3 per repo. One-time — no subscription, no seat licenses.
-            Your agent gets wired into your codebase&apos;s history in under an hour.
-          </p>
-          <HeroForm onSubmit={handleGetStarted} dark />
+      <section className="bg-black text-white py-16 sm:py-28 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-[1fr_1fr] gap-10 md:gap-16 items-start">
+          <div>
+            <h2 className="text-3xl font-medium mb-3 leading-tight">
+              Start with your most important repo.
+            </h2>
+            <p className="text-gray-400 text-sm mb-8 max-w-md leading-relaxed">
+              $3 per repo. One-time — no subscription, no seat licenses.
+              Your agent gets wired into your codebase&apos;s history in under an hour.
+            </p>
+            <HeroForm onSubmit={handleGetStarted} dark />
+          </div>
+          <div className="border border-gray-800 rounded-lg p-6">
+            <h3 className="text-xs font-medium text-gray-500 uppercase tracking-widest mb-4">
+              What you get
+            </h3>
+            <ul className="space-y-3">
+              {WHAT_YOU_GET.map((item) => (
+                <li key={item} className="flex items-center gap-3 text-sm text-gray-300">
+                  <span className="text-gray-600">✓</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </section>
 

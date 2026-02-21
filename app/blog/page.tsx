@@ -7,7 +7,7 @@ export default function BlogPage() {
   return (
     <LandingLayout>
       <div className="min-h-screen bg-white text-black font-mono py-24">
-        <div className="max-w-4xl mx-auto px-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-4xl font-medium mb-8">Blog</h1>
           <p className="text-gray-600 mb-12 max-w-2xl">
             Updates from the Codeset team.

@@ -21,7 +21,7 @@ export default async function BlogPost({ params }: { params: { slug: string } })
   return (
     <LandingLayout>
       <div className="min-h-screen bg-white text-black font-mono py-24">
-        <div className="max-w-4xl mx-auto px-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-8">
             <Link
               href="/blog"

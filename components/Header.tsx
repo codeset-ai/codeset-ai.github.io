@@ -10,7 +10,7 @@ export default function Header() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-20 px-4 py-3 bg-white/80 backdrop-blur-sm border-b border-gray-200">
-      <div className="w-full mx-auto px-8 flex items-center justify-between">
+      <div className="w-full mx-auto px-2 sm:px-8 flex items-center justify-between">
         <Link href="/">
           <Image
             src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Company%20Logo-JsOfHZ9d6BDOHKAfZ1zx71BLYUE7dw.svg"
@@ -24,20 +24,20 @@ export default function Header() {
 
         {!loading && (
           user ? (
-            <div className="flex items-center gap-3">
-              <Link href="/dashboard" className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
+            <div className="flex items-center gap-1 sm:gap-3">
+              <Link href="/dashboard" className="flex items-center gap-2 px-2 sm:px-3 py-2 text-sm font-medium text-gray-600 hover:text-black transition-colors">
                 <User size={16} />
-                <div className="flex flex-col">
+                <div className="hidden sm:flex flex-col">
                   <span>{user.name}</span>
                   <span className="text-xs text-gray-500">Dashboard</span>
                 </div>
               </Link>
               <button
                 onClick={logout}
-                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-black transition-colors"
+                className="flex items-center gap-2 px-2 sm:px-3 py-2 text-sm font-medium text-gray-600 hover:text-black transition-colors"
               >
                 <LogOut size={16} />
-                Logout
+                <span className="hidden sm:inline">Logout</span>
               </button>
             </div>
           ) : (
