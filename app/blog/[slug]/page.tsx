@@ -32,16 +32,18 @@ export default async function BlogPost({ params }: { params: { slug: string } })
           </div>
 
           <article>
-            <header className="mb-8">
-              <div className="flex items-center text-sm text-gray-500 mb-4">
+            <header className="mb-12 pb-10 border-b border-gray-100">
+              <div className="flex items-center gap-3 text-xs text-gray-400 mb-6 uppercase tracking-widest">
+                <span>Codeset</span>
+                <span>·</span>
                 <time>{new Date(post.date).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric'
                 })}</time>
               </div>
-              <h1 className="text-4xl font-medium mb-4">{post.title}</h1>
-              <p className="text-xl text-gray-600 leading-relaxed">
+              <h1 className="text-4xl sm:text-5xl font-medium mb-6 leading-[1.1] tracking-tight">{post.title}</h1>
+              <p className="text-lg text-gray-500 leading-relaxed max-w-2xl">
                 {post.excerpt}
               </p>
             </header>

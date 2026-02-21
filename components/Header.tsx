@@ -18,6 +18,7 @@ export default function Header() {
             width={100}
             height={20}
             className="filter invert"
+            priority
           />
         </Link>
 

@@ -43,7 +43,7 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
     const matterResult = matter(fileContents)
 
     const processedContent = await remark()
-      .use(html)
+      .use(html, { allowDangerousHtml: true })
       .process(matterResult.content)
     const contentHtml = processedContent.toString()
 
