@@ -171,7 +171,7 @@ function HeroForm({
         type="text"
         value={repoInput}
         onChange={(e) => setRepoInput(e.target.value)}
-        placeholder="github.com/your-org/your-repo"
+        placeholder="your-org/your-repo or github.com/your-org/your-repo"
         className={inputCls}
         onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
       />
