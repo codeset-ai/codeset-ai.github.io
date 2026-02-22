@@ -408,6 +408,7 @@ export function AgentPageContent() {
               type="text"
               value={repoInput}
               onChange={(e) => setRepoInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleRunAgentClick()}
               placeholder="owner/repo or github.com/owner/repo"
               className={`w-full rounded-md border px-3 py-2 text-sm font-mono focus:outline-none focus:ring-1 ${
                 repoValidationError
@@ -434,6 +435,7 @@ export function AgentPageContent() {
               id="agent-repo-select"
               value={selectedRepoFromList}
               onChange={(e) => setRepoInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleRunAgentClick()}
               disabled={reposLoading}
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring disabled:bg-muted disabled:text-muted-foreground"
             >
