@@ -11,7 +11,7 @@ import {
 } from '@/lib/api';
 import { parseRepo } from '@/lib/repo';
 import { useAuth } from '@/contexts/AuthContext';
-import { Bot, Download, AlertCircle, Loader2 } from 'lucide-react';
+import { Bot, Download, AlertCircle, Loader2, ExternalLink } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -65,6 +65,8 @@ export function AgentPageContent() {
   const [downloadDialogJobId, setDownloadDialogJobId] = useState<string | null>(null);
   const [downloadAgentIds, setDownloadAgentIds] = useState<string[]>([]);
   const [downloadError, setDownloadError] = useState<string | null>(null);
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
+  const [selectedJobDetailsLoading, setSelectedJobDetailsLoading] = useState(false);
 
   const formatCurrency = (cents: number) =>
     new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
@@ -195,6 +197,20 @@ export function AgentPageContent() {
     return () => clearInterval(t);
   }, [currentJobId, jobStatus?.status, runningJobs.length, loadJobs]);
 
+  useEffect(() => {
+    if (!selectedJobId || jobDetails[selectedJobId]) return;
+    let cancelled = false;
+    setSelectedJobDetailsLoading(true);
+    ApiService.getAgentJob(selectedJobId)
+      .then((d) => {
+        if (!cancelled) setJobDetails((prev) => ({ ...prev, [selectedJobId]: d }));
+      })
+      .finally(() => {
+        if (!cancelled) setSelectedJobDetailsLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [selectedJobId]);
+
   const runAgent = async () => {
     if (!parsedRepo.ok) {
       setCreateError(parsedRepo.error);
@@ -297,7 +313,18 @@ export function AgentPageContent() {
     <div className="space-y-8">
       <h1 className="text-2xl font-bold text-gray-900">Agent</h1>
 
-      <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+      <div className="relative rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+        {GITHUB_APP_INSTALL_URL && (
+          <a
+            href={GITHUB_APP_INSTALL_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="absolute right-4 top-4 inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900"
+          >
+            <ExternalLink size={14} />
+            Install app
+          </a>
+        )}
         <h2 className="mb-4 text-lg font-semibold text-gray-900">
           Run agent
         </h2>
@@ -512,6 +539,55 @@ export function AgentPageContent() {
         </DialogContent>
       </Dialog>
 
+      <Dialog
+        open={!!selectedJobId}
+        onOpenChange={(open) => !open && setSelectedJobId(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Job details</DialogTitle>
+          </DialogHeader>
+          {selectedJobId && (
+            <div className="space-y-3 py-2 text-sm">
+              {selectedJobDetailsLoading ? (
+                <div className="flex items-center gap-2 text-gray-600">
+                  <Loader2 size={16} className="animate-spin" />
+                  Loading…
+                </div>
+              ) : (
+                <>
+                  <div className="grid gap-2 font-mono text-xs text-gray-600">
+                    <p><span className="font-medium text-gray-900">Job ID:</span> {selectedJobId}</p>
+                    <p>
+                      <span className="font-medium text-gray-900">Repo:</span>{' '}
+                      {[...runningDisplayList, ...completedJobsDisplay].find((j) => j.job_id === selectedJobId)?.repo ?? '—'}
+                    </p>
+                    {jobDetails[selectedJobId] && (
+                      <>
+                        <p><span className="font-medium text-gray-900">Status:</span> {jobDetails[selectedJobId].status}</p>
+                        <p><span className="font-medium text-gray-900">Created:</span> {new Date(jobDetails[selectedJobId].created_at).toLocaleString()}</p>
+                        {jobDetails[selectedJobId].completed_at && (
+                          <p><span className="font-medium text-gray-900">Completed:</span> {new Date(jobDetails[selectedJobId].completed_at).toLocaleString()}</p>
+                        )}
+                        {jobDetails[selectedJobId].progress_stage && (
+                          <p><span className="font-medium text-gray-900">Stage:</span> {jobDetails[selectedJobId].progress_stage}</p>
+                        )}
+                      </>
+                    )}
+                  </div>
+                  {jobDetails[selectedJobId]?.error_message && (
+                    <div className="rounded-md border border-red-200 bg-red-50 p-3">
+                      <p className="text-xs font-medium text-red-800 mb-1">Error</p>
+                      <p className="text-sm text-red-700 whitespace-pre-wrap">{jobDetails[selectedJobId].error_message}</p>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {runningDisplayList.length > 0 && (
         <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
           <h2 className="mb-3 text-lg font-semibold text-gray-900">
@@ -535,7 +611,11 @@ export function AgentPageContent() {
                   const status = d?.status ?? j.status;
                   const isComplete = status === 'completed' && d?.result_available;
                   return (
-                    <tr key={j.job_id} className="border-b border-gray-100">
+                    <tr
+                      key={j.job_id}
+                      className="border-b border-gray-100 cursor-pointer hover:bg-gray-50"
+                      onClick={() => setSelectedJobId(j.job_id)}
+                    >
                       <td className="py-2 pr-4 font-mono text-xs">{j.job_id}</td>
                       <td className="py-2 pr-4">{j.repo}</td>
                       <td className="py-2 pr-4">{status}</td>
@@ -561,7 +641,7 @@ export function AgentPageContent() {
                       <td className="py-2 pr-4 text-gray-500">
                         {new Date(j.created_at).toLocaleString()}
                       </td>
-                      <td className="py-2">
+                      <td className="py-2" onClick={(e) => e.stopPropagation()}>
                         {isComplete && (
                           <button
                             onClick={() => openDownloadDialog(j.job_id)}
@@ -611,14 +691,18 @@ export function AgentPageContent() {
                   const canDownload =
                     j.status === 'completed' && (d == null ? true : d.result_available);
                   return (
-                    <tr key={j.job_id} className="border-b border-gray-100">
+                    <tr
+                      key={j.job_id}
+                      className="border-b border-gray-100 cursor-pointer hover:bg-gray-50"
+                      onClick={() => setSelectedJobId(j.job_id)}
+                    >
                       <td className="py-2 pr-4 font-mono text-xs">{j.job_id}</td>
                       <td className="py-2 pr-4">{j.repo}</td>
                       <td className="py-2 pr-4">{j.status}</td>
                       <td className="py-2 pr-4 text-gray-500">
                         {new Date(j.created_at).toLocaleString()}
                       </td>
-                      <td className="py-2">
+                      <td className="py-2" onClick={(e) => e.stopPropagation()}>
                         {canDownload && (
                           <button
                             onClick={() => openDownloadDialog(j.job_id)}
