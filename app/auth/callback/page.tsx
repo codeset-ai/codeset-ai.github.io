@@ -57,8 +57,10 @@ function AuthCallbackContent() {
             const pending = sessionStorage.getItem('codeset_pending_agent_job');
             if (pending) {
               try {
-                const { repo } = JSON.parse(pending);
-                router.push(`/dashboard/agent?repo=${encodeURIComponent(repo)}`);
+                const { repo, trigger } = JSON.parse(pending);
+                const params = new URLSearchParams({ repo });
+                if (trigger) params.set('trigger', 'true');
+                router.push(`/dashboard/agent?${params}`);
               } catch {
                 router.push('/dashboard/agent');
               }

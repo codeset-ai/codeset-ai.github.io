@@ -247,10 +247,10 @@ export default function Home() {
     if (!repo) return
     sessionStorage.setItem(
       "codeset_pending_agent_job",
-      JSON.stringify({ repo })
+      JSON.stringify({ repo, trigger: true })
     )
     if (user) {
-      router.push(`/dashboard/agent?repo=${encodeURIComponent(repo)}`)
+      router.push(`/dashboard/agent?repo=${encodeURIComponent(repo)}&trigger=true`)
     } else {
       login()
     }

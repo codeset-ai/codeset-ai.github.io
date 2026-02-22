@@ -39,6 +39,8 @@ interface PricingInfo {
 interface MoneyDepositRequest {
   amount_cents: number;
   currency: string;
+  success_url?: string;
+  cancel_url?: string;
 }
 
 interface MoneyDepositResponse {

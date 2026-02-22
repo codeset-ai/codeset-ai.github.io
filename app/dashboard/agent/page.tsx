@@ -8,6 +8,7 @@ import {
   AgentJobListItem,
   AgentJobResponse,
   PricingInfo,
+  UserCredits,
 } from '@/lib/api';
 import { parseRepo } from '@/lib/repo';
 import { useAuth } from '@/contexts/AuthContext';
@@ -61,7 +62,9 @@ export function AgentPageContent() {
   const [jobsLoading, setJobsLoading] = useState(false);
   const [jobDetails, setJobDetails] = useState<Record<string, AgentJobResponse>>({});
   const [pricing, setPricing] = useState<PricingInfo | null>(null);
+  const [userCredits, setUserCredits] = useState<UserCredits | null>(null);
   const [showRunConfirm, setShowRunConfirm] = useState(false);
+  const [topUpLoading, setTopUpLoading] = useState(false);
   const [downloadDialogJobId, setDownloadDialogJobId] = useState<string | null>(null);
   const [downloadAgentIds, setDownloadAgentIds] = useState<string[]>([]);
   const [downloadError, setDownloadError] = useState<string | null>(null);
@@ -113,9 +116,25 @@ export function AgentPageContent() {
     }
   }, []);
 
+  const loadCredits = useCallback(async () => {
+    try {
+      const data = await ApiService.getUserCredits();
+      setUserCredits(data);
+    } catch {
+      setUserCredits(null);
+    }
+  }, []);
+
+  const [autorun, setAutorun] = useState(false);
+  const [triggerRun, setTriggerRun] = useState(false);
+
   useEffect(() => {
     const repoParam = searchParams.get('repo');
+    const refParam = searchParams.get('ref');
     if (repoParam) setRepoInput(repoParam);
+    if (refParam) setRef(refParam);
+    if (searchParams.get('autorun') === 'true') setAutorun(true);
+    if (searchParams.get('trigger') === 'true') setTriggerRun(true);
     sessionStorage.removeItem('codeset_pending_agent_job');
   }, [searchParams]);
 
@@ -124,11 +143,37 @@ export function AgentPageContent() {
       loadRepos();
       loadJobs();
       loadPricing();
+      loadCredits();
     }
-  }, [user, loadRepos, loadJobs, loadPricing]);
+  }, [user, loadRepos, loadJobs, loadPricing, loadCredits]);
 
   const parsedRepo = parseRepo(repoInput);
   const repoToRun = parsedRepo.ok ? parsedRepo.repo : '';
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!autorun || !userCredits || !pricing || !parsedRepo.ok) return;
+    const jobCost = pricing.agent_job_cost_cents;
+    if (jobCost == null || userCredits.balance < jobCost) return;
+    setAutorun(false);
+    setShowRunConfirm(true);
+  }, [autorun, userCredits, pricing, parsedRepo.ok]);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!triggerRun || !pricing || !userCredits || !parsedRepo.ok) return;
+    setTriggerRun(false);
+    const jobCost = pricing.agent_job_cost_cents;
+    if (jobCost != null && userCredits.balance < jobCost) {
+      topUpAndRun(jobCost - userCredits.balance);
+      return;
+    }
+    if (jobCost != null) {
+      setShowRunConfirm(true);
+    } else {
+      runAgent();
+    }
+  }, [triggerRun, pricing, userCredits, parsedRepo.ok]);
   const repoValidationError =
     !parsedRepo.ok && repoInput.trim() ? parsedRepo.error : null;
   const selectedRepoFromList = repos.find((r) => r.full_name === repoToRun)?.full_name ?? '';
@@ -247,12 +292,38 @@ export function AgentPageContent() {
     }
   };
 
+  const topUpAndRun = async (shortfall: number) => {
+    try {
+      setTopUpLoading(true);
+      const params = new URLSearchParams({ repo: repoToRun, autorun: 'true' });
+      if (ref.trim()) params.set('ref', ref.trim());
+      const successUrl = `${window.location.origin}/dashboard/agent?${params}`;
+      const cancelUrl = `${window.location.origin}/dashboard/agent?repo=${encodeURIComponent(repoToRun)}`;
+      const response = await ApiService.createDepositSession({
+        amount_cents: Math.max(shortfall, 100),
+        currency: 'usd',
+        success_url: successUrl,
+        cancel_url: cancelUrl,
+      });
+      window.location.href = response.checkout_url;
+    } catch (err) {
+      setCreateError(err instanceof Error ? err.message : 'Failed to create payment session');
+    } finally {
+      setTopUpLoading(false);
+    }
+  };
+
   const handleRunAgentClick = () => {
     if (!parsedRepo.ok) {
       setCreateError(parsedRepo.error);
       return;
     }
-    if (pricing?.agent_job_cost_cents != null) {
+    const jobCost = pricing?.agent_job_cost_cents;
+    if (jobCost != null && userCredits != null && userCredits.balance < jobCost) {
+      topUpAndRun(jobCost - userCredits.balance);
+      return;
+    }
+    if (jobCost != null) {
       setShowRunConfirm(true);
     } else {
       runAgent();
@@ -446,10 +517,10 @@ export function AgentPageContent() {
         )}
         <button
           onClick={handleRunAgentClick}
-          disabled={createLoading}
+          disabled={createLoading || topUpLoading}
           className="mt-4 flex items-center gap-2 rounded-md bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
         >
-          {createLoading ? (
+          {createLoading || topUpLoading ? (
             <Loader2 size={16} className="animate-spin" />
           ) : (
             <Bot size={16} />
@@ -461,11 +532,11 @@ export function AgentPageContent() {
       <AlertDialog open={showRunConfirm} onOpenChange={setShowRunConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirm agent run</AlertDialogTitle>
+            <AlertDialogTitle>Confirmation</AlertDialogTitle>
             <AlertDialogDescription>
               {pricing?.agent_job_cost_cents != null
-                ? `You will be charged ${formatCurrency(pricing.agent_job_cost_cents)} for this run. This amount will be deducted from your balance.`
-                : 'Run this agent job?'}
+                ? `You will be charged ${formatCurrency(pricing.agent_job_cost_cents)} for this run.`
+                : 'Run this agent job? This should take less than 30 minutes.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
