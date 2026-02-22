@@ -1,0 +1,1 @@
+{"permissions": {"allow": ["Shell(python:*retrieve_file_info*)", "Shell(python3:*retrieve_file_info*)"], "deny": []}}
