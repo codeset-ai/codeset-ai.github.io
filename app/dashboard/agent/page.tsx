@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   ApiService,
@@ -64,7 +64,10 @@ export function AgentPageContent() {
   const [pricing, setPricing] = useState<PricingInfo | null>(null);
   const [userCredits, setUserCredits] = useState<UserCredits | null>(null);
   const [showRunConfirm, setShowRunConfirm] = useState(false);
+  const [confirmMode, setConfirmMode] = useState<'run' | 'pay'>('run');
+  const [pendingShortfall, setPendingShortfall] = useState(0);
   const [topUpLoading, setTopUpLoading] = useState(false);
+  const downloadOpenedRef = useRef<Set<string>>(new Set());
   const [downloadDialogJobId, setDownloadDialogJobId] = useState<string | null>(null);
   const [downloadAgentIds, setDownloadAgentIds] = useState<string[]>([]);
   const [downloadError, setDownloadError] = useState<string | null>(null);
@@ -156,7 +159,7 @@ export function AgentPageContent() {
     const jobCost = pricing.agent_job_cost_cents;
     if (jobCost == null || userCredits.balance < jobCost) return;
     setAutorun(false);
-    setShowRunConfirm(true);
+    runAgent(); // user already paid — skip confirm dialog
   }, [autorun, userCredits, pricing, parsedRepo.ok]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -165,10 +168,13 @@ export function AgentPageContent() {
     setTriggerRun(false);
     const jobCost = pricing.agent_job_cost_cents;
     if (jobCost != null && userCredits.balance < jobCost) {
-      topUpAndRun(jobCost - userCredits.balance);
+      setPendingShortfall(jobCost - userCredits.balance);
+      setConfirmMode('pay');
+      setShowRunConfirm(true);
       return;
     }
     if (jobCost != null) {
+      setConfirmMode('run');
       setShowRunConfirm(true);
     } else {
       runAgent();
@@ -241,6 +247,19 @@ export function AgentPageContent() {
     poll();
     return () => clearInterval(t);
   }, [currentJobId, jobStatus?.status, runningJobs.length, loadJobs]);
+
+  useEffect(() => {
+    if (!currentJobId) return;
+    const detail = jobDetails[currentJobId];
+    if (
+      detail?.status === 'completed' &&
+      detail?.result_available &&
+      !downloadOpenedRef.current.has(currentJobId)
+    ) {
+      downloadOpenedRef.current.add(currentJobId);
+      openDownloadDialog(currentJobId);
+    }
+  }, [currentJobId, jobDetails]);
 
   useEffect(() => {
     if (!selectedJobId || jobDetails[selectedJobId]) return;
@@ -320,10 +339,13 @@ export function AgentPageContent() {
     }
     const jobCost = pricing?.agent_job_cost_cents;
     if (jobCost != null && userCredits != null && userCredits.balance < jobCost) {
-      topUpAndRun(jobCost - userCredits.balance);
+      setPendingShortfall(jobCost - userCredits.balance);
+      setConfirmMode('pay');
+      setShowRunConfirm(true);
       return;
     }
     if (jobCost != null) {
+      setConfirmMode('run');
       setShowRunConfirm(true);
     } else {
       runAgent();
@@ -529,22 +551,44 @@ export function AgentPageContent() {
           )}
           Run agent
         </button>
+        {currentJobId && !currentJobTerminal && (
+          <p className="mt-3 text-sm text-gray-500">
+            Analysis running — this takes up to 30 minutes. You can close this tab and come back.
+          </p>
+        )}
       </div>
 
       <AlertDialog open={showRunConfirm} onOpenChange={setShowRunConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmation</AlertDialogTitle>
-            <AlertDialogDescription>
-              {pricing?.agent_job_cost_cents != null
-                ? `You will be charged ${formatCurrency(pricing.agent_job_cost_cents)} for this run.`
-                : 'Run this agent job? This should take less than 30 minutes.'}
+            <AlertDialogTitle>
+              {confirmMode === 'pay' ? 'Add credits & run' : 'Run Codeset Agent'}
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2 text-sm text-gray-600">
+                <p>
+                  {confirmMode === 'pay'
+                    ? <>We&apos;ll charge your card <strong className="text-gray-900">{formatCurrency(Math.max(pendingShortfall, 100))}</strong> and immediately start the analysis on <strong className="text-gray-900">{repoToRun}</strong>.</>
+                    : <>We&apos;ll analyze <strong className="text-gray-900">{repoToRun}</strong> and deduct <strong className="text-gray-900">{formatCurrency(pricing?.agent_job_cost_cents ?? 0)}</strong> from your balance.</>
+                  }
+                </p>
+                <p className="text-gray-500">Ready in ~30 minutes. You can close the tab while it runs.</p>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={runAgent} disabled={createLoading}>
-              Confirm
+            <AlertDialogAction
+              onClick={confirmMode === 'pay'
+                ? () => { setShowRunConfirm(false); topUpAndRun(pendingShortfall); }
+                : runAgent
+              }
+              disabled={createLoading || topUpLoading}
+            >
+              {confirmMode === 'pay'
+                ? `Pay ${formatCurrency(Math.max(pendingShortfall, 100))} →`
+                : 'Run →'
+              }
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

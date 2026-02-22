@@ -6,7 +6,7 @@ import { ChevronDown } from "lucide-react"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { useAuth } from "@/contexts/AuthContext"
-import { normalizeRepo } from "@/lib/repo"
+import { parseRepo } from "@/lib/repo"
 
 const FAQS = [
   {
@@ -151,6 +151,7 @@ function HeroForm({
   dark?: boolean
 }) {
   const [repoInput, setRepoInput] = useState("")
+  const [error, setError] = useState("")
 
   const inputCls = dark
     ? "w-full border border-gray-600 bg-gray-900 text-white placeholder-gray-500 rounded-md px-4 py-3 text-sm font-mono focus:outline-none focus:border-gray-300 focus:ring-1 focus:ring-gray-300"
@@ -161,23 +162,31 @@ function HeroForm({
     : "px-6 py-3 text-sm font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors whitespace-nowrap flex-shrink-0"
 
   const handleSubmit = () => {
-    const repo = normalizeRepo(repoInput)
-    onSubmit(repo)
+    const parsed = parseRepo(repoInput)
+    if (!parsed.ok) {
+      setError(parsed.error)
+      return
+    }
+    setError("")
+    onSubmit(parsed.repo)
   }
 
   return (
-    <div className="flex flex-col gap-3 w-full">
-      <input
-        type="text"
-        value={repoInput}
-        onChange={(e) => setRepoInput(e.target.value)}
-        placeholder="your-org/your-repo or github.com/your-org/your-repo"
-        className={inputCls}
-        onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-      />
-      <button onClick={handleSubmit} className={btnCls}>
-        Customize my agents →
-      </button>
+    <div className="flex flex-col gap-2 w-full">
+      <div className="flex flex-col gap-3 w-full">
+        <input
+          type="text"
+          value={repoInput}
+          onChange={(e) => { setRepoInput(e.target.value); if (error) setError("") }}
+          placeholder="your-org/your-repo or github.com/your-org/your-repo"
+          className={`${inputCls}${error ? ' border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
+          onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+        />
+        <button onClick={handleSubmit} className={btnCls}>
+          Customize my agents — $3 →
+        </button>
+      </div>
+      {error && <p className={`text-xs ${dark ? 'text-red-400' : 'text-red-600'}`}>{error}</p>}
     </div>
   )
 }
@@ -296,9 +305,9 @@ export default function Home() {
             <HeroForm onSubmit={handleGetStarted} />
 
             <div className="mt-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-              <p className="text-xs text-gray-400">
-                <span className="text-gray-700 font-medium">$3 per repo.</span>
-                {" "}One-time. Under 30 minutes.
+              <p className="text-xs text-gray-500">
+                <span className="text-gray-800 font-semibold">$3, one-time.</span>
+                {" "}No subscription. Ready in ~30 minutes.
               </p>
               <a
                 href="/blog/introducing-codeset-agent"
