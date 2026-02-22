@@ -263,10 +263,14 @@ export function AgentPageContent() {
     try {
       setDownloadLoading(true);
       setCreateError(null);
-      const { blob, filename } = await ApiService.getAgentJobResultBlob(
+      const { blob, filename: apiFilename } = await ApiService.getAgentJobResultBlob(
         downloadDialogJobId,
         downloadAgentIds
       );
+      const job = jobs.find((j) => j.job_id === downloadDialogJobId);
+      const filename = job
+        ? `codeset-${job.repo.replace(/\//g, '-')}-${job.created_at.slice(0, 10)}.tar.gz`
+        : apiFilename;
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -333,7 +337,7 @@ export function AgentPageContent() {
               value={selectedRepoFromList}
               onChange={(e) => setRepoInput(e.target.value)}
               disabled={reposLoading}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black disabled:bg-gray-50 disabled:text-gray-500"
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring disabled:bg-muted disabled:text-muted-foreground"
             >
               {reposLoading ? (
                 <option value="">Loading…</option>
@@ -535,14 +539,21 @@ export function AgentPageContent() {
                       <td className="py-2 pr-4 font-mono text-xs">{j.job_id}</td>
                       <td className="py-2 pr-4">{j.repo}</td>
                       <td className="py-2 pr-4">{status}</td>
-                      <td className="py-2 pr-4 text-gray-600">
+                      <td className="py-2 pr-4 text-gray-600 min-w-[120px]">
                         {d?.error_message ? (
                           <span className="text-red-600 text-xs">{d.error_message}</span>
                         ) : d?.progress_pct != null ? (
-                          <>
-                            {d.progress_pct}%
-                            {d.progress_stage ? ` — ${d.progress_stage}` : ''}
-                          </>
+                          <div className="space-y-1">
+                            <div className="h-2 w-full min-w-[100px] overflow-hidden rounded-full bg-gray-200">
+                              <div
+                                className="h-full rounded-full bg-black transition-[width] duration-300"
+                                style={{ width: `${Math.min(100, Math.max(0, d.progress_pct))}%` }}
+                              />
+                            </div>
+                            {d.progress_stage ? (
+                              <span className="text-xs text-gray-500">{d.progress_stage}</span>
+                            ) : null}
+                          </div>
                         ) : (
                           '—'
                         )}

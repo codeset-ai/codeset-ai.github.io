@@ -21,6 +21,16 @@ export default function DashboardLayout({
     }
   }, [user, loading, router]);
 
+  useEffect(() => {
+    if (!pathname?.startsWith('/dashboard')) return;
+    document.title = 'codeset | Dashboard';
+    const id = setTimeout(() => { document.title = 'codeset | Dashboard'; }, 100);
+    return () => {
+      clearTimeout(id);
+      document.title = 'codeset';
+    };
+  }, [pathname]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -34,7 +44,7 @@ export default function DashboardLayout({
   }
 
   const isAgentTab = pathname?.startsWith('/dashboard/agent');
-  const isPlatformTab = pathname === '/dashboard' || pathname === '/dashboard/api-keys' || pathname === '/dashboard/datasets' || pathname === '/dashboard/pricing';
+  const isPlatformTab = pathname === '/dashboard/platform' || pathname === '/dashboard/api-keys' || pathname === '/dashboard/datasets' || pathname === '/dashboard/pricing';
   const isCreditsTab = pathname === '/dashboard/credits';
   const isUsageTab = pathname === '/dashboard/usage';
 
@@ -44,7 +54,8 @@ export default function DashboardLayout({
       <div className="bg-white border-b border-gray-200 px-4 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Link href="/" className="text-lg font-semibold">
+            <Link href="/" className="flex items-center gap-2.5 text-lg font-semibold">
+              <img src="/bacalhau.svg" alt="" className="h-12 w-12 flex-shrink-0 object-contain mt-0.5" />
               &lt;codeset&gt;
             </Link>
             <span className="text-gray-400">/</span>
@@ -90,7 +101,7 @@ export default function DashboardLayout({
               Codeset Agent
             </Link>
             <Link
-              href="/dashboard"
+              href="/dashboard/platform"
               className={`px-4 py-2 text-sm font-medium rounded-t-md transition-colors ${
                 isPlatformTab
                   ? 'bg-black text-white'
@@ -123,9 +134,9 @@ export default function DashboardLayout({
           {isPlatformTab && (
             <div className="flex items-center gap-6 py-3 border-t border-gray-100">
               <Link
-                href="/dashboard"
+                href="/dashboard/platform"
                 className={`text-sm font-medium transition-colors ${
-                  pathname === '/dashboard'
+                  pathname === '/dashboard/platform'
                     ? 'text-black underline underline-offset-4'
                     : 'text-gray-500 hover:text-black'
                 }`}

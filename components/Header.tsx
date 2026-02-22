@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
 import { User, LogOut } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 
@@ -11,15 +10,9 @@ export default function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 z-20 px-4 py-3 bg-white/80 backdrop-blur-sm border-b border-gray-200">
       <div className="w-full mx-auto px-2 sm:px-8 flex items-center justify-between">
-        <Link href="/">
-          <Image
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Company%20Logo-JsOfHZ9d6BDOHKAfZ1zx71BLYUE7dw.svg"
-            alt="Codeset"
-            width={100}
-            height={20}
-            className="filter invert"
-            priority
-          />
+        <Link href="/" className="flex items-center gap-2.5 text-lg font-semibold">
+          <img src="/bacalhau.svg" alt="" className="h-12 w-12 flex-shrink-0 object-contain mt-0.5 ml-0.5" />
+          &lt;codeset&gt;
         </Link>
 
         {!loading && (

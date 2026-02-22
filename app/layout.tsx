@@ -12,11 +12,11 @@ const ibmPlexMono = IBM_Plex_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "codeset - A platform for training and evaluating agentic models",
+  title: "codeset",
   description:
     "Training and evaluating agentic models with large-scale datasets of reproducible, sandboxed environments.",
   icons: {
-    icon: '/favicon.svg',
+    icon: '/favicon-bacalhau.png',
   },
 }
 
