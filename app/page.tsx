@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { ChevronDown } from "lucide-react"
 import Header from "@/components/Header"
@@ -35,9 +35,64 @@ const FAQS = [
   },
   {
     q: "How long does it take?",
-    a: "Under one hour from GitHub connection to downloadable config files.",
+    a: "About 30 minutes. You connect to GitHub, select the repo, and wait for the files to get ready.",
   },
 ]
+
+const HERO_LINE1 = "Your coding agent,"
+const HERO_LINE2 = "but better."
+const DELAY_SLOW_MS = 60
+const DELAY_FAST_MS = 45
+
+function TypewriterHero() {
+  const [line1, setLine1] = useState("")
+  const [line2, setLine2] = useState("")
+
+  useEffect(() => {
+    let t1: ReturnType<typeof setTimeout> | null = null
+    let t2: ReturnType<typeof setTimeout> | null = null
+
+    let i = 0
+    const runLine1 = () => {
+      if (i < HERO_LINE1.length) {
+        setLine1(HERO_LINE1.slice(0, i + 1))
+        i++
+        t1 = setTimeout(runLine1, DELAY_SLOW_MS)
+      } else {
+        i = 0
+        t2 = setTimeout(runLine2, 120)
+      }
+    }
+    const runLine2 = () => {
+      if (i < HERO_LINE2.length) {
+        setLine2(HERO_LINE2.slice(0, i + 1))
+        i++
+        t2 = setTimeout(runLine2, DELAY_FAST_MS)
+      }
+    }
+    t1 = setTimeout(runLine1, 200)
+
+    return () => {
+      if (t1) clearTimeout(t1)
+      if (t2) clearTimeout(t2)
+    }
+  }, [])
+
+  return (
+    <span className="relative block">
+      <span className="invisible" aria-hidden="true">
+        {HERO_LINE1}
+        <br />
+        {HERO_LINE2}
+      </span>
+      <span className="absolute top-0 left-0">
+        {line1}
+        <br />
+        {line2}
+      </span>
+    </span>
+  )
+}
 
 const WHAT_YOU_GET = [
   "CLAUDE.md / AGENTS.md",
@@ -259,8 +314,7 @@ export default function Home() {
           {/* Left */}
           <div>
             <h1 className="text-4xl sm:text-5xl font-medium tracking-tight mb-5 leading-[1.1]">
-              Your coding agent,<br />
-              but better.
+              <TypewriterHero />
             </h1>
 
             <p className="text-sm text-gray-500 mb-6 leading-relaxed">

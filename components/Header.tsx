@@ -10,7 +10,7 @@ export default function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 z-20 px-4 py-3 bg-white/80 backdrop-blur-sm">
       <div className="w-full mx-auto px-2 sm:px-8 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2.5 text-lg font-semibold">
+        <Link href="/" className="flex items-center gap-2.5 text-lg font-semibold text-black">
           <img src="/bacalhau.svg" alt="" className="h-12 w-12 flex-shrink-0 object-contain mt-0.5 ml-0.5" />
           &lt;codeset&gt;
         </Link>
