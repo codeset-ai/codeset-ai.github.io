@@ -23,15 +23,15 @@ const FAQS = [
   },
   {
     q: "What exactly do you generate?",
-    a: "A CLAUDE.md / AGENTS.md entry point, a per-file knowledge base (files.json + retrieve_file_info.py), and agent-specific hook configuration. When your agent reads a file, the hooks automatically surface the relevant insights, pitfalls, and caller information for that file.",
+    a: "A CLAUDE.md / AGENTS.md entry point and a per-file knowledge base (files.json + retrieve_file_info.py). Your agent can query the knowledge base to get relevant insights, pitfalls, and caller information for any file.",
   },
   {
     q: "Is this just an automated AGENTS.md generator?",
-    a: "No. AGENTS.md is the entry point, but the real depth is in the per-file knowledge base. We mine your commit history for past bugs and lessons learned, run AST analysis to trace every function caller across the codebase, extract file-specific pitfalls with root causes, and map which tests exercise which files. This gets surfaced to your agent automatically via hooks — not as a static document it has to search through.",
+    a: "No. AGENTS.md is the entry point, but the real depth is in the per-file knowledge base. We mine your commit history for past bugs and lessons learned, run AST analysis to trace every function caller across the codebase, extract file-specific pitfalls with root causes, and map which tests exercise which files. The per-file knowledge base is structured so your agent can query it on demand — not a static document it has to search through.",
   },
   {
     q: "How is the improvement measured?",
-    a: "We validate using SWE-Bench-Verified, the industry-standard benchmark for AI coding agents. We run a set of real coding tasks against coding agents before and after our configuration and measure the resolution rate.",
+    a: "We validate on two benchmarks: codeset-gym-python (our own dataset of 150 real GitHub tasks) and SWE-Bench Pro (300 randomly sampled tasks from the industry-standard benchmark). We run coding tasks against agents before and after our configuration and measure the resolution rate.",
   },
   {
     q: "How long does it take?",
@@ -45,7 +45,6 @@ const WHAT_YOU_GET = [
   "Commit history analysis",
   "Full AST caller graph",
   "Test-to-file mapping",
-  "Auto-configured agent hooks",
 ]
 
 // Shown in "What you get" card 01
@@ -126,22 +125,6 @@ Tests → tests/payments.test.ts:
 
 Co-changes: src/webhooks.ts, src/subscriptions.ts`
 
-// "What you get" card 03
-const HOOKS_SNIPPET = `// .claude/settings.local.json
-{
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Read",
-        "hooks": [{
-          "type": "command",
-          "command":
-            "python retrieve_file_info.py $FILE"
-        }]
-      }
-    ]
-  }
-}`
 
 function HeroForm({
   onSubmit,
@@ -271,7 +254,7 @@ export default function Home() {
       <Header />
 
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
-      <section className="pt-28 pb-24 px-4 sm:px-6 lg:px-8">
+      <section className="flex flex-col min-h-[calc(100vh-73px)] pt-36 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto grid md:grid-cols-[1fr_1fr] gap-10 md:gap-20 items-start">
           {/* Left */}
           <div>
@@ -293,7 +276,7 @@ export default function Home() {
                 <div className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5">Claude Haiku</div>
               </div>
               <div className="border border-gray-200 rounded-lg px-3 sm:px-4 py-3">
-                <div className="text-base sm:text-xl font-medium tracking-tight leading-tight">56% → 63.3%</div>
+                <div className="text-base sm:text-xl font-medium tracking-tight leading-tight">56% → 65.3%</div>
                 <div className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5">Claude Sonnet</div>
               </div>
               <div className="border border-gray-900 bg-gray-50 rounded-lg px-3 sm:px-4 py-3">
@@ -332,7 +315,7 @@ export default function Home() {
         </div>
 
         {/* Works with — absorbed into hero as a subtle footer */}
-        <div className="max-w-7xl mx-auto mt-12 sm:mt-14 pt-6 border-t border-gray-100">
+        <div className="max-w-7xl mx-auto mt-auto pt-6 pb-10 border-t border-gray-100">
           <p className="text-[11px] text-gray-300 uppercase tracking-widest text-center mb-4">Works with</p>
           <div className="flex flex-wrap items-end justify-center gap-6 sm:gap-10">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -415,11 +398,11 @@ export default function Home() {
           {/* Title now includes the price — makes it feel like a value reveal */}
           <h2 className="text-2xl font-medium mb-2">What you get — for $3</h2>
           <p className="text-sm text-gray-500 mb-10 max-w-lg leading-relaxed">
-            A knowledge base your agent consults automatically as it works, automatically integrated into your agent, and improved CLAUDE.md/AGENTS.md files.
+            A per-file knowledge base your agent can query as it works, and improved CLAUDE.md/AGENTS.md files.
           </p>
 
-          {/* Top row: two compact cards */}
-          <div className="grid md:grid-cols-2 gap-5 mb-5">
+          {/* Top row: single card */}
+          <div className="mb-5">
             <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
               <div className="px-5 py-4 border-b border-gray-100">
                 <div className="text-xs text-gray-400 mb-1">01</div>
@@ -430,20 +413,6 @@ export default function Home() {
               </div>
               <pre className="bg-gray-950 text-gray-400 text-xs p-4 leading-relaxed overflow-x-auto whitespace-pre">
                 {SAMPLE_CLAUDE_MD}
-              </pre>
-            </div>
-
-            <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
-              <div className="px-5 py-4 border-b border-gray-100">
-                <div className="text-xs text-gray-400 mb-1">03</div>
-                <h3 className="font-medium text-gray-900 text-sm">Auto-configured hooks</h3>
-                <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                  When your agent reads a file, hooks inject the relevant
-                  insights automatically — no manual lookup, no context lost.
-                </p>
-              </div>
-              <pre className="bg-gray-950 text-gray-400 text-xs p-4 leading-relaxed overflow-x-auto whitespace-pre">
-                {HOOKS_SNIPPET}
               </pre>
             </div>
           </div>
@@ -461,8 +430,7 @@ export default function Home() {
               <p className="text-xs text-gray-500 mt-1 leading-relaxed max-w-md">
                 For every file in your repo: past bugs with root causes, specific
                 pitfalls with consequences, every function caller with line numbers,
-                and which tests exercise it. Retrieved by your agent via hooks the
-                moment it reads the file.
+                and which tests exercise it. Queryable by your agent on demand.
               </p>
             </div>
             <div className="grid md:grid-cols-[1fr_1fr] divide-y md:divide-y-0 md:divide-x divide-gray-800">
@@ -520,7 +488,7 @@ export default function Home() {
               {
                 step: "03",
                 title: "Download and commit",
-                desc: "Get your AGENTS.md, per-file knowledge base, and auto-configured hooks. Commit them — your agent uses them from now on.",
+                desc: "Get your AGENTS.md and per-file knowledge base. Commit them — your agent uses them from now on.",
               },
             ].map((item) => (
               <div key={item.step} className="relative">

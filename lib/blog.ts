@@ -11,6 +11,7 @@ export interface BlogPost {
   title: string
   date: string
   excerpt: string
+  tldr?: string
   content: string
 }
 
@@ -29,6 +30,7 @@ export function getAllPosts(): BlogPost[] {
         title: matterResult.data.title,
         date: matterResult.data.date,
         excerpt: matterResult.data.excerpt,
+        tldr: matterResult.data.tldr,
         content: matterResult.content,
       }
     })
@@ -52,6 +54,7 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
       title: matterResult.data.title,
       date: matterResult.data.date,
       excerpt: matterResult.data.excerpt,
+      tldr: matterResult.data.tldr,
       content: contentHtml,
     }
   } catch (error) {

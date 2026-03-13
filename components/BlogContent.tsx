@@ -2,6 +2,7 @@
 
 import SyntaxHighlighter from 'react-syntax-highlighter'
 import { atomOneDark } from 'react-syntax-highlighter/dist/esm/styles/hljs'
+import { addHeadingIds } from '@/lib/headings'
 
 interface BlogContentProps {
   content: string
@@ -62,7 +63,9 @@ function ResultsChart() {
   )
 }
 
+
 export default function BlogContent({ content }: BlogContentProps) {
+  const contentWithIds = addHeadingIds(content)
   // Split by code blocks first, then by chart markers
   const processContent = (html: string) => {
     const parts = html.split(/(<pre><code[^>]*>[\s\S]*?<\/code><\/pre>|<p>CHART_RESULTS_PLACEHOLDER<\/p>)/g)
@@ -122,7 +125,7 @@ export default function BlogContent({ content }: BlogContentProps) {
       prose-th:text-left prose-th:font-medium prose-th:text-gray-900 prose-th:py-2.5 prose-th:px-4 prose-th:border-b prose-th:border-gray-200 prose-th:bg-gray-50
       prose-td:py-2.5 prose-td:px-4 prose-td:border-b prose-td:border-gray-100 prose-td:text-gray-600
       prose-blockquote:border-l-2 prose-blockquote:border-gray-200 prose-blockquote:pl-4 prose-blockquote:text-gray-500 prose-blockquote:not-italic">
-      {processContent(content)}
+      {processContent(contentWithIds)}
     </div>
   )
 }

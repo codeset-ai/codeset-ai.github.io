@@ -1,7 +1,8 @@
 ---
 title: "Introducing Codeset Agent"
 date: "2026-02-21"
-excerpt: "Codeset Agent extracts deep knowledge from your GitHub repository — past bugs, caller graphs, test coverage — and surfaces it to Claude Code automatically. In a controlled evaluation, it improved task resolution rate by up to 10 percentage points."
+excerpt: "Codeset Agent extracts deep knowledge from your GitHub repository — past bugs, caller graphs, test coverage — and surfaces it to Claude Code automatically. In controlled evaluations on codeset-gym and SWE-Bench Pro, it improved task resolution rate by up to 9 percentage points."
+tldr: "Codeset Agent improved Claude Haiku's task resolution rate from 52% to 62% and Sonnet's from 56% to 65.3% on codeset-gym-python. Haiku with Codeset Agent outperforms raw Sonnet at less than one-third the cost ($0.61 vs $1.66 per task). Results hold on SWE-Bench Pro, where Sonnet improved from 53% to 55.7% on 300 randomly sampled tasks."
 ---
 
 Today we're launching **Codeset Agent**.
@@ -73,13 +74,21 @@ CHART_RESULTS_PLACEHOLDER
 
 ### What the numbers mean
 
-Claude Code Haiku went from solving 78 tasks to 93 — a 10 percentage point improvement. Sonnet went from 84 to 95. Both improvements come purely from giving the agent structured codebase knowledge it wouldn't otherwise have.
+**codeset-gym-python (150 tasks)**
 
-Two additional findings worth calling out:
+Claude Code Haiku went from solving 78/150 tasks (52%) to 93/150 (62%) — a 10 percentage point improvement at an average cost of $0.61 per task. Sonnet went from 84/150 (56%) to 98/150 (65.3%) — a 9.3 percentage point improvement, at $1.92 per task.
 
-**Structured context can substitute for a larger model.** Haiku with Codeset Agent (62%, $0.57 per task) outperformed Sonnet without it (56%, $1.66 per task). A smaller, cheaper model with deep codebase knowledge beat a larger, more expensive model without it — at one-third the inference cost. For teams running Claude Code at scale, this changes the cost equation significantly.
+**Structured context can substitute for a larger model.** Haiku with Codeset Agent (62%, $0.61 per task) outperformed Sonnet without it (56%, $1.66 per task). A smaller, cheaper model with deep codebase knowledge beat a larger, more expensive model without it — at less than one-third the inference cost. For teams running Claude Code at scale, this changes the cost equation significantly.
 
-**The agent uses fewer tokens, not more.** Adding context slightly *reduced* cost in both cases. Haiku went from $0.60 to $0.57 per task; Sonnet from $1.66 to $1.59. This makes sense: an agent that already knows what a file does and what's gone wrong in it before makes fewer exploratory reads and fewer incorrect edits before finding the right solution.
+### External validation: SWE-Bench Pro
+
+To confirm the results generalize beyond our own dataset, we ran a second evaluation on SWE-Bench Pro — a more recent and harder benchmark that our analysis pipeline was not tuned against. We randomly selected a subset of 300 tasks to reduce the cost of evaluation.
+
+Claude Code Sonnet went from resolving 159/300 tasks (53.0%) to 167/300 (55.7%) — a 2.7 percentage point improvement. The gain is more modest than on codeset-gym, which is expected: SWE-Bench Pro tasks span a broader range of repositories, and the benefit of per-repo codebase context is highest on repositories with richer git histories.
+
+The SWE-Bench Pro result also showed an unexpected cost reduction: average cost per task dropped from $2.70 to $2.28. This likely reflects the agent making fewer redundant file reads when it already knows the relevant callers and pitfalls for a file — the structured context short-circuits some of the exploration work.
+
+Together, both benchmarks confirm the same direction: structured codebase context consistently improves agent performance across model sizes and task distributions.
 
 ---
 
