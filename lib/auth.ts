@@ -7,6 +7,7 @@ interface User {
   created_at: string;
   last_login_at?: string;
   is_active: boolean;
+  terms_accepted_at?: string | null;
 }
 
 interface ApiKey {
@@ -143,6 +144,25 @@ export class AuthService {
         return null;
       }
 
+      return response.json();
+    } catch {
+      return null;
+    }
+  }
+
+  static async acceptTerms(): Promise<User | null> {
+    const token = this.getStoredToken();
+    if (!token) return null;
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/me/accept-terms`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) return null;
       return response.json();
     } catch {
       return null;

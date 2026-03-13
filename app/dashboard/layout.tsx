@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { User, LogOut, BookOpen } from 'lucide-react';
+import TermsAcceptModal from '@/components/TermsAcceptModal';
 
 export default function DashboardLayout({
   children,
@@ -43,12 +44,14 @@ export default function DashboardLayout({
     return null;
   }
 
+  const needsTermsAccept = !user.terms_accepted_at;
   const isAgentTab = pathname?.startsWith('/dashboard/agent');
   const isPlatformTab = pathname === '/dashboard/platform' || pathname === '/dashboard/api-keys' || pathname === '/dashboard/datasets' || pathname === '/dashboard/pricing';
   const isCreditsTab = pathname === '/dashboard/credits';
   const isUsageTab = pathname === '/dashboard/usage';
 
   return (
+    <>
     <div className="min-h-screen bg-gray-50 font-mono">
       {/* Top bar */}
       <div className="bg-white border-b border-gray-200 px-4 py-4">
@@ -183,5 +186,7 @@ export default function DashboardLayout({
         {children}
       </div>
     </div>
+    {needsTermsAccept && <TermsAcceptModal />}
+    </>
   );
 }
