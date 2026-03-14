@@ -1,8 +1,8 @@
 ---
 title: "Introducing Codeset Agent"
 date: "2026-02-21"
-excerpt: "Codeset Agent extracts deep knowledge from your GitHub repository — past bugs, caller graphs, test coverage — and surfaces it to Claude Code automatically. In controlled evaluations on codeset-gym and SWE-Bench Pro, it improved task resolution rate by up to 9 percentage points."
-tldr: "Codeset Agent improved Claude Haiku's task resolution rate from 52% to 62% and Sonnet's from 56% to 65.3% on codeset-gym-python. Haiku with Codeset Agent outperforms raw Sonnet at less than one-third the cost ($0.61 vs $1.66 per task). Results hold on SWE-Bench Pro, where Sonnet improved from 53% to 55.7% on 300 randomly sampled tasks."
+excerpt: "Codeset Agent extracts deep knowledge from your GitHub repository — past bugs, caller graphs, test coverage — and surfaces it to Claude Code automatically. In controlled evaluations on codeset-gym and SWE-Bench Pro, it improved task resolution rate by up to 10 percentage points across Haiku, Sonnet, and Opus."
+tldr: "Codeset Agent improved Claude Haiku 4.5's task resolution rate from 52% to 62%, Sonnet 4.5's from 56% to 65.3%, and Opus 4.5's from 60.7% to 68% on codeset-gym-python (150 tasks). Results hold on SWE-Bench Pro, where Sonnet 4.5 improved from 53% to 55.7% on 300 randomly sampled tasks."
 ---
 
 Today we're launching **Codeset Agent**.
@@ -88,7 +88,13 @@ Claude Code Sonnet went from resolving 159/300 tasks (53.0%) to 167/300 (55.7%) 
 
 The SWE-Bench Pro result also showed an unexpected cost reduction: average cost per task dropped from $2.70 to $2.28. This likely reflects the agent making fewer redundant file reads when it already knows the relevant callers and pitfalls for a file — the structured context short-circuits some of the exploration work.
 
-Together, both benchmarks confirm the same direction: structured codebase context consistently improves agent performance across model sizes and task distributions.
+### Claude Opus 4.5
+
+We subsequently ran the same evaluation with Claude Opus 4.5, the most capable model in the Claude family. On the same 150-task codeset-gym-python sample, Opus 4.5 went from resolving 91/150 tasks (60.7%) baseline to 102/150 (68.0%) — a 7.3 percentage point improvement.
+
+The result is notable because Opus 4.5 starts from a stronger baseline, yet Codeset Agent still delivers a consistent gain. Structured codebase context is not a substitute for model capability — it compounds on top of it.
+
+Together, all three benchmarks confirm the same direction: structured codebase context consistently improves agent performance across model sizes and task distributions.
 
 ---
 
