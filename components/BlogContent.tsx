@@ -18,21 +18,23 @@ function pct(val: number) {
 
 function ResultsChart() {
   const barW = 78
-  // Groups: Haiku x=60, Sonnet x=294
+  // Groups: Haiku x=60, Sonnet x=294, Opus x=528
   const bars = [
     { x: 60,  val: 52,   fill: '#d1d5db', label: '52%',   labelFill: '#6b7280', fw: 'normal' },
     { x: 148, val: 62,   fill: '#111827', label: '62%',   labelFill: '#111827', fw: '600'    },
     { x: 294, val: 56,   fill: '#d1d5db', label: '56%',   labelFill: '#6b7280', fw: 'normal' },
-    { x: 382, val: 63.3, fill: '#111827', label: '63.3%', labelFill: '#111827', fw: '600'    },
+    { x: 382, val: 65.3, fill: '#111827', label: '65.3%', labelFill: '#111827', fw: '600'    },
+    { x: 528, val: 60.7, fill: '#d1d5db', label: '60.7%', labelFill: '#6b7280', fw: 'normal' },
+    { x: 616, val: 68,   fill: '#111827', label: '68%',   labelFill: '#111827', fw: '600'    },
   ]
 
   return (
     <div className="not-prose border border-gray-200 rounded-lg overflow-hidden p-5 my-2">
-      <svg viewBox="0 0 540 300" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: 'auto', display: 'block', fontFamily: 'ui-monospace, monospace' }}>
+      <svg viewBox="0 0 780 300" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: 'auto', display: 'block', fontFamily: 'ui-monospace, monospace' }}>
         {/* Gridlines + Y-axis labels */}
         {[70, 60, 50, 40].map((tick) => (
           <g key={tick}>
-            <line x1={48} y1={pct(tick)} x2={500} y2={pct(tick)} stroke={tick === 40 ? '#e5e7eb' : '#f3f4f6'} strokeWidth={1} />
+            <line x1={48} y1={pct(tick)} x2={730} y2={pct(tick)} stroke={tick === 40 ? '#e5e7eb' : '#f3f4f6'} strokeWidth={1} />
             <text x={42} y={pct(tick) + 4} textAnchor="end" fontSize={11} fill="#9ca3af">{tick}%</text>
           </g>
         ))}
@@ -52,12 +54,13 @@ function ResultsChart() {
         {/* Group labels */}
         <text x={143} y={252} textAnchor="middle" fontSize={12} fill="#374151" fontWeight={500}>Haiku</text>
         <text x={377} y={252} textAnchor="middle" fontSize={12} fill="#374151" fontWeight={500}>Sonnet</text>
+        <text x={611} y={252} textAnchor="middle" fontSize={12} fill="#374151" fontWeight={500}>Opus</text>
 
         {/* Legend */}
-        <rect x={148} y={270} width={10} height={10} fill="#d1d5db" rx={1} />
-        <text x={163} y={280} fontSize={11} fill="#6b7280">Baseline</text>
-        <rect x={248} y={270} width={10} height={10} fill="#111827" rx={1} />
-        <text x={263} y={280} fontSize={11} fill="#6b7280">with Codeset Agent</text>
+        <rect x={282} y={270} width={10} height={10} fill="#d1d5db" rx={1} />
+        <text x={297} y={280} fontSize={11} fill="#6b7280">Baseline</text>
+        <rect x={382} y={270} width={10} height={10} fill="#111827" rx={1} />
+        <text x={397} y={280} fontSize={11} fill="#6b7280">with Codeset Agent</text>
       </svg>
     </div>
   )
