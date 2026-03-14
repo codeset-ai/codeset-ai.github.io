@@ -333,9 +333,9 @@ export default function Home() {
                 <div className="text-base sm:text-xl font-medium tracking-tight leading-tight">56% → 65.3%</div>
                 <div className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5">Claude Sonnet</div>
               </div>
-              <div className="border border-gray-900 bg-gray-50 rounded-lg px-3 sm:px-4 py-3">
-                <div className="text-base sm:text-xl font-medium tracking-tight leading-tight">⅓ cost</div>
-                <div className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5">Haiku+Codeset vs Sonnet</div>
+              <div className="border border-gray-200 rounded-lg px-3 sm:px-4 py-3">
+                <div className="text-base sm:text-xl font-medium tracking-tight leading-tight">60.7% → 68%</div>
+                <div className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5">Claude Opus</div>
               </div>
             </div>
 

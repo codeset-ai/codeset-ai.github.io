@@ -17,7 +17,7 @@ export default function TermsPage() {
           <p className="text-sm text-gray-500 mb-10">Last Updated: March 13, 2026</p>
 
           <p className="mb-8">
-            These Terms of Service (&quot;Terms&quot;) govern the use of the services provided by <strong>Codeset</strong>, a company registered in Portugal, with registered address at <strong>Av. Mouzinho de Albuquerque 48 5B, Portugal</strong>, VAT number <strong>518962938</strong> (&quot;Codeset&quot;, &quot;we&quot;, &quot;us&quot;, or &quot;our&quot;).
+            These Terms of Service (&quot;Terms&quot;) govern the use of the services provided by <strong>Codeset, Lda</strong>, a company registered in Portugal, with registered address at <strong>Av. Mouzinho de Albuquerque 48 5B, 1170-265 Lisboa, Portugal</strong>, VAT number <strong>518962938</strong> (&quot;Codeset&quot;, &quot;we&quot;, &quot;us&quot;, or &quot;our&quot;).
           </p>
           <p className="mb-8">
             By accessing or using any Codeset service, including the <strong>Codeset Platform</strong> and <strong>Codeset Agent</strong>, you agree to be bound by these Terms.
@@ -28,14 +28,10 @@ export default function TermsPage() {
 
           <section className="mb-10">
             <h2 className="text-xl font-semibold mb-4">1. Company Information</h2>
-            <p className="mb-2"><strong>Company Name:</strong> Codeset</p>
-            <p className="mb-2"><strong>Address:</strong> Av. Mouzinho de Albuquerque 48 5B, Portugal</p>
+            <p className="mb-2"><strong>Company Name:</strong> Codeset, Lda</p>
+            <p className="mb-2"><strong>Address:</strong> Av. Mouzinho de Albuquerque 48 5B, 1170-265 Lisboa, Portugal</p>
             <p className="mb-4"><strong>VAT Number:</strong> 518962938</p>
-            <p className="mb-2">For legal inquiries you may contact:</p>
-            <ul className="list-disc pl-6 space-y-1 mb-4">
-              <li><a href="mailto:nuno@codeset.ai" className="text-blue-600 hover:underline">nuno@codeset.ai</a></li>
-              <li><a href="mailto:andre@codeset.ai" className="text-blue-600 hover:underline">andre@codeset.ai</a></li>
-            </ul>
+            <p className="mb-2">For legal inquiries you may contact <a href="mailto:nuno@codeset.ai,andre@codeset.ai" className="text-blue-600 hover:underline">nuno@codeset.ai, andre@codeset.ai</a></p>
           </section>
 
           <section className="mb-10">
@@ -217,7 +213,7 @@ export default function TermsPage() {
               <li><a href="mailto:andre@codeset.ai" className="text-blue-600 hover:underline">andre@codeset.ai</a></li>
             </ul>
             <p className="mb-2"><strong>Address:</strong></p>
-            <p>Av. Mouzinho de Albuquerque 48 5B<br />Portugal</p>
+            <p>Av. Mouzinho de Albuquerque 48 5B<br />1170-265 Lisboa<br />Portugal</p>
           </section>
 
           <p className="text-gray-600 border-t pt-8 mt-8">
