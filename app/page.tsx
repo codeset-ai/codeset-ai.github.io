@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { ChevronDown } from "lucide-react"
 import Header from "@/components/Header"
@@ -38,6 +38,106 @@ const FAQS = [
     a: "About 30 minutes. You connect to GitHub, select the repo, and wait for the files to get ready.",
   },
 ]
+
+const MARQUEE_LOGOS = [
+  { src: "/logos/claude.svg", alt: "Claude Code" },
+  { src: "/logos/cursor.svg", alt: "Cursor" },
+  { src: "/logos/github-copilot.svg", alt: "GitHub Copilot" },
+  { src: "/logos/openai.svg", alt: "OpenAI Codex" },
+  { src: "/logos/gemini.svg", alt: "Gemini CLI", className: "mb-0.5" },
+]
+
+function WorksWithLogos() {
+  const stripRef = useRef<HTMLDivElement>(null)
+  const viewRef = useRef<HTMLDivElement>(null)
+  const [glowIndices, setGlowIndices] = useState<Set<number>>(new Set())
+  const rafRef = useRef<number>(0)
+
+  useEffect(() => {
+    const strip = stripRef.current
+    const view = viewRef.current
+    if (!strip || !view) return
+
+    const tick = () => {
+      const viewRect = view.getBoundingClientRect()
+      const centerX = viewRect.left + viewRect.width / 2
+      const imgs = strip.querySelectorAll("img")
+      const next = new Set<number>()
+      imgs.forEach((img, index) => {
+        const r = img.getBoundingClientRect()
+        const imgCenterX = r.left + r.width / 2
+        if (imgCenterX >= centerX) next.add(index)
+      })
+      setGlowIndices((prev) => {
+        if (prev.size !== next.size || [...prev].some((i) => !next.has(i))) return next
+        return prev
+      })
+      rafRef.current = requestAnimationFrame(tick)
+    }
+    const id = requestAnimationFrame(() => {
+      rafRef.current = requestAnimationFrame(tick)
+    })
+    return () => {
+      cancelAnimationFrame(id)
+      cancelAnimationFrame(rafRef.current)
+    }
+  }, [])
+
+  const baseClass = "h-5 opacity-30 grayscale hover:opacity-60 hover:grayscale-0 transition-all duration-200"
+  const processedLogoClass = "!opacity-60 grayscale-0"
+  const badgeGlowClass =
+    "[filter:drop-shadow(0_0_4px_rgba(250,204,21,0.7))] [text-shadow:0_0_6px_rgba(250,204,21,0.5)]"
+
+  return (
+    <div className="max-w-7xl mx-auto mt-auto pt-6 pb-10 border-t border-gray-100">
+      <p className="text-[11px] text-gray-300 uppercase tracking-widest text-center mb-4">Works with</p>
+      <div className="relative py-3">
+        <div ref={viewRef} className="overflow-hidden">
+          <div ref={stripRef} className="flex items-start gap-6 sm:gap-10 w-max animate-marquee-left-right">
+            {[0, 1, 2].map((copy) => (
+              <div key={copy} className="flex items-start gap-6 sm:gap-10 shrink-0">
+                {MARQUEE_LOGOS.map((logo, i) => {
+                  const index = copy * MARQUEE_LOGOS.length + i
+                  const processed = glowIndices.has(index)
+                  return (
+                    <div
+                      key={`${copy}-${i}`}
+                      className="flex flex-col items-center gap-1 shrink-0"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={logo.src}
+                        alt={logo.alt}
+                        className={`${baseClass} ${processed ? processedLogoClass : ""} ${logo.className ?? ""}`.trim()}
+                      />
+                      {processed && (
+                        <span
+                          className={`text-[9px] font-medium uppercase tracking-wider text-amber-600/90 whitespace-nowrap ${badgeGlowClass}`}
+                        >
+                          repo-aware
+                        </span>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-32 rounded border-2 border-gray-200 bg-white/80 backdrop-blur-sm pointer-events-none z-10 flex flex-col items-center justify-center gap-1 py-2"
+          aria-hidden
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/bacalhau.svg" alt="" className="h-6 w-auto" />
+          <span className="text-[10px] font-medium text-gray-500 whitespace-nowrap">
+            &lt;codeset&gt; agent
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 const HERO_LINE1 = "Your coding agent,"
 const HERO_LINE2 = "but better."
@@ -369,21 +469,7 @@ export default function Home() {
         </div>
 
         {/* Works with — absorbed into hero as a subtle footer */}
-        <div className="max-w-7xl mx-auto mt-auto pt-6 pb-10 border-t border-gray-100">
-          <p className="text-[11px] text-gray-300 uppercase tracking-widest text-center mb-4">Works with</p>
-          <div className="flex flex-wrap items-end justify-center gap-6 sm:gap-10">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logos/claude.svg" alt="Claude Code" className="h-5 opacity-30 grayscale hover:opacity-60 hover:grayscale-0 transition-all duration-200" />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logos/cursor.svg" alt="Cursor" className="h-5 opacity-30 grayscale hover:opacity-60 hover:grayscale-0 transition-all duration-200" />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logos/github-copilot.svg" alt="GitHub Copilot" className="h-5 opacity-30 grayscale hover:opacity-60 hover:grayscale-0 transition-all duration-200" />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logos/openai.svg" alt="OpenAI Codex" className="h-5 opacity-30 grayscale hover:opacity-60 hover:grayscale-0 transition-all duration-200" />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logos/gemini.svg" alt="Gemini CLI" className="h-5 mb-0.5 opacity-30 grayscale hover:opacity-60 hover:grayscale-0 transition-all duration-200" />
-          </div>
-        </div>
+        <WorksWithLogos />
       </section>
 
       {/* ── Problem / Positioning ─────────────────────────────────────────── */}
