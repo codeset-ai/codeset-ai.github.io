@@ -50,6 +50,7 @@ const MARQUEE_LOGOS = [
 function WorksWithLogos() {
   const stripRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<HTMLDivElement>(null)
+  const boxRef = useRef<HTMLDivElement>(null)
   const [glowIndices, setGlowIndices] = useState<Set<number>>(new Set())
   const rafRef = useRef<number>(0)
 
@@ -61,12 +62,14 @@ function WorksWithLogos() {
     const tick = () => {
       const viewRect = view.getBoundingClientRect()
       const centerX = viewRect.left + viewRect.width / 2
-      const imgs = strip.querySelectorAll("img")
+      const items = strip.querySelectorAll<HTMLElement>("[data-logo-index]")
       const next = new Set<number>()
-      imgs.forEach((img, index) => {
-        const r = img.getBoundingClientRect()
-        const imgCenterX = r.left + r.width / 2
-        if (imgCenterX >= centerX) next.add(index)
+      items.forEach((el) => {
+        const idx = parseInt(el.getAttribute("data-logo-index") ?? "", 10)
+        if (Number.isNaN(idx)) return
+        const r = el.getBoundingClientRect()
+        const center = r.left + r.width / 2
+        if (center >= centerX) next.add(idx)
       })
       setGlowIndices((prev) => {
         if (prev.size !== next.size || [...prev].some((i) => !next.has(i))) return next
@@ -89,50 +92,61 @@ function WorksWithLogos() {
     "[filter:drop-shadow(0_0_4px_rgba(250,204,21,0.7))] [text-shadow:0_0_6px_rgba(250,204,21,0.5)]"
 
   return (
-    <div className="max-w-7xl mx-auto mt-auto pt-6 pb-10 border-t border-gray-100">
-      <p className="text-[11px] text-gray-300 uppercase tracking-widest text-center mb-4">Works with</p>
-      <div className="relative py-3">
-        <div ref={viewRef} className="overflow-hidden">
-          <div ref={stripRef} className="flex items-start gap-6 sm:gap-10 w-max animate-marquee-left-right">
-            {[0, 1, 2].map((copy) => (
-              <div key={copy} className="flex items-start gap-6 sm:gap-10 shrink-0">
-                {MARQUEE_LOGOS.map((logo, i) => {
-                  const index = copy * MARQUEE_LOGOS.length + i
-                  const processed = glowIndices.has(index)
-                  return (
-                    <div
-                      key={`${copy}-${i}`}
-                      className="flex flex-col items-center gap-1 shrink-0"
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={logo.src}
-                        alt={logo.alt}
-                        className={`${baseClass} ${processed ? processedLogoClass : ""} ${logo.className ?? ""}`.trim()}
-                      />
-                      {processed && (
-                        <span
-                          className={`text-[9px] font-medium uppercase tracking-wider text-amber-600/90 whitespace-nowrap ${badgeGlowClass}`}
-                        >
-                          repo-aware
-                        </span>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            ))}
-          </div>
+    <div className="w-full pt-4 pb-4 mt-4 border-t border-gray-100">
+      <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center pointer-events-none">
+          <span className="text-[10px] text-gray-400 uppercase tracking-widest">Your Repository</span>
+          <div className="w-px h-4 bg-gray-200 mt-1" aria-hidden />
+          <span className="text-[8px] text-gray-400 leading-none mt-0.5" aria-hidden>▼</span>
         </div>
-        <div
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-32 rounded border-2 border-gray-200 bg-white/80 backdrop-blur-sm pointer-events-none z-10 flex flex-col items-center justify-center gap-1 py-2"
-          aria-hidden
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/bacalhau.svg" alt="" className="h-6 w-auto" />
-          <span className="text-[10px] font-medium text-gray-500 whitespace-nowrap">
-            &lt;codeset&gt; agent
-          </span>
+        <div className="relative w-full min-h-[4rem] flex flex-col justify-center py-3">
+          <div
+            ref={viewRef}
+            className="overflow-hidden absolute inset-0 flex flex-col justify-center"
+          >
+            <div ref={stripRef} className="flex items-center gap-6 sm:gap-10 w-max animate-marquee-left-right">
+              {[0, 1, 2].map((copy) => (
+                <div key={copy} className="flex items-center gap-6 sm:gap-10 shrink-0">
+                  {MARQUEE_LOGOS.map((logo, i) => {
+                    const index = copy * MARQUEE_LOGOS.length + i
+                    const processed = glowIndices.has(index)
+                    return (
+                      <div
+                        key={`${copy}-${i}`}
+                        data-logo-index={index}
+                        className="flex flex-col items-center gap-1 shrink-0"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={logo.src}
+                          alt={logo.alt}
+                          className={`${baseClass} ${processed ? processedLogoClass : ""} ${logo.className ?? ""}`.trim()}
+                        />
+                        {processed && (
+                          <span
+                            className={`text-[9px] font-medium uppercase tracking-wider text-amber-600/90 whitespace-nowrap ${badgeGlowClass}`}
+                          >
+                            repo-aware
+                          </span>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              ))}
+            </div>
+          </div>
+          <div
+            ref={boxRef}
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none w-32 rounded border-2 border-gray-200 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center gap-1 py-2"
+            aria-hidden
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/bacalhau.svg" alt="" className="h-6 w-auto" />
+            <span className="text-[10px] font-medium text-gray-500 whitespace-nowrap">
+              &lt;codeset&gt; agent
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -417,25 +431,15 @@ export default function Home() {
               <TypewriterHero />
             </h1>
 
-            <p className="text-sm text-gray-500 mb-6 leading-relaxed">
-              Codeset Agent analyzes your entire repo — every commit,
-              every function call, every test — and gives your agent the kind
-              of codebase knowledge that usually takes months on a team to build.
-            </p>
+            <div className="max-w-xl">
+              <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+                Codeset Agent analyzes your entire repo — every commit,
+                every function call, every test — and gives your agent the kind
+                of codebase knowledge that usually takes months on a team to build.
+              </p>
 
-            {/* Proof — benchmark numbers */}
-            <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-8">
-              <div className="border border-gray-200 rounded-lg px-3 sm:px-4 py-3">
-                <div className="text-base sm:text-xl font-medium tracking-tight leading-tight">52% → 62%</div>
-                <div className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5">Claude Haiku</div>
-              </div>
-              <div className="border border-gray-200 rounded-lg px-3 sm:px-4 py-3">
-                <div className="text-base sm:text-xl font-medium tracking-tight leading-tight">56% → 65.3%</div>
-                <div className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5">Claude Sonnet</div>
-              </div>
-              <div className="border border-gray-200 rounded-lg px-3 sm:px-4 py-3">
-                <div className="text-base sm:text-xl font-medium tracking-tight leading-tight">60.7% → 68%</div>
-                <div className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5">Claude Opus</div>
+              <div className="mb-8 w-full">
+                <WorksWithLogos />
               </div>
             </div>
 
@@ -467,9 +471,6 @@ export default function Home() {
             </p>
           </div>
         </div>
-
-        {/* Works with — absorbed into hero as a subtle footer */}
-        <WorksWithLogos />
       </section>
 
       {/* ── Problem / Positioning ─────────────────────────────────────────── */}
