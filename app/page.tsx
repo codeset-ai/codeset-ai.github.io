@@ -178,61 +178,6 @@ function WorksWithLogos() {
   )
 }
 
-const HERO_LINE1 = "Your coding agent,"
-const HERO_LINE2 = "but better."
-const DELAY_SLOW_MS = 60
-const DELAY_FAST_MS = 45
-
-function TypewriterHero() {
-  const [line1, setLine1] = useState("")
-  const [line2, setLine2] = useState("")
-
-  useEffect(() => {
-    let t1: ReturnType<typeof setTimeout> | null = null
-    let t2: ReturnType<typeof setTimeout> | null = null
-
-    let i = 0
-    const runLine1 = () => {
-      if (i < HERO_LINE1.length) {
-        setLine1(HERO_LINE1.slice(0, i + 1))
-        i++
-        t1 = setTimeout(runLine1, DELAY_SLOW_MS)
-      } else {
-        i = 0
-        t2 = setTimeout(runLine2, 120)
-      }
-    }
-    const runLine2 = () => {
-      if (i < HERO_LINE2.length) {
-        setLine2(HERO_LINE2.slice(0, i + 1))
-        i++
-        t2 = setTimeout(runLine2, DELAY_FAST_MS)
-      }
-    }
-    t1 = setTimeout(runLine1, 200)
-
-    return () => {
-      if (t1) clearTimeout(t1)
-      if (t2) clearTimeout(t2)
-    }
-  }, [])
-
-  return (
-    <span className="relative block">
-      <span className="invisible" aria-hidden="true">
-        {HERO_LINE1}
-        <br />
-        {HERO_LINE2}
-      </span>
-      <span className="absolute top-0 left-0">
-        {line1}
-        <br />
-        {line2}
-      </span>
-    </span>
-  )
-}
-
 const WHAT_YOU_GET = [
   "CLAUDE.md / AGENTS.md",
   "Per-file knowledge base",
@@ -500,7 +445,9 @@ export default function Home() {
           {/* Left */}
           <div>
             <h1 className="text-4xl sm:text-5xl font-medium tracking-tight mb-5 leading-[1.1]">
-              <TypewriterHero />
+              Your coding agent,
+              <br />
+              but better.
             </h1>
 
             <div className="max-w-xl">
@@ -517,18 +464,35 @@ export default function Home() {
 
             <HeroForm onSubmit={handleGetStarted} />
 
-            <div className="mt-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+            <div className="mt-3">
               <p className="text-xs text-gray-500">
                 <span className="text-gray-800 font-semibold">$3, one-time.</span>
                 {" "}No subscription. Ready in ~30 minutes.
               </p>
+            </div>
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-6 mb-2">
+              <div className="border border-gray-200 rounded-lg px-3 sm:px-4 py-3">
+                <div className="text-base sm:text-xl font-medium tracking-tight leading-tight">52% → 62%</div>
+                <div className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5">Claude Haiku 4.5</div>
+              </div>
+              <div className="border border-gray-200 rounded-lg px-3 sm:px-4 py-3">
+                <div className="text-base sm:text-xl font-medium tracking-tight leading-tight">56% → 65.3%</div>
+                <div className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5">Claude Sonnet 4.5</div>
+              </div>
+              <div className="border border-gray-200 rounded-lg px-3 sm:px-4 py-3">
+                <div className="text-base sm:text-xl font-medium tracking-tight leading-tight">60.7% → 68%</div>
+                <div className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5">Claude Opus 4.5</div>
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              With the information provided by the Codeset Agent, Haiku 4.5 delivers better performance than baseline Sonnet 4.5 and Opus 4.5 while significantly reducing costs.{" "}
               <a
                 href="/blog/introducing-codeset-agent"
-                className="text-xs text-gray-400 underline hover:text-gray-600 transition-colors whitespace-nowrap"
+                className="text-gray-400 underline hover:text-gray-600 transition-colors"
               >
-                Read the evaluation →
+                Read the full evaluation →
               </a>
-            </div>
+            </p>
           </div>
 
           {/* Right — agent chat: task → context → think → fix */}
