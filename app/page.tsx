@@ -700,7 +700,7 @@ export default function Home() {
           {/* Right — agent chat: task → context → think → fix */}
           <div className="hidden md:block mt-8 md:mt-0">
             <AgentChatHero animate={!isMobile} />
-            <p className="mt-3 text-xs text-gray-400 text-center">
+            <p className="mt-3 text-xs text-gray-400 text-center max-w-lg">
               The agent queries our knowledge base, reasons with it, and finds the correct fix.
             </p>
           </div>
