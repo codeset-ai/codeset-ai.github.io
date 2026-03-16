@@ -106,8 +106,11 @@ export default function PrivacyPage() {
             <p className="mb-4">
               We retain personal data only for as long as necessary to provide the services and fulfil the purposes described in this policy. When determining retention periods, we consider the nature of the data, our contractual obligations, legitimate business interests, and applicable legal requirements.
             </p>
-            <p>
+            <p className="mb-4">
               When you delete your account, we will delete or anonymise your personal data within a reasonable period, except where retention is required by law.
+            </p>
+            <p>
+              To delete your account, please send us an email at <a href="mailto:nuno@codeset.ai" className="text-blue-600 hover:underline">nuno@codeset.ai</a> or <a href="mailto:andre@codeset.ai" className="text-blue-600 hover:underline">andre@codeset.ai</a>. We will process your request within 30 days.
             </p>
           </section>
 
