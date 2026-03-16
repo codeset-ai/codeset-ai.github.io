@@ -558,11 +558,32 @@ export default function Home() {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [headingDone, setHeadingDone] = useState(false)
   const [pricing, setPricing] = useState<PricingInfo | null>(null)
+  const [showScrollHint, setShowScrollHint] = useState(true)
+  const [heightGte1000, setHeightGte1000] = useState(false)
+  const contentBelowRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    const check = () => setHeightGte1000(window.innerHeight >= 1000)
+    check()
+    window.addEventListener("resize", check)
+    return () => window.removeEventListener("resize", check)
+  }, [])
 
   useEffect(() => {
     ApiService.getPricingInfo()
       .then(setPricing)
       .catch(() => setPricing(null))
+  }, [])
+
+  useEffect(() => {
+    const el = contentBelowRef.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([e]) => setShowScrollHint(!e.isIntersecting),
+      { threshold: 0, rootMargin: "0px" }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
   }, [])
 
   const priceLabel =
@@ -589,7 +610,7 @@ export default function Home() {
       <Header />
 
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
-      <section className="flex flex-col min-h-[calc(100vh-73px)] pt-44 pb-40 px-4 sm:px-6 lg:px-8">
+      <section className="flex flex-col min-h-0 pt-20 pb-16 px-4 sm:px-6 lg:px-8 [@media(min-height:1000px)]:min-h-[calc(100vh-73px)] [@media(min-height:1000px)]:pt-44 [@media(min-height:1000px)]:pb-40">
         <div className="max-w-7xl mx-auto grid md:grid-cols-[1fr_1fr] gap-10 md:gap-20 items-start">
           {/* Left */}
           <div>
@@ -669,8 +690,20 @@ export default function Home() {
         </div>
       </section>
 
+      {showScrollHint && heightGte1000 && (
+        <div
+          className="fixed bottom-6 left-0 right-0 flex justify-center pointer-events-none z-10 animate-in fade-in-0 duration-500"
+          aria-hidden
+        >
+          <span className="text-xs text-gray-400 flex flex-col items-center gap-1">
+            <span>Scroll down to know more</span>
+            <ChevronDown size={16} className="text-gray-400 animate-bounce" />
+          </span>
+        </div>
+      )}
+
       {/* ── Problem / Positioning ─────────────────────────────────────────── */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
+      <section ref={contentBelowRef} className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-10 md:gap-20">
           <div>
             <h2 className="text-2xl font-medium mb-5 leading-snug">
@@ -730,7 +763,7 @@ export default function Home() {
       </section>
 
       {/* ── What you get ──────────────────────────────────────────────────── */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-gray-50 border-t border-gray-100">
+      <section className="py-16 bg-gray-50 border-t border-gray-100">
         <div className="max-w-7xl mx-auto">
           {/* Title now includes the price — makes it feel like a value reveal */}
           <h2 className="text-2xl font-medium mb-2">What you get — for {priceLabel}</h2>
@@ -807,7 +840,7 @@ export default function Home() {
       </section>
 
       {/* ── How it works ──────────────────────────────────────────────────── */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
+      <section className="py-16">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-medium mb-12">How it works</h2>
           <div className="grid md:grid-cols-3 gap-12">
