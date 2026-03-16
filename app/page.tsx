@@ -221,6 +221,10 @@ Zustand uses the slice pattern.
 See src/stores/README first.
 Never call store actions during SSR.`
 
+const SAMPLE_CLAUDE_MD_MOBILE = SAMPLE_CLAUDE_MD.split("\n")
+  .map((line) => line.replace(/\s+#\s+.*$/, "").trimEnd())
+  .join("\n")
+
 const HERO_AGENT_TASK = "Fix: session init crashes with null ptr when loading user in auth flow."
 
 const HERO_AGENT_TOOL_OUTPUT = `$ python retrieve_file_info.py src/auth.ts
@@ -286,21 +290,28 @@ function TimelineConnector({ complete }: { complete: boolean }) {
   )
 }
 
-function AgentChatHero() {
-  const [visibleCount, setVisibleCount] = useState(1)
-  const [iconPopped, setIconPopped] = useState(false)
+function AgentChatHero({ animate = true }: { animate?: boolean }) {
+  const [visibleCount, setVisibleCount] = useState(animate ? 1 : 4)
+  const [iconPopped, setIconPopped] = useState(!animate)
 
   useEffect(() => {
-    if (visibleCount >= 4) return
+    if (!animate) {
+      setVisibleCount(4)
+      setIconPopped(true)
+    }
+  }, [animate])
+
+  useEffect(() => {
+    if (!animate || visibleCount >= 4) return
     const t = setTimeout(() => setVisibleCount((c) => c + 1), CHAT_STEP_DELAY_MS)
     return () => clearTimeout(t)
-  }, [visibleCount])
+  }, [visibleCount, animate])
 
   useEffect(() => {
-    if (visibleCount < 4) return
+    if (!animate || visibleCount < 4) return
     const t = setTimeout(() => setIconPopped(true), 300)
     return () => clearTimeout(t)
-  }, [visibleCount])
+  }, [visibleCount, animate])
 
   const glowCls = "ring-2 ring-indigo-500/50 shadow-[0_0_15px_rgba(99,102,241,0.2)]"
   const nodeBase = "w-[18px] h-[18px] rounded-full flex items-center justify-center flex-shrink-0 mt-[11px]"
@@ -456,7 +467,7 @@ function TerminalHeading({ onDone }: { onDone: () => void }) {
   }, [])
 
   return (
-    <h1 className="text-4xl sm:text-5xl font-medium tracking-tight mb-5 leading-[1.1]">
+    <h1 className="text-2xl sm:text-4xl md:text-5xl font-medium tracking-tight mb-5 leading-[1.1]">
       {displayed.split("\n").map((line, i, arr) => (
         <span key={i}>
           {line}
@@ -560,10 +571,14 @@ export default function Home() {
   const [pricing, setPricing] = useState<PricingInfo | null>(null)
   const [showScrollHint, setShowScrollHint] = useState(true)
   const [heightGte1000, setHeightGte1000] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   const contentBelowRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
-    const check = () => setHeightGte1000(window.innerHeight >= 1000)
+    const check = () => {
+      setHeightGte1000(window.innerHeight >= 1000)
+      setIsMobile(window.innerWidth < 768)
+    }
     check()
     window.addEventListener("resize", check)
     return () => window.removeEventListener("resize", check)
@@ -610,8 +625,8 @@ export default function Home() {
       <Header />
 
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
-      <section className="flex flex-col min-h-0 pt-20 pb-16 px-4 sm:px-6 lg:px-8 [@media(min-height:1000px)]:min-h-[calc(100vh-73px)] [@media(min-height:1000px)]:pt-44 [@media(min-height:1000px)]:pb-40">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-[1fr_1fr] gap-10 md:gap-20 items-start">
+      <section className="flex flex-col min-h-0 pt-16 sm:pt-20 pb-2 px-4 sm:px-6 lg:px-8 [@media(min-height:1000px)]:min-h-[calc(100vh-73px)] [@media(min-height:1000px)]:pt-44 [@media(min-height:1000px)]:pb-40">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-8 md:gap-20 items-start">
           {/* Left */}
           <div>
             <TerminalHeading onDone={() => setHeadingDone(true)} />
@@ -622,17 +637,17 @@ export default function Home() {
               <div className="max-w-xl">
                 <div className="text-sm text-gray-500 mb-6 leading-relaxed">
                   <p className="mb-2">Give Claude Code, Codex, and other agents the codebase knowledge your team spent years building.</p>
-                  <ul className="space-y-1 text-gray-600 list-none pl-0">
+                  <ul className="hidden sm:block space-y-1 text-gray-600 list-none pl-0">
                     <li className="flex items-baseline gap-2">
-                      <span className="text-indigo-400 font-medium text-xl leading-none inline-block shrink-0 w-4 text-center">•</span>
+                      <span className="text-indigo-400 font-medium text-xl leading-none shrink-0 w-4 text-center">•</span>
                       <span className="text-sm">Analyzes your commit history</span>
                     </li>
                     <li className="flex items-baseline gap-2">
-                      <span className="text-indigo-400 font-medium text-xl leading-none inline-block shrink-0 w-4 text-center">•</span>
+                      <span className="text-indigo-400 font-medium text-xl leading-none shrink-0 w-4 text-center">•</span>
                       <span className="text-sm">Tracks every function call</span>
                     </li>
                     <li className="flex items-baseline gap-2">
-                      <span className="text-indigo-400 font-medium text-xl leading-none inline-block shrink-0 w-4 text-center">•</span>
+                      <span className="text-indigo-400 font-medium text-xl leading-none shrink-0 w-4 text-center">•</span>
                       <span className="text-sm">Indexes all your tests</span>
                     </li>
                   </ul>
@@ -654,7 +669,7 @@ export default function Home() {
                   {" "}No subscription. Ready in ~30 minutes.
                 </p>
               </div>
-              <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-6 mb-2">
+              <div className="hidden sm:grid grid-cols-3 gap-2 sm:gap-3 mt-6 mb-2">
                 <div className="border border-gray-200 rounded-lg px-3 sm:px-4 py-3">
                   <div className="text-base sm:text-xl font-medium tracking-tight leading-tight">52% → 62%</div>
                   <div className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5">Claude Haiku 4.5</div>
@@ -669,7 +684,9 @@ export default function Home() {
                 </div>
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                With the information provided by the Codeset Agent, Haiku 4.5 delivers better performance than baseline Sonnet 4.5 and Opus 4.5, significantly reducing costs.{" "}
+                <span className="hidden sm:inline">
+                  With the information provided by the Codeset Agent, Haiku 4.5 delivers better performance than baseline Sonnet 4.5 and Opus 4.5, significantly reducing costs.{" "}
+                </span>
                 <a
                   href="/blog/introducing-codeset-agent"
                   className="text-gray-400 underline hover:text-gray-600 transition-colors"
@@ -681,8 +698,8 @@ export default function Home() {
           </div>
 
           {/* Right — agent chat: task → context → think → fix */}
-          <div className="mt-8 md:mt-0">
-            <AgentChatHero />
+          <div className="hidden md:block mt-8 md:mt-0">
+            <AgentChatHero animate={!isMobile} />
             <p className="mt-3 text-xs text-gray-400 text-center">
               The agent queries our knowledge base, reasons with it, and finds the correct fix.
             </p>
@@ -704,9 +721,9 @@ export default function Home() {
 
       {/* ── Problem / Positioning ─────────────────────────────────────────── */}
       <section ref={contentBelowRef} className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-10 md:gap-20">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-20">
           <div>
-            <h2 className="text-2xl font-medium mb-5 leading-snug">
+            <h2 className="text-lg sm:text-2xl font-medium mb-5 leading-snug">
               Conventions and architecture are easy.<br />
               The harder knowledge is implicit.
             </h2>
@@ -763,7 +780,7 @@ export default function Home() {
       </section>
 
       {/* ── What you get ──────────────────────────────────────────────────── */}
-      <section className="py-16 bg-gray-50 border-t border-gray-100">
+      <section className="py-16 bg-gray-50 border-t border-gray-100 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           {/* Title now includes the price — makes it feel like a value reveal */}
           <h2 className="text-2xl font-medium mb-2">What you get — for {priceLabel}</h2>
@@ -782,7 +799,7 @@ export default function Home() {
                 </p>
               </div>
               <pre className="bg-gray-950 text-gray-400 text-xs p-4 leading-relaxed overflow-x-auto whitespace-pre">
-                {SAMPLE_CLAUDE_MD}
+                {isMobile ? SAMPLE_CLAUDE_MD_MOBILE : SAMPLE_CLAUDE_MD}
               </pre>
             </div>
           </div>
@@ -803,18 +820,18 @@ export default function Home() {
                 and which tests exercise it. Queryable by your agent on demand.
               </p>
             </div>
-            <div className="grid md:grid-cols-[1fr_1fr] divide-y md:divide-y-0 md:divide-x divide-gray-800">
-              <div className="px-5 py-4 bg-gray-950">
-                <pre className="text-gray-300 text-xs leading-relaxed overflow-x-auto whitespace-pre">
+            <div className="grid md:grid-cols-[1fr_1fr] divide-y md:divide-y-0 md:divide-x divide-gray-800 min-w-0">
+              <div className="px-5 py-4 bg-gray-950 min-w-0 overflow-hidden">
+                <pre className="text-gray-300 text-xs leading-relaxed overflow-x-auto whitespace-pre-wrap md:whitespace-pre">
                   {FILE_INFO_CARD}
                 </pre>
               </div>
-              <div className="px-5 py-4 bg-gray-950 flex flex-col justify-center gap-4">
-                <div>
-                  <p className="text-xs text-gray-500 font-medium uppercase tracking-widest mb-2">
+              <div className="px-5 py-4 bg-gray-950 flex flex-col justify-center gap-4 min-w-0">
+                <div className="min-w-0">
+                  <p className="text-xs text-gray-500 font-medium uppercase tracking-widest mb-2 break-words">
                     What your agent sees when it reads src/payments.ts
                   </p>
-                  <ul className="space-y-2 text-xs text-gray-400">
+                  <ul className="space-y-2 text-xs text-gray-400 min-w-0">
                     {[
                       "The double-charge bug that hit production — and the fix.",
                       "Two pitfalls with consequences: don't call inside a transaction, never log the full object.",
@@ -822,14 +839,14 @@ export default function Home() {
                       "Four tests, ready to run after any change.",
                       "Two files that always move with this one.",
                     ].map((item) => (
-                      <li key={item} className="flex gap-2">
-                        <span className="text-gray-600 flex-shrink-0">›</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
+                        <li key={item} className="flex gap-2 min-w-0">
+                          <span className="text-gray-600 flex-shrink-0">›</span>
+                          <span className="min-w-0 break-words">{item}</span>
+                        </li>
+                      ))}
                   </ul>
                 </div>
-                <p className="text-xs text-gray-600 leading-relaxed border-t border-gray-800 pt-4">
+                <p className="text-xs text-gray-600 leading-relaxed border-t border-gray-800 pt-4 min-w-0 break-words">
                   Generated automatically from your git history and AST.
                   No manual annotation. No maintenance.
                 </p>
@@ -840,10 +857,10 @@ export default function Home() {
       </section>
 
       {/* ── How it works ──────────────────────────────────────────────────── */}
-      <section className="py-16">
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-2xl font-medium mb-12">How it works</h2>
-          <div className="grid md:grid-cols-3 gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
             {[
               {
                 step: "01",
@@ -873,7 +890,7 @@ export default function Home() {
 
       {/* ── FAQ ───────────────────────────────────────────────────────────── */}
       <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-[2fr_3fr] gap-8 md:gap-20">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-[2fr_3fr] gap-8 md:gap-20">
           <div>
             <h2 className="text-2xl font-medium mb-4">Common questions</h2>
             <p className="text-sm text-gray-500 leading-relaxed">
@@ -900,7 +917,7 @@ export default function Home() {
 
       {/* ── Dark CTA ──────────────────────────────────────────────────────── */}
       <section className="bg-black text-white py-16 sm:py-28 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-[1fr_1fr] gap-10 md:gap-16 items-start">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-8 md:gap-16 items-start">
           <div>
             <h2 className="text-3xl font-medium mb-3 leading-tight">
               Start with your most important repo.
