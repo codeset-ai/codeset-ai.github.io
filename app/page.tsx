@@ -47,19 +47,49 @@ const MARQUEE_LOGOS = [
   { src: "/logos/gemini.svg", alt: "Gemini CLI", className: "mb-0.5" },
 ]
 
+const MARQUEE_COPIES = 4
+const MARQUEE_DURATION_MS = 30000
+
 function WorksWithLogos() {
   const stripRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<HTMLDivElement>(null)
   const boxRef = useRef<HTMLDivElement>(null)
   const [glowIndices, setGlowIndices] = useState<Set<number>>(new Set())
-  const rafRef = useRef<number>(0)
+  const positionRef = useRef(0)
+  const lastTimeRef = useRef<number>(0)
 
   useEffect(() => {
-    const strip = stripRef.current
-    const view = viewRef.current
-    if (!strip || !view) return
-
-    const tick = () => {
+    let rafId = 0
+    const tick = (time: number) => {
+      const strip = stripRef.current
+      const view = viewRef.current
+      if (!strip || !view) {
+        rafId = requestAnimationFrame(tick)
+        return
+      }
+      const firstSegment = strip.firstElementChild as HTMLElement | null
+      const secondSegment = firstSegment?.nextElementSibling as HTMLElement | null
+      let segmentWidth: number
+      if (firstSegment && secondSegment) {
+        const r1 = firstSegment.getBoundingClientRect()
+        const r2 = secondSegment.getBoundingClientRect()
+        segmentWidth = r2.left - r1.left
+      } else {
+        segmentWidth = strip.offsetWidth / MARQUEE_COPIES
+      }
+      if (segmentWidth > 0) {
+        const prevTime = lastTimeRef.current
+        lastTimeRef.current = time
+        if (prevTime > 0) {
+          const delta = Math.min(time - prevTime, 100)
+          positionRef.current += (segmentWidth / MARQUEE_DURATION_MS) * delta
+          while (positionRef.current >= segmentWidth) {
+            positionRef.current -= segmentWidth
+          }
+        }
+        const x = positionRef.current - segmentWidth
+        strip.style.transform = `translateX(${x}px)`
+      }
       const viewRect = view.getBoundingClientRect()
       const centerX = viewRect.left + viewRect.width / 2
       const items = strip.querySelectorAll<HTMLElement>("[data-logo-index]")
@@ -75,15 +105,10 @@ function WorksWithLogos() {
         if (prev.size !== next.size || [...prev].some((i) => !next.has(i))) return next
         return prev
       })
-      rafRef.current = requestAnimationFrame(tick)
+      rafId = requestAnimationFrame(tick)
     }
-    const id = requestAnimationFrame(() => {
-      rafRef.current = requestAnimationFrame(tick)
-    })
-    return () => {
-      cancelAnimationFrame(id)
-      cancelAnimationFrame(rafRef.current)
-    }
+    rafId = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(rafId)
   }, [])
 
   const baseClass = "h-5 opacity-30 grayscale hover:opacity-60 hover:grayscale-0 transition-all duration-200"
@@ -104,8 +129,8 @@ function WorksWithLogos() {
             ref={viewRef}
             className="overflow-hidden absolute inset-0 flex flex-col justify-center"
           >
-            <div ref={stripRef} className="flex items-center gap-6 sm:gap-10 w-max animate-marquee-left-right">
-              {[0, 1, 2].map((copy) => (
+            <div ref={stripRef} className="flex items-center gap-6 sm:gap-10 w-max" style={{ willChange: "transform" }}>
+              {[0, 1, 2, 3].map((copy) => (
                 <div key={copy} className="flex items-center gap-6 sm:gap-10 shrink-0">
                   {MARQUEE_LOGOS.map((logo, i) => {
                     const index = copy * MARQUEE_LOGOS.length + i
@@ -240,8 +265,9 @@ Zustand uses the slice pattern.
 See src/stores/README first.
 Never call store actions during SSR.`
 
-// Hero — the WOW artifact
-const FILE_INFO_HERO = `$ python retrieve_file_info.py src/auth.ts
+const HERO_AGENT_TASK = "Fix: session init crashes with null ptr when loading user in auth flow."
+
+const HERO_AGENT_TOOL_OUTPUT = `$ python retrieve_file_info.py src/auth.ts
 
 ── src/auth.ts ───────────────── Deep Analysis
 
@@ -252,17 +278,64 @@ History:
 
 Pitfall:
   ✗ Don't call authenticate() before db.init()
-  → RuntimeError: connection pool not created
+  → RuntimeError: connection pool not created`
 
-Callers (3 files):
-  api/routes.ts:42      loginHandler()
-  middleware/auth.ts:18  verifyToken()
-  tests/setup.ts:7      mockAuthContext()
+const HERO_AGENT_THINKING = `History: timezone-naive date comparison caused the null ptr; fix is to use datetime.timezone.utc. Pitfall: don't call authenticate() before db.init(). Session init currently runs before db — reorder so db.init() runs first, then use timezone.utc for created_at.`
 
-Tests → tests/auth.test.ts:
-  test_valid_login
-  test_expired_session
-  test_concurrent_auth`
+const HERO_AGENT_FIX = `  def init_session():
++     db.init()
+      user = authenticate()
+-     created = datetime.now()
++     created = datetime.now(timezone.utc)`
+
+const CHAT_STEP_DELAY_MS = 1200
+
+function AgentChatHero() {
+  const [visibleCount, setVisibleCount] = useState(1)
+
+  useEffect(() => {
+    if (visibleCount >= 4) return
+    const t = setTimeout(() => setVisibleCount((c) => c + 1), CHAT_STEP_DELAY_MS)
+    return () => clearTimeout(t)
+  }, [visibleCount])
+
+  return (
+    <div className="flex flex-col gap-4 max-w-lg">
+      {visibleCount >= 1 && (
+        <div className="flex justify-start animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
+          <div className="rounded-2xl rounded-tl-sm bg-gray-900 text-gray-300 px-4 py-3 max-w-[85%] border border-gray-700">
+            <p className="text-[12px] uppercase tracking-wider text-gray-500 mb-1">You</p>
+            <p className="text-[12px] text-gray-300/95">{HERO_AGENT_TASK}</p>
+          </div>
+        </div>
+      )}
+      {visibleCount >= 2 && (
+        <div className="animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
+          <p className="text-[12px] uppercase tracking-wider text-amber-600/80 mb-1.5 font-medium">Tool powered by Codeset Agent · retrieve_file_info</p>
+          <pre className="bg-gray-950 text-gray-300 text-[12px] leading-relaxed p-4 rounded-xl rounded-tl-none overflow-x-auto whitespace-pre border border-gray-800">
+            {HERO_AGENT_TOOL_OUTPUT}
+          </pre>
+        </div>
+      )}
+      {visibleCount >= 3 && (
+        <div className="flex justify-end animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
+          <div className="rounded-2xl rounded-tr-sm bg-gray-900 text-gray-300 px-4 py-3 max-w-[90%] border border-gray-700">
+            <p className="text-[12px] uppercase tracking-wider text-gray-500 mb-1">Agent</p>
+            <p className="text-[12px] text-gray-300/95 italic">{HERO_AGENT_THINKING}</p>
+          </div>
+        </div>
+      )}
+      {visibleCount >= 4 && (
+        <div className="animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
+          <p className="text-[12px] uppercase tracking-wider text-emerald-600/80 mb-1.5 font-medium">Fix applied</p>
+          <pre className="bg-gray-950 text-gray-300 text-[12px] leading-relaxed p-4 rounded-xl overflow-x-auto whitespace-pre border border-emerald-900/50 border-l-2 border-l-emerald-500/70">
+            {HERO_AGENT_FIX}
+          </pre>
+        </div>
+      )}
+    </div>
+  )
+}
 
 // "What you get" featured card 02
 const FILE_INFO_CARD = `$ python retrieve_file_info.py src/payments.ts
@@ -309,9 +382,8 @@ function HeroForm({
     ? "w-full border border-gray-600 bg-gray-900 text-white placeholder-gray-500 rounded-md px-4 py-3 text-sm font-mono focus:outline-none focus:border-gray-300 focus:ring-1 focus:ring-gray-300"
     : "w-full border border-gray-300 bg-white rounded-md px-4 py-3 text-sm font-mono focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
 
-  const btnCls = dark
-    ? "px-6 py-3 text-sm font-medium text-black bg-white rounded-md hover:bg-gray-100 transition-colors whitespace-nowrap flex-shrink-0"
-    : "px-6 py-3 text-sm font-medium text-white bg-black rounded-md hover:bg-gray-800 transition-colors whitespace-nowrap flex-shrink-0"
+  const btnCls =
+    "px-6 py-3 text-sm font-medium bg-amber-600/80 text-white rounded-md hover:bg-amber-600 transition-colors whitespace-nowrap flex-shrink-0"
 
   const handleSubmit = () => {
     const parsed = parseRepo(repoInput)
@@ -459,15 +531,11 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Right — the WOW artifact */}
+          {/* Right — agent chat: task → context → think → fix */}
           <div className="mt-8 md:mt-0">
-            <CodeWindow
-              title="retrieve_file_info.py src/auth.ts"
-              content={FILE_INFO_HERO}
-              className="shadow-2xl shadow-gray-200/60"
-            />
+            <AgentChatHero />
             <p className="mt-3 text-xs text-gray-400 text-center">
-              Surfaced automatically when your agent reads a file.
+              The code agent calls our tool for context, reasons from it, then applies the fix.
             </p>
           </div>
         </div>
