@@ -56,7 +56,7 @@ export default function TermsPage() {
             <h2 className="text-xl font-semibold mb-4">3. Eligibility</h2>
             <p className="mb-2">To use Codeset services:</p>
             <ul className="list-disc pl-6 space-y-1">
-              <li>You must be at least 18 years old.</li>
+              <li>You must be at least 13 years old.</li>
               <li>If you are using the services on behalf of a company or organization, you represent that you have the authority to bind that entity to these Terms.</li>
             </ul>
           </section>
@@ -124,7 +124,7 @@ export default function TermsPage() {
             <p className="mb-2">Users acknowledge that:</p>
             <ul className="list-disc pl-6 space-y-1 mb-4">
               <li>Repository-derived information may not be encrypted at rest by default</li>
-              <li>No security measure is guaranteed to prevent all unauthorised access; Codeset&apos;s liability for security incidents is limited as set out in Section 12</li>
+              <li>No security measure is guaranteed to prevent all unauthorised access; Codeset&apos;s liability for security incidents is limited as set out in Section 13</li>
             </ul>
             <p>Organizations requiring enhanced security guarantees must establish separate written agreements with Codeset.</p>
           </section>
@@ -161,7 +161,20 @@ export default function TermsPage() {
           </section>
 
           <section className="mb-10">
-            <h2 className="text-xl font-semibold mb-4">10. AI and Automated Systems Disclaimer</h2>
+            <h2 className="text-xl font-semibold mb-4">10. Privacy and Data Protection</h2>
+            <p className="mb-4">
+              Codeset processes personal data as data controller in accordance with applicable data protection law, including the General Data Protection Regulation (EU) 2016/679 (GDPR). Codeset implements appropriate technical and organisational measures to protect personal data against unauthorised access, loss, or disclosure.
+            </p>
+            <p className="mb-4">
+              Users are responsible for ensuring that any personal data they submit or process through the services complies with applicable data protection laws, including obtaining any necessary consents from their end users.
+            </p>
+            <p>
+              For full details of how Codeset collects, uses, stores, and protects personal data, and to understand your rights as a data subject, please refer to our <a href="/privacy" className="text-blue-600 hover:underline">Privacy Policy</a>.
+            </p>
+          </section>
+
+          <section className="mb-10">
+            <h2 className="text-xl font-semibold mb-4">11. AI and Automated Systems Disclaimer</h2>
             <p className="mb-4">
               Codeset services involve automated systems and artificial intelligence tools. Users acknowledge that:
             </p>
@@ -176,14 +189,14 @@ export default function TermsPage() {
           </section>
 
           <section className="mb-10">
-            <h2 className="text-xl font-semibold mb-4">11. Service Availability</h2>
+            <h2 className="text-xl font-semibold mb-4">12. Service Availability</h2>
             <p className="mb-4">
               Services are provided &quot;as is&quot; and &quot;as available.&quot; Codeset does not guarantee: continuous availability; error-free operation; absence of interruptions or outages. Codeset is not liable for damages resulting from downtime or service disruptions.
             </p>
           </section>
 
           <section className="mb-10">
-            <h2 className="text-xl font-semibold mb-4">12. Limitation of Liability</h2>
+            <h2 className="text-xl font-semibold mb-4">13. Limitation of Liability</h2>
             <p className="mb-4">
               IN NO EVENT WILL EITHER PARTY BE LIABLE UNDER OR IN CONNECTION WITH THIS AGREEMENT UNDER ANY LEGAL OR EQUITABLE THEORY, INCLUDING BREACH OF CONTRACT, TORT (INCLUDING NEGLIGENCE), STRICT LIABILITY, AND OTHERWISE, FOR ANY: (A) CONSEQUENTIAL, INCIDENTAL, INDIRECT, EXEMPLARY, SPECIAL, ENHANCED, OR PUNITIVE DAMAGES; (B) INCREASED COSTS, DIMINUTION IN VALUE OR LOST BUSINESS, PRODUCTION, REVENUES, OR PROFITS; (C) LOSS OF GOODWILL OR REPUTATION; (D) USE, INABILITY TO USE, LOSS, INTERRUPTION, DELAY OR RECOVERY OF ANY DATA, OR BREACH OF DATA OR SYSTEM SECURITY; OR (E) COST OF REPLACEMENT SOFTWARE OR SERVICES, IN EACH CASE REGARDLESS OF WHETHER EITHER PARTY WAS ADVISED OF THE POSSIBILITY OF SUCH LOSSES OR DAMAGES OR SUCH LOSSES OR DAMAGES WERE OTHERWISE FORESEEABLE. THE LIMITATIONS SET OUT IN THIS CLAUSE SHALL NOT APPLY TO PERSONAL INJURY, INCLUDING DEATH, CAUSED BY EACH PARTY&apos;S NEGLIGENCE.
             </p>
@@ -193,7 +206,7 @@ export default function TermsPage() {
           </section>
 
           <section className="mb-10">
-            <h2 className="text-xl font-semibold mb-4">13. Indemnification</h2>
+            <h2 className="text-xl font-semibold mb-4">14. Indemnification</h2>
             <p className="mb-4">
               You agree to indemnify, defend, and hold harmless Codeset and its officers, employees, and agents from and against any third-party claims, losses, damages, and expenses (including reasonable legal fees) arising from or relating to: your use of the services; your violation of these Terms; or your violation of any applicable law or third-party rights.
             </p>
@@ -203,7 +216,7 @@ export default function TermsPage() {
           </section>
 
           <section className="mb-10">
-            <h2 className="text-xl font-semibold mb-4">14. Termination</h2>
+            <h2 className="text-xl font-semibold mb-4">15. Termination</h2>
             <p className="mb-4">
               Codeset may suspend or terminate accounts that: violate these Terms; engage in abusive or harmful activity; attempt to interfere with the platform. Users may stop using the services at any time.
             </p>
@@ -215,14 +228,14 @@ export default function TermsPage() {
           </section>
 
           <section className="mb-10">
-            <h2 className="text-xl font-semibold mb-4">15. Changes to the Terms</h2>
+            <h2 className="text-xl font-semibold mb-4">16. Changes to the Terms</h2>
             <p className="mb-4">
               Codeset may update these Terms from time to time. If significant changes are made, users will be notified through the platform or by email with at least 30 days&apos; notice before the changes take effect. Continued use of the services after changes become effective constitutes acceptance of the updated Terms.
             </p>
           </section>
 
           <section className="mb-10">
-            <h2 className="text-xl font-semibold mb-4">16. General Provisions</h2>
+            <h2 className="text-xl font-semibold mb-4">17. General Provisions</h2>
             <p className="mb-4">
               Entire Agreement. These Terms constitute the entire agreement between you and Codeset regarding the services and supersede all prior agreements or understandings on the same subject matter.
             </p>
@@ -238,14 +251,14 @@ export default function TermsPage() {
           </section>
 
           <section className="mb-10">
-            <h2 className="text-xl font-semibold mb-4">17. Governing Law and Jurisdiction</h2>
+            <h2 className="text-xl font-semibold mb-4">18. Governing Law and Jurisdiction</h2>
             <p>
               These Terms are governed by the laws of Portugal. Any dispute arising from or relating to these Terms shall be submitted to the exclusive jurisdiction of the courts of Lisbon, Portugal, unless otherwise required by applicable law.
             </p>
           </section>
 
           <section className="mb-10">
-            <h2 className="text-xl font-semibold mb-4">18. Contact</h2>
+            <h2 className="text-xl font-semibold mb-4">19. Contact</h2>
             <p className="mb-2">For legal inquiries regarding these Terms:</p>
             <p className="mb-2">Email:</p>
             <ul className="list-disc pl-6 space-y-1 mb-4">
