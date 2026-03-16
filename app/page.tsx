@@ -444,7 +444,7 @@ Tests → tests/payments.test.ts:
 Co-changes: src/webhooks.ts, src/subscriptions.ts`
 
 
-const HERO_HEADING = "Onboard your favorite \ncoding agent."
+const HERO_HEADING = "Onboard your favorite \ncoding agent"
 
 function TerminalHeading({ onDone }: { onDone: () => void }) {
   const [displayed, setDisplayed] = useState("")
