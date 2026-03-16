@@ -6,6 +6,7 @@ import { ChevronDown, Search, Zap, CheckCircle, MessageSquare, Check } from "luc
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { useAuth } from "@/contexts/AuthContext"
+import { ApiService, type PricingInfo } from "@/lib/api"
 import { parseRepo } from "@/lib/repo"
 
 const FAQS = [
@@ -472,9 +473,11 @@ function TerminalHeading({ onDone }: { onDone: () => void }) {
 function HeroForm({
   onSubmit,
   dark = false,
+  priceLabel = "$3",
 }: {
   onSubmit: (repo: string) => void
   dark?: boolean
+  priceLabel?: string
 }) {
   const [repoInput, setRepoInput] = useState("")
   const [error, setError] = useState("")
@@ -508,7 +511,7 @@ function HeroForm({
           onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
         />
         <button onClick={handleSubmit} className={btnCls}>
-          Onboard your agent — $3
+          Onboard your agent — {priceLabel}
         </button>
       </div>
       {error && <p className={`text-xs ${dark ? 'text-red-400' : 'text-red-600'}`}>{error}</p>}
@@ -554,6 +557,18 @@ export default function Home() {
   const router = useRouter()
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [headingDone, setHeadingDone] = useState(false)
+  const [pricing, setPricing] = useState<PricingInfo | null>(null)
+
+  useEffect(() => {
+    ApiService.getPricingInfo()
+      .then(setPricing)
+      .catch(() => setPricing(null))
+  }, [])
+
+  const priceLabel =
+    pricing?.agent_job_cost_dollars != null
+      ? `$${pricing.agent_job_cost_dollars}`
+      : "$3"
 
   const handleGetStarted = (repo: string) => {
     if (!repo) return
@@ -610,11 +625,11 @@ export default function Home() {
                 </div>
               </div>
 
-              <HeroForm onSubmit={handleGetStarted} />
+              <HeroForm onSubmit={handleGetStarted} priceLabel={priceLabel} />
 
               <div className="mt-3">
                 <p className="text-xs text-gray-500">
-                  <span className="text-gray-800 font-semibold">$3, one-time.</span>
+                  <span className="text-gray-800 font-semibold">{priceLabel}, one-time.</span>
                   {" "}No subscription. Ready in ~30 minutes.
                 </p>
               </div>
@@ -718,7 +733,7 @@ export default function Home() {
       <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-gray-50 border-t border-gray-100">
         <div className="max-w-7xl mx-auto">
           {/* Title now includes the price — makes it feel like a value reveal */}
-          <h2 className="text-2xl font-medium mb-2">What you get — for $3</h2>
+          <h2 className="text-2xl font-medium mb-2">What you get — for {priceLabel}</h2>
           <p className="text-sm text-gray-500 mb-10 max-w-lg leading-relaxed">
             A per-file knowledge base your agent can query as it works, and improved CLAUDE.md/AGENTS.md files.
           </p>
@@ -841,7 +856,7 @@ export default function Home() {
               <FaqItem
                 key={i}
                 q={faq.q}
-                a={faq.a}
+                a={i === 0 ? `${priceLabel} per repo, one-time. No subscription, no monthly fees, no seat licenses. You pay once per analysis run and the files are yours — re-run any time as your codebase evolves.` : faq.a}
                 open={openFaq === i}
                 onToggle={() => setOpenFaq(openFaq === i ? null : i)}
               />
@@ -858,10 +873,10 @@ export default function Home() {
               Start with your most important repo.
             </h2>
             <p className="text-gray-400 text-sm mb-8 max-w-md leading-relaxed">
-              $3 per repo. One-time — no subscription, no seat licenses.
+              {priceLabel} per repo. One-time — no subscription, no seat licenses.
               Your agent gets wired into your codebase&apos;s history in under an hour.
             </p>
-            <HeroForm onSubmit={handleGetStarted} dark />
+            <HeroForm onSubmit={handleGetStarted} dark priceLabel={priceLabel} />
           </div>
           <div className="border border-gray-800 rounded-lg p-6">
             <h3 className="text-xs font-medium text-gray-500 uppercase tracking-widest mb-4">
