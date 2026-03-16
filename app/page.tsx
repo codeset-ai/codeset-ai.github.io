@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { ChevronDown } from "lucide-react"
+import { ChevronDown, Search, Zap, CheckCircle, MessageSquare, Check } from "lucide-react"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { useAuth } from "@/contexts/AuthContext"
@@ -55,6 +55,7 @@ function WorksWithLogos() {
   const viewRef = useRef<HTMLDivElement>(null)
   const boxRef = useRef<HTMLDivElement>(null)
   const [glowIndices, setGlowIndices] = useState<Set<number>>(new Set())
+  const [enteringIndices, setEnteringIndices] = useState<Set<number>>(new Set())
   const positionRef = useRef(0)
   const lastTimeRef = useRef<number>(0)
 
@@ -94,15 +95,23 @@ function WorksWithLogos() {
       const centerX = viewRect.left + viewRect.width / 2
       const items = strip.querySelectorAll<HTMLElement>("[data-logo-index]")
       const next = new Set<number>()
+      const entering = new Set<number>()
+      const boxRect = boxRef.current?.getBoundingClientRect()
+      const boxHalfWidth = (boxRect?.width ?? 128) / 2
       items.forEach((el) => {
         const idx = parseInt(el.getAttribute("data-logo-index") ?? "", 10)
         if (Number.isNaN(idx)) return
         const r = el.getBoundingClientRect()
         const center = r.left + r.width / 2
         if (center >= centerX) next.add(idx)
+        else if (center > centerX - boxHalfWidth) entering.add(idx)
       })
       setGlowIndices((prev) => {
         if (prev.size !== next.size || [...prev].some((i) => !next.has(i))) return next
+        return prev
+      })
+      setEnteringIndices((prev) => {
+        if (prev.size !== entering.size || [...prev].some((i) => !entering.has(i))) return entering
         return prev
       })
       rafId = requestAnimationFrame(tick)
@@ -111,13 +120,14 @@ function WorksWithLogos() {
     return () => cancelAnimationFrame(rafId)
   }, [])
 
-  const baseClass = "h-5 opacity-30 grayscale hover:opacity-60 hover:grayscale-0 transition-all duration-200"
-  const processedLogoClass = "!opacity-60 grayscale-0"
+  const baseClass = "h-5 opacity-30 grayscale hover:opacity-60 hover:grayscale-0 transition-all duration-300"
+  const enteringLogoClass = "!opacity-[15%] grayscale"
+  const processedLogoClass = "!opacity-80 grayscale-0 [filter:drop-shadow(0_0_6px_rgba(99,102,241,0.3))]"
   const badgeGlowClass =
-    "[filter:drop-shadow(0_0_4px_rgba(250,204,21,0.7))] [text-shadow:0_0_6px_rgba(250,204,21,0.5)]"
+    "[filter:drop-shadow(0_0_4px_rgba(99,102,241,0.7))] [text-shadow:0_0_6px_rgba(99,102,241,0.5)]"
 
   return (
-    <div className="w-full pt-4 pb-4 mt-4 border-t border-gray-100">
+    <div className="w-full pt-2 pb-2 mt-2 border-t border-gray-100">
       <div className="flex flex-col items-center">
         <div className="flex flex-col items-center pointer-events-none">
           <span className="text-[10px] text-gray-400 uppercase tracking-widest">Your Repository</span>
@@ -145,11 +155,11 @@ function WorksWithLogos() {
                         <img
                           src={logo.src}
                           alt={logo.alt}
-                          className={`${baseClass} ${processed ? processedLogoClass : ""} ${logo.className ?? ""}`.trim()}
+                          className={`${baseClass} ${processed ? processedLogoClass : enteringIndices.has(index) ? enteringLogoClass : ""} ${logo.className ?? ""}`.trim()}
                         />
                         {processed && (
                           <span
-                            className={`text-[9px] font-medium uppercase tracking-wider text-amber-600/90 whitespace-nowrap ${badgeGlowClass}`}
+                            className={`text-[9px] font-medium uppercase tracking-wider text-[#6366F1] whitespace-nowrap ${badgeGlowClass}`}
                           >
                             repo-aware
                           </span>
@@ -163,7 +173,7 @@ function WorksWithLogos() {
           </div>
           <div
             ref={boxRef}
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none w-32 rounded border-2 border-gray-200 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center gap-1 py-2"
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none w-32 rounded border-2 border-gray-200 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center gap-1 py-2 ring-1 ring-indigo-400/30 animate-pulse"
             aria-hidden
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -225,8 +235,6 @@ Pitfall:
   ✗ Don't call authenticate() before db.init()
   → RuntimeError: connection pool not created`
 
-const HERO_AGENT_THINKING = `History: timezone-naive date comparison caused the null ptr; fix is to use datetime.timezone.utc. Pitfall: don't call authenticate() before db.init(). Session init currently runs before db — reorder so db.init() runs first, then use timezone.utc for created_at.`
-
 const HERO_AGENT_FIX = `  def init_session():
 +     db.init()
       user = authenticate()
@@ -235,8 +243,51 @@ const HERO_AGENT_FIX = `  def init_session():
 
 const CHAT_STEP_DELAY_MS = 1200
 
+function InlineTokens({ text, tokenCls }: { text: string; tokenCls: string }) {
+  const parts: React.ReactNode[] = []
+  const pattern = /(\S+\.(?:py|ts|js|tsx|jsx)\b|\b\w+\(\))/g
+  let last = 0
+  let m: RegExpExecArray | null
+  while ((m = pattern.exec(text)) !== null) {
+    if (m.index > last) parts.push(text.slice(last, m.index))
+    parts.push(
+      <code key={m.index} className={`${tokenCls} px-1 rounded font-mono text-[11px]`}>
+        {m[0]}
+      </code>
+    )
+    last = m.index + m[0].length
+  }
+  if (last < text.length) parts.push(text.slice(last))
+  return <>{parts}</>
+}
+
+function DiffBlock({ content }: { content: string }) {
+  return (
+    <pre className="bg-slate-950 text-[12px] leading-relaxed p-3 rounded-lg overflow-x-auto border border-slate-800 font-mono">
+      {content.split("\n").map((line, i) => {
+        let cls = "text-slate-300"
+        let bg = ""
+        if (line.startsWith("+")) { cls = "text-emerald-400"; bg = "bg-emerald-500/20" }
+        else if (line.startsWith("-")) { cls = "text-red-400"; bg = "bg-red-500/20" }
+        return <span key={i} className={`block whitespace-pre ${cls} ${bg}`}>{line}</span>
+      })}
+    </pre>
+  )
+}
+
+function TimelineConnector({ complete }: { complete: boolean }) {
+  return (
+    <div
+      className={`w-px flex-1 mt-1 min-h-[6px] transition-colors duration-500 ${
+        complete ? "bg-indigo-500" : "border-l border-dashed border-slate-200"
+      }`}
+    />
+  )
+}
+
 function AgentChatHero() {
   const [visibleCount, setVisibleCount] = useState(1)
+  const [iconPopped, setIconPopped] = useState(false)
 
   useEffect(() => {
     if (visibleCount >= 4) return
@@ -244,38 +295,103 @@ function AgentChatHero() {
     return () => clearTimeout(t)
   }, [visibleCount])
 
+  useEffect(() => {
+    if (visibleCount < 4) return
+    const t = setTimeout(() => setIconPopped(true), 300)
+    return () => clearTimeout(t)
+  }, [visibleCount])
+
+  const glowCls = "ring-2 ring-indigo-500/50 shadow-[0_0_15px_rgba(99,102,241,0.2)]"
+  const nodeBase = "w-[18px] h-[18px] rounded-full flex items-center justify-center flex-shrink-0 mt-[11px]"
+
   return (
-    <div className="flex flex-col gap-4 max-w-lg">
+    <div className="flex flex-col max-w-lg">
+
+      {/* Task */}
       {visibleCount >= 1 && (
-        <div className="flex justify-start animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
-          <div className="rounded-2xl rounded-tl-sm bg-gray-900 text-gray-300 px-4 py-3 max-w-[85%] border border-gray-700">
-            <p className="text-[12px] uppercase tracking-wider text-gray-500 mb-1">You</p>
-            <p className="text-[12px] text-gray-300/95">{HERO_AGENT_TASK}</p>
+        <div className="flex gap-3 animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
+          <div className="flex flex-col items-center self-stretch w-[18px]">
+            <div className={`${nodeBase} bg-slate-700`}>
+              <MessageSquare size={9} className="text-slate-300" />
+            </div>
+            {visibleCount >= 2 && <TimelineConnector complete={visibleCount >= 2} />}
+          </div>
+          <div className="flex-1 pb-2">
+            <div className="rounded-xl bg-slate-900 px-4 py-3 border border-slate-800">
+              <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-1.5">Task</p>
+              <p className="text-sm text-slate-200">{HERO_AGENT_TASK}</p>
+            </div>
           </div>
         </div>
       )}
+
+      {/* Searching */}
       {visibleCount >= 2 && (
-        <div className="animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
-          <p className="text-[12px] uppercase tracking-wider text-amber-600/80 mb-1.5 font-medium">Tool powered by Codeset Agent · retrieve_file_info</p>
-          <pre className="bg-gray-950 text-gray-300 text-[12px] leading-relaxed p-4 rounded-xl rounded-tl-none overflow-x-auto whitespace-pre border border-gray-800">
-            {HERO_AGENT_TOOL_OUTPUT}
-          </pre>
-        </div>
-      )}
-      {visibleCount >= 3 && (
-        <div className="flex justify-end animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
-          <div className="rounded-2xl rounded-tr-sm bg-gray-900 text-gray-300 px-4 py-3 max-w-[90%] border border-gray-700">
-            <p className="text-[12px] uppercase tracking-wider text-gray-500 mb-1">Agent</p>
-            <p className="text-[12px] text-gray-300/95 italic">{HERO_AGENT_THINKING}</p>
+        <div className="flex gap-3 animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
+          <div className="flex flex-col items-center self-stretch w-[18px]">
+            <div className={`${nodeBase} bg-white border border-slate-200`}>
+              <Search size={9} className="text-slate-400" />
+            </div>
+            {visibleCount >= 3 && <TimelineConnector complete={visibleCount >= 3} />}
+          </div>
+          <div className="flex-1 pb-2">
+            <div className={`rounded-xl border border-slate-200 bg-slate-50 p-3 transition-shadow ${visibleCount === 2 ? glowCls : ""}`}>
+              <p className="text-[10px] uppercase tracking-widest text-slate-400 mb-2">Searching</p>
+              <div className="bg-slate-950 text-[11px] leading-relaxed p-3 rounded-lg overflow-x-auto font-mono border border-slate-800">
+                {HERO_AGENT_TOOL_OUTPUT.split("\n").map((line, i) => (
+                  <div key={i} className="whitespace-pre text-slate-300">
+                    <InlineTokens text={line} tokenCls="bg-slate-700/80 text-slate-100" />
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       )}
+
+      {/* Analyzing */}
+      {visibleCount >= 3 && (
+        <div className="flex gap-3 animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
+          <div className="flex flex-col items-center self-stretch w-[18px]">
+            <div className={`${nodeBase} bg-white border border-indigo-200`}>
+              {visibleCount >= 4
+                ? <Check size={9} className="text-indigo-500" />
+                : <Zap size={9} className="text-indigo-400 animate-spin [animation-duration:2s]" />
+              }
+            </div>
+            {visibleCount >= 4 && <TimelineConnector complete={visibleCount >= 4} />}
+          </div>
+          <div className="flex-1 pb-2">
+            <div className={`rounded-xl border border-indigo-200 bg-indigo-50/50 p-3 transition-shadow ${visibleCount === 3 ? glowCls : ""}`}>
+              <p className="text-[10px] uppercase tracking-widest text-indigo-400 mb-2">Analyzing Context</p>
+              <p className="text-sm text-gray-800 leading-relaxed">
+                <InlineTokens
+                  text="History: timezone-naive date comparison caused the null ptr; fix is to use datetime.timezone.utc. Pitfall: don't call authenticate() before db.init(). Session init currently runs before db — reorder so db.init() runs first, then use timezone.utc for created_at."
+                  tokenCls="bg-indigo-100 text-indigo-900"
+                />
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Fix Applied */}
       {visibleCount >= 4 && (
-        <div className="animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
-          <p className="text-[12px] uppercase tracking-wider text-emerald-600/80 mb-1.5 font-medium">Fix applied</p>
-          <pre className="bg-gray-950 text-gray-300 text-[12px] leading-relaxed p-4 rounded-xl overflow-x-auto whitespace-pre border border-emerald-900/50 border-l-2 border-l-emerald-500/70">
-            {HERO_AGENT_FIX}
-          </pre>
+        <div className="flex gap-3 animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
+          <div className="flex flex-col items-center w-[18px]">
+            <div className={`${nodeBase} bg-white border border-emerald-200`}>
+              <CheckCircle
+                size={9}
+                className={`transition-colors duration-500 ${iconPopped ? "text-emerald-500" : "text-emerald-300"} ${iconPopped ? "animate-[pop_0.4s_ease-in-out]" : ""}`}
+              />
+            </div>
+          </div>
+          <div className="flex-1">
+            <div className={`rounded-xl border border-emerald-200 bg-emerald-50/30 p-3 transition-shadow ${glowCls}`}>
+              <p className="text-[10px] uppercase tracking-widest text-emerald-600 mb-2">Fix Applied</p>
+              <DiffBlock content={HERO_AGENT_FIX} />
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -313,6 +429,43 @@ Tests → tests/payments.test.ts:
 Co-changes: src/webhooks.ts, src/subscriptions.ts`
 
 
+const HERO_HEADING = "Your coding agent,\nbut better."
+
+function TerminalHeading({ onDone }: { onDone: () => void }) {
+  const [displayed, setDisplayed] = useState("")
+  const [cursorVisible, setCursorVisible] = useState(true)
+  const onDoneRef = useRef(onDone)
+  onDoneRef.current = onDone
+
+  useEffect(() => {
+    let i = 0
+    const interval = setInterval(() => {
+      i++
+      setDisplayed(HERO_HEADING.slice(0, i))
+      if (i >= HERO_HEADING.length) {
+        clearInterval(interval)
+        onDoneRef.current()
+        setTimeout(() => setCursorVisible(false), 800)
+      }
+    }, 45)
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+    <h1 className="text-4xl sm:text-5xl font-medium tracking-tight mb-5 leading-[1.1]">
+      {displayed.split("\n").map((line, i, arr) => (
+        <span key={i}>
+          {line}
+          {i < arr.length - 1 && <br />}
+        </span>
+      ))}
+      {cursorVisible && (
+        <span className="inline-block w-[2px] h-[0.85em] bg-current ml-0.5 align-middle animate-[blink_0.8s_step-end_infinite]" />
+      )}
+    </h1>
+  )
+}
+
 function HeroForm({
   onSubmit,
   dark = false,
@@ -328,7 +481,7 @@ function HeroForm({
     : "w-full border border-gray-300 bg-white rounded-md px-4 py-3 text-sm font-mono focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
 
   const btnCls =
-    "px-6 py-3 text-sm font-medium bg-amber-600/80 text-white rounded-md hover:bg-amber-600 transition-colors whitespace-nowrap flex-shrink-0"
+    "px-6 py-3 text-sm font-medium rounded-md text-white whitespace-nowrap flex-shrink-0 transition-all duration-200 hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] bg-[#6366F1] shadow-[0_0_16px_rgba(99,102,241,0.15)] tracking-[-0.02em]"
 
   const handleSubmit = () => {
     const parsed = parseRepo(repoInput)
@@ -352,7 +505,7 @@ function HeroForm({
           onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
         />
         <button onClick={handleSubmit} className={btnCls}>
-          Customize my agents — $3 →
+          Supercharge my Agents — $3
         </button>
       </div>
       {error && <p className={`text-xs ${dark ? 'text-red-400' : 'text-red-600'}`}>{error}</p>}
@@ -360,29 +513,6 @@ function HeroForm({
   )
 }
 
-function CodeWindow({
-  title,
-  content,
-  className = "",
-}: {
-  title: string
-  content: string
-  className?: string
-}) {
-  return (
-    <div className={`border border-gray-200 rounded-lg overflow-hidden shadow-sm ${className}`}>
-      <div className="bg-gray-100 px-4 py-2.5 flex items-center gap-2 border-b border-gray-200">
-        <span className="w-2.5 h-2.5 bg-red-400 rounded-full flex-shrink-0" />
-        <span className="w-2.5 h-2.5 bg-yellow-400 rounded-full flex-shrink-0" />
-        <span className="w-2.5 h-2.5 bg-green-400 rounded-full flex-shrink-0" />
-        <span className="ml-2 text-xs text-gray-400 font-mono truncate">{title}</span>
-      </div>
-      <pre className="bg-gray-950 text-gray-300 text-xs leading-relaxed p-5 overflow-x-auto whitespace-pre">
-        {content}
-      </pre>
-    </div>
-  )
-}
 
 function FaqItem({
   q,
@@ -420,6 +550,7 @@ export default function Home() {
   const { user, login } = useAuth()
   const router = useRouter()
   const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const [headingDone, setHeadingDone] = useState(false)
 
   const handleGetStarted = (repo: string) => {
     if (!repo) return
@@ -440,66 +571,66 @@ export default function Home() {
       <Header />
 
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
-      <section className="flex flex-col min-h-[calc(100vh-73px)] pt-36 px-4 sm:px-6 lg:px-8">
+      <section className="flex flex-col min-h-[calc(100vh-73px)] pt-44 pb-40 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto grid md:grid-cols-[1fr_1fr] gap-10 md:gap-20 items-start">
           {/* Left */}
           <div>
-            <h1 className="text-4xl sm:text-5xl font-medium tracking-tight mb-5 leading-[1.1]">
-              Your coding agent,
-              <br />
-              but better.
-            </h1>
+            <TerminalHeading onDone={() => setHeadingDone(true)} />
 
-            <div className="max-w-xl">
-              <p className="text-sm text-gray-500 mb-6 leading-relaxed">
-                Codeset Agent analyzes your entire repo — every commit,
-                every function call, every test — and gives your agent the kind
-                of codebase knowledge that usually takes months on a team to build.
+            <div
+              className={`transition-all duration-500 ${headingDone ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"}`}
+            >
+              <div className="max-w-xl">
+                <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+                  Codeset Agent analyzes your entire repo — every commit,
+                  every function call, every test — and gives your agent the kind
+                  of codebase knowledge that usually takes months on a team to build.
+                </p>
+
+                <div className="mb-3 w-full">
+                  <WorksWithLogos />
+                </div>
+              </div>
+
+              <HeroForm onSubmit={handleGetStarted} />
+
+              <div className="mt-3">
+                <p className="text-xs text-gray-500">
+                  <span className="text-gray-800 font-semibold">$3, one-time.</span>
+                  {" "}No subscription. Ready in ~30 minutes.
+                </p>
+              </div>
+              <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-6 mb-2">
+                <div className="border border-gray-200 rounded-lg px-3 sm:px-4 py-3">
+                  <div className="text-base sm:text-xl font-medium tracking-tight leading-tight">52% → 62%</div>
+                  <div className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5">Claude Haiku 4.5</div>
+                </div>
+                <div className="border border-gray-200 rounded-lg px-3 sm:px-4 py-3">
+                  <div className="text-base sm:text-xl font-medium tracking-tight leading-tight">56% → 65.3%</div>
+                  <div className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5">Claude Sonnet 4.5</div>
+                </div>
+                <div className="border border-gray-200 rounded-lg px-3 sm:px-4 py-3">
+                  <div className="text-base sm:text-xl font-medium tracking-tight leading-tight">60.7% → 68%</div>
+                  <div className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5">Claude Opus 4.5</div>
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                With the information provided by the Codeset Agent, Haiku 4.5 delivers better performance than baseline Sonnet 4.5 and Opus 4.5, significantly reducing costs.{" "}
+                <a
+                  href="/blog/introducing-codeset-agent"
+                  className="text-gray-400 underline hover:text-gray-600 transition-colors"
+                >
+                  Read the full evaluation →
+                </a>
               </p>
-
-              <div className="mb-8 w-full">
-                <WorksWithLogos />
-              </div>
             </div>
-
-            <HeroForm onSubmit={handleGetStarted} />
-
-            <div className="mt-3">
-              <p className="text-xs text-gray-500">
-                <span className="text-gray-800 font-semibold">$3, one-time.</span>
-                {" "}No subscription. Ready in ~30 minutes.
-              </p>
-            </div>
-            <div className="grid grid-cols-3 gap-2 sm:gap-3 mt-6 mb-2">
-              <div className="border border-gray-200 rounded-lg px-3 sm:px-4 py-3">
-                <div className="text-base sm:text-xl font-medium tracking-tight leading-tight">52% → 62%</div>
-                <div className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5">Claude Haiku 4.5</div>
-              </div>
-              <div className="border border-gray-200 rounded-lg px-3 sm:px-4 py-3">
-                <div className="text-base sm:text-xl font-medium tracking-tight leading-tight">56% → 65.3%</div>
-                <div className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5">Claude Sonnet 4.5</div>
-              </div>
-              <div className="border border-gray-200 rounded-lg px-3 sm:px-4 py-3">
-                <div className="text-base sm:text-xl font-medium tracking-tight leading-tight">60.7% → 68%</div>
-                <div className="text-[10px] sm:text-[11px] text-gray-400 mt-0.5">Claude Opus 4.5</div>
-              </div>
-            </div>
-            <p className="text-xs text-gray-500 mt-1">
-              With the information provided by the Codeset Agent, Haiku 4.5 delivers better performance than baseline Sonnet 4.5 and Opus 4.5 while significantly reducing costs.{" "}
-              <a
-                href="/blog/introducing-codeset-agent"
-                className="text-gray-400 underline hover:text-gray-600 transition-colors"
-              >
-                Read the full evaluation →
-              </a>
-            </p>
           </div>
 
           {/* Right — agent chat: task → context → think → fix */}
           <div className="mt-8 md:mt-0">
             <AgentChatHero />
             <p className="mt-3 text-xs text-gray-400 text-center">
-              The code agent calls our tool for context, reasons from it, then applies the fix.
+              The agent queries our knowledge base, reasons with it, and finds the correct fix.
             </p>
           </div>
         </div>
