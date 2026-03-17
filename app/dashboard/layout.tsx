@@ -101,7 +101,7 @@ export default function DashboardLayout({
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              Codeset Agent
+              Codeset
             </Link>
             <Link
               href="/dashboard/platform"

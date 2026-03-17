@@ -60,7 +60,7 @@ function ResultsChart() {
         <rect x={282} y={270} width={10} height={10} fill="#d1d5db" rx={1} />
         <text x={297} y={280} fontSize={11} fill="#6b7280">Baseline</text>
         <rect x={382} y={270} width={10} height={10} fill="#111827" rx={1} />
-        <text x={397} y={280} fontSize={11} fill="#6b7280">with Codeset Agent</text>
+        <text x={397} y={280} fontSize={11} fill="#6b7280">with Codeset</text>
       </svg>
     </div>
   )

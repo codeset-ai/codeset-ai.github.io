@@ -562,7 +562,7 @@ export function AgentPageContent() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {confirmMode === 'pay' ? 'Add credits & run' : 'Run Codeset Agent'}
+              {confirmMode === 'pay' ? 'Add credits & run' : 'Run Codeset'}
             </AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-2 text-sm text-gray-600">

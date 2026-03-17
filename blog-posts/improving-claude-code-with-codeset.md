@@ -1,14 +1,14 @@
 ---
-title: "Introducing Codeset Agent"
+title: "Improving Claude Code by 10% with Codeset"
 date: "2026-02-21"
-tldr: "Codeset Agent improved Claude Haiku 4.5's task resolution rate from 52% to 62%, Sonnet 4.5's from 56% to 65.3%, and Opus 4.5's from 60.7% to 68% on codeset-gym-python (150 tasks). Results hold on SWE-Bench Pro, where Sonnet 4.5 improved from 53% to 55.7% on 300 randomly sampled tasks."
+tldr: "Codeset improved Claude Haiku 4.5's task resolution rate from 52% to 62%, Sonnet 4.5's from 56% to 65.3%, and Opus 4.5's from 60.7% to 68% on codeset-gym-python (150 tasks). Results hold on SWE-Bench Pro, where Sonnet 4.5 improved from 53% to 55.7% on 300 randomly sampled tasks."
 ---
 
-Today we're launching **Codeset Agent**.
+Today we're launching **Codeset**.
 
 When you use a coding agent like Claude Code, every session starts with limited knowledge of your project's history. It doesn't know which files tend to break together, implicit decisions hidden in the code, which tests to run after touching a specific module. That knowledge exists in your project's history and your code's structure, but needs to be surfaced for the agent to use it.
 
-Codeset Agent does that. You point it at a GitHub repository, and it generates a knowledge base that your favourite coding agent learns from:
+Codeset does that. You point it at a GitHub repository, and it generates a knowledge base that your favourite coding agent learns from:
 
 ## What your agent sees
 
@@ -51,11 +51,11 @@ None of this is written by hand. Codeset extracts it from your git history and c
 
 1. **Paste your GitHub URL** and connect your account.
 2. **We analyze your repository.** The pipeline mines your commit history, runs static analysis across your codebase, maps test coverage, and traces function callers. This takes under an hour.
-3. **Download and commit the files.** Your agent uses them on every subsequent session. $3 per repo, one-time.
+3. **Download and commit the files.** Your agent uses them on every subsequent session. $5 per repo, one-time.
 
 ## Evaluation
 
-We evaluated how good Codeset Agent is at actually helping agents like Claude Code solve more tasks.
+We evaluated how good Codeset is at actually helping agents like Claude Code solve more tasks.
 
 ### The benchmarks
 
@@ -65,7 +65,7 @@ We evaluated how good Codeset Agent is at actually helping agents like Claude Co
 
 ### What we tested
 
-We ran six configurations: Claude Code with three models (Haiku 4.5, Sonnet 4.5, Opus 4.5), each with and without Codeset Agent context. The Codeset Agent context was generated once per sample, targeting the base commit before any work is performed.
+We ran six configurations: Claude Code with three models (Haiku 4.5, Sonnet 4.5, Opus 4.5), each with and without Codeset context. The Codeset context was generated once per sample, targeting the base commit before any work is performed.
 
 CHART_RESULTS_PLACEHOLDER
 
@@ -79,12 +79,12 @@ CHART_RESULTS_PLACEHOLDER
 | Claude Sonnet 4.5 | 56% (84/150) | 65.3% (98/150) | +9.3pp |
 | Claude Opus 4.5 | 60.7% (91/150) | 68% (102/150) | +7.3pp |
 
-The improvement is consistent across all three model tiers — Codeset Agent is not compensating for a weak model. It adds on top of whatever capability the model already brings.
+The improvement is consistent across all three model tiers — Codeset is not compensating for a weak model. It adds on top of whatever capability the model already brings.
 
 **Structured context lets you drop a model tier without losing performance.** This holds at every level of the stack:
 
-- Haiku with Codeset Agent (62%) outperformed raw Sonnet (56%) — at less than one-third the inference cost ($0.61 vs $1.66 per task).
-- Sonnet with Codeset Agent (65.3%) outperformed raw Opus (60.7%) — the mid-tier model with context beats the most capable model without it.
+- Haiku with Codeset (62%) outperformed raw Sonnet (56%) — at less than one-third the inference cost ($0.61 vs $1.66 per task).
+- Sonnet with Codeset (65.3%) outperformed raw Opus (60.7%) — the mid-tier model with context beats the most capable model without it.
 
 For teams running Claude Code at scale, the implication is significant: you can run a cheaper model configured with Codeset and exceed the resolution rate of a more expensive model running blind.
 
@@ -100,6 +100,6 @@ Across both benchmarks and all three model tiers, the direction is consistent: s
 
 ---
 
-Codeset Agent is available today. Paste your GitHub URL, connect your account, and supercharge your agents in under 30 minutes. **$3 per repo, one-time payment.**
+Codeset is available today. Paste your GitHub URL, connect your account, and supercharge your agents in under 30 minutes. **$5 per repo, one-time payment.**
 
 [Analyze your repo →](https://codeset.ai)

@@ -180,7 +180,7 @@ function WorksWithLogos() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/bacalhau.svg" alt="" className="h-6 w-auto" />
             <span className="text-[10px] font-medium text-gray-500 whitespace-nowrap">
-              &lt;codeset&gt; agent
+              &lt;codeset&gt;
             </span>
           </div>
         </div>
@@ -332,8 +332,8 @@ function AgentChatHero({ animate = true }: { animate?: boolean }) {
         <div className="animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
           <div className={`rounded-xl border border-indigo-300 bg-indigo-50/50 p-3 transition-shadow ${visibleCount === 2 ? glowCls : ""}`}>
             <p className="text-xs mb-2">
-              <span className="font-semibold text-indigo-600">Codeset Agent</span>
-              <span className="ml-2 uppercase tracking-widest text-slate-400">· Context Retrieved</span>
+              <span className="font-semibold text-indigo-600">Coding Agent</span>
+              <span className="ml-2 uppercase tracking-widest text-slate-400">· Retrieves Codeset-generated context</span>
             </p>
             <div className="bg-slate-950 text-xs leading-relaxed p-3 rounded-lg font-mono border border-slate-800">
               {HERO_AGENT_TOOL_OUTPUT.split("\n").map((line, i) => (
@@ -455,7 +455,7 @@ function TerminalHeading({ onDone }: { onDone: () => void }) {
 function HeroForm({
   onSubmit,
   dark = false,
-  priceLabel = "$3",
+  priceLabel = "$5",
 }: {
   onSubmit: (repo: string) => void
   dark?: boolean
@@ -575,7 +575,7 @@ export default function Home() {
   const priceLabel =
     pricing?.agent_job_cost_dollars != null
       ? `$${pricing.agent_job_cost_dollars}`
-      : "$3"
+      : "$5"
 
   const handleGetStarted = (repo: string) => {
     if (!repo) return
@@ -623,7 +623,7 @@ export default function Home() {
                     </li>
                   </ul>
                   <p className="mt-3">
-                  The Codeset Agent generates the repository context your coding agents need to understand your codebase.
+                  Codeset generates the repository context your coding agents need to understand your codebase.
                   </p>
                 </div>
 
@@ -656,10 +656,10 @@ export default function Home() {
               </div>
               <p className="text-xs text-gray-500 mt-1">
                 <span className="hidden sm:inline">
-                  With the information provided by the Codeset Agent, Haiku 4.5 delivers better performance than baseline Sonnet 4.5 and Opus 4.5, significantly reducing costs.{" "}
+                  With the information provided by Codeset, Haiku 4.5 delivers better performance than baseline Sonnet 4.5 and Opus 4.5, significantly reducing costs.{" "}
                 </span>
                 <a
-                  href="/blog/introducing-codeset-agent"
+                  href="/blog/improving-claude-code-with-codeset"
                   className="text-gray-400 underline hover:text-gray-600 transition-colors"
                 >
                   Read the full evaluation →

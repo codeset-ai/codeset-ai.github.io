@@ -38,7 +38,7 @@ export default function PrivacyPage() {
 
             <h3 className="text-lg font-medium mb-2">1.3 Repository Data</h3>
             <p className="mb-4">
-              When you use the Codeset Agent, we temporarily access the contents of repositories you authorise via GitHub. We do not retain repository copies after a run completes. We store metadata and analysis derived from repositories solely to provide the service to you. See our <a href="/terms" className="text-blue-600 hover:underline">Terms of Service</a> for full details.
+              When you use Codeset, we temporarily access the contents of repositories you authorise via GitHub. We do not retain repository copies after a run completes. We store metadata and analysis derived from repositories solely to provide the service to you. See our <a href="/terms" className="text-blue-600 hover:underline">Terms of Service</a> for full details.
             </p>
 
             <h3 className="text-lg font-medium mb-2">1.4 Usage Data and Analytics</h3>

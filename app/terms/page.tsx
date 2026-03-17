@@ -20,7 +20,7 @@ export default function TermsPage() {
             These Terms of Service (&quot;Terms&quot;) govern the use of the services provided by Codeset, Lda, a company registered in Portugal, with registered address at Av. Mouzinho de Albuquerque 48 5B, 1170-265 Lisboa, Portugal, VAT number 518962938 (&quot;Codeset&quot;, &quot;we&quot;, &quot;us&quot;, or &quot;our&quot;).
           </p>
           <p className="mb-8">
-            By accessing or using any Codeset service, including the Codeset Platform and Codeset Agent, you agree to be bound by these Terms.
+            By accessing or using any Codeset service, including the Codeset Platform, you agree to be bound by these Terms.
           </p>
           <p className="mb-10">
             If you do not agree to these Terms, you must not use our services.
@@ -43,9 +43,9 @@ export default function TermsPage() {
             <p className="mb-4">
               The Codeset Platform provides infrastructure for training and evaluating agentic models using large-scale datasets of reproducible, sandboxed environments. The intended users are businesses, researchers, and laboratories developing agentic models.
             </p>
-            <h3 className="text-lg font-medium mb-2">2.2 Codeset Agent</h3>
+            <h3 className="text-lg font-medium mb-2">2.2 Codeset</h3>
             <p className="mb-4">
-              The Codeset Agent runs on user repositories and produces configuration and dataset files intended to improve the cost and accuracy of code agents interacting with those repositories. The intended users include developers and organizations using automated coding agents.
+              Codeset runs on user repositories and produces configuration and dataset files intended to improve the cost and accuracy of code agents interacting with those repositories. The intended users include developers and organizations using automated coding agents.
             </p>
             <p>
               Codeset reserves the right to modify, suspend, or discontinue any part of the services at any time.
@@ -107,7 +107,7 @@ export default function TermsPage() {
           <section className="mb-10">
             <h2 className="text-xl font-semibold mb-4">7. Repository Access and User Content</h2>
             <p className="mb-4">
-              Users may provide Codeset access to their repositories for the purpose of running the Codeset Agent. By granting access, the user:
+              Users may provide Codeset access to their repositories for the purpose of running Codeset. By granting access, the user:
             </p>
             <ul className="list-disc pl-6 space-y-1 mb-4">
               <li>Confirms they have permission to provide such access</li>
