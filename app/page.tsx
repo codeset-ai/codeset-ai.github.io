@@ -12,7 +12,7 @@ import { parseRepo } from "@/lib/repo"
 const FAQS = [
   {
     q: "How much does it cost?",
-    a: "$3 per repo, one-time. No subscription, no monthly fees, no seat licenses. You pay once per analysis run and the files are yours — re-run any time as your codebase evolves.",
+    a: "$5 per repo, one-time. No subscription, no monthly fees, no seat licenses. You pay once per analysis run and the files are yours — re-run any time as your codebase evolves.",
   },
   {
     q: "Which agents do you support?",
