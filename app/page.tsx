@@ -286,9 +286,11 @@ function DiffBlock({ content }: { content: string }) {
   )
 }
 
-function AgentChatHero({ animate = true }: { animate?: boolean }) {
+function AgentChatHero({ animate = true, onComplete }: { animate?: boolean; onComplete?: () => void }) {
   const [visibleCount, setVisibleCount] = useState(animate ? 1 : 4)
   const [iconPopped, setIconPopped] = useState(!animate)
+  const onCompleteRef = useRef(onComplete)
+  onCompleteRef.current = onComplete
 
   useEffect(() => {
     if (!animate) {
@@ -305,81 +307,81 @@ function AgentChatHero({ animate = true }: { animate?: boolean }) {
 
   useEffect(() => {
     if (!animate || visibleCount < 4) return
-    const t = setTimeout(() => setIconPopped(true), 300)
+    const t = setTimeout(() => {
+      setIconPopped(true)
+      onCompleteRef.current?.()
+    }, 300)
     return () => clearTimeout(t)
   }, [visibleCount, animate])
 
   const glowCls = "ring-2 ring-indigo-500/50 shadow-[0_0_15px_rgba(99,102,241,0.2)]"
 
+  const stepCls = (step: number) =>
+    visibleCount >= step
+      ? "opacity-100 translate-y-0 transition-all duration-300"
+      : "opacity-0 translate-y-2 pointer-events-none"
+
   return (
     <div className="flex flex-col gap-3 max-w-lg">
 
       {/* Task — styled as a GitHub issue */}
-      {visibleCount >= 1 && (
-        <div className="animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
-          <div className="rounded-xl bg-white px-4 py-3 border border-slate-200">
-            <div className="flex items-center justify-between mb-1.5">
-              <p className="text-xs text-slate-400 font-mono">#847 · your-org/analytics</p>
-              <span className="text-[10px] font-medium text-emerald-600 border border-emerald-200 rounded-full px-2 py-0.5">Open</span>
-            </div>
-            <p className="text-sm text-slate-800 font-medium">{HERO_AGENT_TASK}</p>
+      <div className={stepCls(1)}>
+        <div className="rounded-xl bg-white px-4 py-3 border border-slate-200">
+          <div className="flex items-center justify-between mb-1.5">
+            <p className="text-xs text-slate-400 font-mono">#847 · your-org/analytics</p>
+            <span className="text-[10px] font-medium text-emerald-600 border border-emerald-200 rounded-full px-2 py-0.5">Open</span>
           </div>
+          <p className="text-sm text-slate-800 font-medium">{HERO_AGENT_TASK}</p>
         </div>
-      )}
+      </div>
 
       {/* Context — Codeset's contribution, left-aligned */}
-      {visibleCount >= 2 && (
-        <div className="animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
-          <div className={`rounded-xl border border-indigo-300 bg-indigo-50/50 p-3 transition-shadow ${visibleCount === 2 ? glowCls : ""}`}>
-            <p className="text-xs mb-2">
-              <span className="font-semibold text-indigo-600">Coding Agent</span>
-              <span className="ml-2 uppercase tracking-widest text-slate-400">· Retrieves Codeset-generated context</span>
-            </p>
-            <div className="bg-slate-950 text-xs leading-relaxed p-3 rounded-lg font-mono border border-slate-800">
-              {HERO_AGENT_TOOL_OUTPUT.split("\n").map((line, i) => (
-                <div key={i} className="whitespace-pre-wrap text-slate-300">
-                  <InlineTokens text={line} tokenCls="bg-slate-700/80 text-slate-100" />
-                </div>
-              ))}
-            </div>
+      <div className={stepCls(2)}>
+        <div className={`rounded-xl border border-indigo-300 bg-indigo-50/50 p-3 transition-shadow ${visibleCount === 2 ? glowCls : ""}`}>
+          <p className="text-xs mb-2">
+            <span className="font-semibold text-indigo-600">Coding Agent</span>
+            <span className="ml-2 uppercase tracking-widest text-slate-400">· Retrieves Codeset-generated context</span>
+          </p>
+          <div className="bg-slate-950 text-xs leading-relaxed p-3 rounded-lg font-mono border border-slate-800">
+            {HERO_AGENT_TOOL_OUTPUT.split("\n").map((line, i) => (
+              <div key={i} className="whitespace-pre-wrap text-slate-300">
+                <InlineTokens text={line} tokenCls="bg-slate-700/80 text-slate-100" />
+              </div>
+            ))}
           </div>
         </div>
-      )}
+      </div>
 
       {/* Analyzing — agent reasoning, subtly indented */}
-      {visibleCount >= 3 && (
-        <div className="ml-6 animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
-          <div className={`rounded-xl border border-slate-200 bg-slate-50 p-3 transition-shadow ${visibleCount === 3 ? glowCls : ""}`}>
-            <p className="text-xs mb-2">
-              <span className="font-semibold text-slate-700">Coding Agent</span>
-              <span className="ml-2 uppercase tracking-widest text-slate-400">· Reasoning</span>
-            </p>
-            <p className="text-sm text-gray-700 leading-relaxed">
-              <InlineTokens
-                text="Related file note shows migration #412 deprecated event_count — column still exists but is no longer written to. get_chart_data() still queries the old column, returning zeroes since the migration ran. Switching to events_total."
-                tokenCls="bg-slate-100 text-slate-800"
-              />
-            </p>
-          </div>
+      <div className={`ml-6 ${stepCls(3)}`}>
+        <div className={`rounded-xl border border-slate-200 bg-slate-50 p-3 transition-shadow ${visibleCount === 3 ? glowCls : ""}`}>
+          <p className="text-xs mb-2">
+            <span className="font-semibold text-slate-700">Coding Agent</span>
+            <span className="ml-2 uppercase tracking-widest text-slate-400">· Reasoning</span>
+          </p>
+          <p className="text-sm text-gray-700 leading-relaxed">
+            <InlineTokens
+              text="Related file note shows migration #412 deprecated event_count — column still exists but is no longer written to. get_chart_data() still queries the old column, returning zeroes since the migration ran. Switching to events_total."
+              tokenCls="bg-slate-100 text-slate-800"
+            />
+          </p>
         </div>
-      )}
+      </div>
 
       {/* Fix Applied — agent output, subtly indented */}
-      {visibleCount >= 4 && (
-        <div className="ml-6 animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
-          <div className={`rounded-xl border border-emerald-200 bg-emerald-50/30 p-3 transition-shadow ${glowCls}`}>
-            <p className="text-xs mb-2">
-              <span className="font-semibold text-emerald-700">Coding Agent</span>
-              <span className="ml-2 uppercase tracking-widest text-emerald-500">· Fix Applied</span>
-              <CheckCircle
-                size={12}
-                className={`inline-block ml-1.5 -mt-0.5 transition-colors duration-500 ${iconPopped ? "text-emerald-500" : "text-emerald-300"} ${iconPopped ? "animate-[pop_0.4s_ease-in-out]" : ""}`}
-              />
-            </p>
-            <DiffBlock content={HERO_AGENT_FIX} />
-          </div>
+      <div className={`ml-6 ${stepCls(4)}`}>
+        <div className={`rounded-xl border border-emerald-200 bg-emerald-50/30 p-3 transition-shadow ${glowCls}`}>
+          <p className="text-xs mb-2">
+            <span className="font-semibold text-emerald-700">Coding Agent</span>
+            <span className="ml-2 uppercase tracking-widest text-emerald-500">· Fix Applied</span>
+            <CheckCircle
+              size={12}
+              className={`inline-block ml-1.5 -mt-0.5 transition-colors duration-500 ${iconPopped ? "text-emerald-500" : "text-emerald-300"} ${iconPopped ? "animate-[pop_0.4s_ease-in-out]" : ""}`}
+            />
+          </p>
+          <DiffBlock content={HERO_AGENT_FIX} />
         </div>
-      )}
+      </div>
     </div>
   )
 }
@@ -539,15 +541,12 @@ export default function Home() {
   const router = useRouter()
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const [headingDone, setHeadingDone] = useState(false)
+  const [demoDone, setDemoDone] = useState(false)
   const [pricing, setPricing] = useState<PricingInfo | null>(null)
-  const [showScrollHint, setShowScrollHint] = useState(true)
-  const [heightGte1000, setHeightGte1000] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
-  const contentBelowRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     const check = () => {
-      setHeightGte1000(window.innerHeight >= 1000)
       setIsMobile(window.innerWidth < 768)
     }
     check()
@@ -561,16 +560,6 @@ export default function Home() {
       .catch(() => setPricing(null))
   }, [])
 
-  useEffect(() => {
-    const el = contentBelowRef.current
-    if (!el) return
-    const obs = new IntersectionObserver(
-      ([e]) => setShowScrollHint(!e.isIntersecting),
-      { threshold: 0, rootMargin: "0px" }
-    )
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [])
 
   const priceLabel =
     pricing?.agent_job_cost_dollars != null
@@ -596,7 +585,7 @@ export default function Home() {
       <Header />
 
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
-      <section className="flex flex-col min-h-0 pt-16 sm:pt-20 pb-2 px-4 sm:px-6 lg:px-8 [@media(min-height:1000px)]:min-h-[calc(100vh-73px)] [@media(min-height:1000px)]:pt-44 [@media(min-height:1000px)]:pb-40">
+      <section className="flex flex-col min-h-0 pt-16 sm:pt-20 pb-2 px-4 sm:px-6 lg:px-8 [@media(min-height:1000px)]:min-h-[calc(100vh-73px-4rem)] [@media(min-height:1000px)]:pt-44 [@media(min-height:1000px)]:pb-20">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-8 md:gap-20 items-start">
           {/* Left */}
           <div>
@@ -671,28 +660,16 @@ export default function Home() {
 
           {/* Right — agent chat: task → context → think → fix */}
           <div className="hidden md:block mt-8 md:mt-0">
-            <AgentChatHero animate={!isMobile} />
-            <p className="mt-3 text-xs text-gray-400 text-center max-w-lg">
+            <AgentChatHero animate={!isMobile} onComplete={() => setDemoDone(true)} />
+            <p className={`mt-3 text-xs text-gray-400 text-center max-w-lg transition-opacity duration-500 ${demoDone ? "opacity-100" : "opacity-0"}`}>
               The agent queries our knowledge base, reasons with it, and finds the correct fix.
             </p>
           </div>
         </div>
       </section>
 
-      {showScrollHint && heightGte1000 && (
-        <div
-          className="fixed bottom-6 left-0 right-0 flex justify-center pointer-events-none z-10 animate-in fade-in-0 duration-500"
-          aria-hidden
-        >
-          <span className="text-xs text-gray-400 flex flex-col items-center gap-1">
-            <span>Scroll down to know more</span>
-            <ChevronDown size={16} className="text-gray-400 animate-bounce" />
-          </span>
-        </div>
-      )}
-
       {/* ── Problem / Positioning ─────────────────────────────────────────── */}
-      <section ref={contentBelowRef} className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
+      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-20">
           <div>
             <h2 className="text-lg sm:text-2xl font-medium mb-5 leading-snug">
