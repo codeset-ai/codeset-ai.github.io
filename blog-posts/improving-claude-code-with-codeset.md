@@ -1,5 +1,5 @@
 ---
-title: "Improving Claude Code by 10% with Codeset"
+title: "Improving Claude Code by 10pp with Codeset"
 date: "2026-02-21"
 tldr: "Codeset improved Claude Haiku 4.5's task resolution rate from 52% to 62%, Sonnet 4.5's from 56% to 65.3%, and Opus 4.5's from 60.7% to 68% on codeset-gym-python (150 tasks). Results hold on SWE-Bench Pro, where Sonnet 4.5 improved from 53% to 55.7% on 300 randomly sampled tasks."
 ---
@@ -15,35 +15,41 @@ Codeset does that. You point it at a GitHub repository, and it generates a knowl
 Here's the key part. When your agent opens a file in a project configured by Codeset, this is what it sees before it writes a single line of code:
 
 ```
-$ python retrieve_file_info.py src/auth.py
+$ python .claude/docs/get_context.py src/auth.py
 
-── src/auth.py ─────────────────────── Deep Analysis
+# src/auth.py
 
-History (2 insights):
-  [Bug Fix] Null ptr on session init
-    Root cause: timezone-naive date comparison
-    Fix: always use datetime.timezone.utc
+### Historical Insights
+- [Bug Fix] Null ptr on session init
+  Problem: Sessions failed silently on certain timezones.
+  Root cause: timezone-naive date comparison
+  Solution: always use datetime.timezone.utc
 
-Pitfall:
-  ✗ Don't call authenticate() before db.init()
-  → RuntimeError: connection pool not created
+### Edit Checklist
+Tests to run: `pytest tests/auth_test.py -q`
+Data/constants: `SESSION_TIMEOUT: default session expiry value`
 
-Callers (3 files):
-  api/routes.py:42      login_handler()
-  middleware/auth.py:18  verify_token()
-  tests/setup.py:7      mock_auth_context()
+### Pitfalls
+- Never call authenticate() before db.init()
+  Consequence: RuntimeError: connection pool not created
+  Prevention: Always initialize db before calling into auth.
 
-Tests → tests/auth_test.py:
-  test_valid_login
-  test_expired_session
-  test_concurrent_auth
+### Key Constructs
+- **verify_token** (function): Validates a session token and returns the associated user
+  - api/routes.py:42      login_handler()
+  - middleware/auth.py:18  verify_token()
+  - tests/setup.py:7       mock_auth_context()
+
+### Related Files
+- `middleware/session.py` [co-change] | Check: If session token format changes, auth validation logic must be updated in sync.
 ```
 
-Three things here that a generic agent doesn't have:
+Four things here that a generic agent doesn't have:
 
-- **History**: a past bug in this file, with the root cause and how it was fixed. The agent won't reproduce the same mistake in a different form.
-- **Callers**: every location in the codebase that calls into this file, with line numbers. The agent understands the impact of a change before making it.
-- **Tests**: the exact tests to run after modifying this file. No guessing, no running the full suite.
+- **History**: past bugs in this file, with root causes and how they were fixed. The agent won't reproduce the same mistake in a different form.
+- **Edit Checklist**: the exact tests to run and constants to check before touching this file. No guessing, no running the full suite.
+- **Pitfalls**: what breaks and why, not just what to avoid. The agent knows the consequence before making a change.
+- **Co-change relationships**: files that historically break together with this one — knowledge that exists nowhere in the code itself.
 
 None of this is written by hand. Codeset extracts it from your git history and codebase structure during analysis.
 
@@ -61,7 +67,7 @@ We evaluated how good Codeset is at actually helping agents like Claude Code sol
 
 **codeset-gym-python** is our public dataset of software engineering tasks, similar to but harder than SWE-Bench. We randomly sampled a set of 150 of these tasks. Each task comes from an actual GitHub issue and has a test suite that verifies the solution. A task is "resolved" only when all required tests pass.
 
-**SWE-Bench Pro** 
+**SWE-Bench Pro** is a widely-used benchmark of real GitHub issues from open-source JS, TS, Go, and Python repositories.
 
 ### What we tested
 
