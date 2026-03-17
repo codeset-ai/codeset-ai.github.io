@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { ChevronDown, Search, Zap, CheckCircle, MessageSquare, Check } from "lucide-react"
+import { ChevronDown, CheckCircle } from "lucide-react"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { useAuth } from "@/contexts/AuthContext"
@@ -225,26 +225,32 @@ const SAMPLE_CLAUDE_MD_MOBILE = SAMPLE_CLAUDE_MD.split("\n")
   .map((line) => line.replace(/\s+#\s+.*$/, "").trimEnd())
   .join("\n")
 
-const HERO_AGENT_TASK = "Fix: session init crashes with null ptr when loading user in auth flow."
+const HERO_AGENT_TASK = "Fix: dashboard charts show flat lines for all metrics since last Tuesday."
 
-const HERO_AGENT_TOOL_OUTPUT = `$ python retrieve_file_info.py src/auth.ts
+const HERO_AGENT_TOOL_OUTPUT = `$ python retrieve_file_info.py src/dashboard.py
 
-── src/auth.ts ──
+# src/dashboard.py
 
-History:
-  [Bug Fix] Null ptr on session init
-  Root cause: timezone-naive date comparison
-  Fix: always use datetime.timezone.utc
+### Description
+Builds time-series chart data for the analytics dashboard
+by aggregating rows from daily_stats.
+...
 
-Pitfall:
-  ✗ Don't call authenticate() before db.init()
-  → RuntimeError: connection pool not created`
+### Related Files
+- src/data_pipeline.py [co-change]
+  Rel: Writes aggregated daily metrics consumed by dashboard queries
+  Check: Migration #412 deprecated column event_count → events_total.
+  Old column retained but no longer populated after migration.
+...`
 
-const HERO_AGENT_FIX = `  def init_session():
-+     db.init()
-      user = authenticate()
--     created = datetime.now()
-+     created = datetime.now(timezone.utc)`
+const HERO_AGENT_FIX = `  def get_chart_data(metric, date_range):
+      return db.query(
+-         "SELECT date, event_count "
++         "SELECT date, events_total "
+          "FROM daily_stats "
+          "WHERE date BETWEEN %s AND %s",
+          date_range
+      )`
 
 const CHAT_STEP_DELAY_MS = 1200
 
@@ -280,16 +286,6 @@ function DiffBlock({ content }: { content: string }) {
   )
 }
 
-function TimelineConnector({ complete }: { complete: boolean }) {
-  return (
-    <div
-      className={`w-px flex-1 mt-1 min-h-[6px] transition-colors duration-500 ${
-        complete ? "bg-indigo-500" : "border-l border-dashed border-slate-200"
-      }`}
-    />
-  )
-}
-
 function AgentChatHero({ animate = true }: { animate?: boolean }) {
   const [visibleCount, setVisibleCount] = useState(animate ? 1 : 4)
   const [iconPopped, setIconPopped] = useState(!animate)
@@ -314,98 +310,73 @@ function AgentChatHero({ animate = true }: { animate?: boolean }) {
   }, [visibleCount, animate])
 
   const glowCls = "ring-2 ring-indigo-500/50 shadow-[0_0_15px_rgba(99,102,241,0.2)]"
-  const nodeBase = "w-[18px] h-[18px] rounded-full flex items-center justify-center flex-shrink-0 mt-[11px]"
 
   return (
-    <div className="flex flex-col max-w-lg">
+    <div className="flex flex-col gap-3 max-w-lg">
 
-      {/* Task */}
+      {/* Task — styled as a GitHub issue */}
       {visibleCount >= 1 && (
-        <div className="flex gap-3 animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
-          <div className="flex flex-col items-center self-stretch w-[18px]">
-            <div className={`${nodeBase} bg-slate-700`}>
-              <MessageSquare size={9} className="text-slate-300" />
+        <div className="animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
+          <div className="rounded-xl bg-white px-4 py-3 border border-slate-200">
+            <div className="flex items-center justify-between mb-1.5">
+              <p className="text-xs text-slate-400 font-mono">#847 · your-org/analytics</p>
+              <span className="text-[10px] font-medium text-emerald-600 border border-emerald-200 rounded-full px-2 py-0.5">Open</span>
             </div>
-            {visibleCount >= 2 && <TimelineConnector complete={visibleCount >= 2} />}
-          </div>
-          <div className="flex-1 pb-2">
-            <div className="rounded-xl bg-slate-900 px-4 py-3 border border-slate-800">
-              <p className="text-[10px] uppercase tracking-widest text-slate-500 mb-1.5">Task</p>
-              <p className="text-sm text-slate-200">{HERO_AGENT_TASK}</p>
-            </div>
+            <p className="text-sm text-slate-800 font-medium">{HERO_AGENT_TASK}</p>
           </div>
         </div>
       )}
 
-      {/* Searching */}
+      {/* Context — Codeset's contribution, left-aligned */}
       {visibleCount >= 2 && (
-        <div className="flex gap-3 animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
-          <div className="flex flex-col items-center self-stretch w-[18px]">
-            <div className={`${nodeBase} bg-white border border-slate-200`}>
-              <Search size={9} className="text-slate-400" />
-            </div>
-            {visibleCount >= 3 && <TimelineConnector complete={visibleCount >= 3} />}
-          </div>
-          <div className="flex-1 pb-2">
-            <div className={`rounded-xl border border-slate-200 bg-slate-50 p-3 transition-shadow ${visibleCount === 2 ? glowCls : ""}`}>
-              <p className="text-[10px] mb-2">
-                <span className="uppercase tracking-widest text-slate-400">Searching</span>
-                <span className="ml-3 font-semibold text-indigo-500">Context generated by the Codeset Agent</span>
-              </p>
-              <div className="bg-slate-950 text-[11px] leading-relaxed p-3 rounded-lg overflow-x-auto font-mono border border-slate-800">
-                {HERO_AGENT_TOOL_OUTPUT.split("\n").map((line, i) => (
-                  <div key={i} className="whitespace-pre text-slate-300">
-                    <InlineTokens text={line} tokenCls="bg-slate-700/80 text-slate-100" />
-                  </div>
-                ))}
-              </div>
+        <div className="animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
+          <div className={`rounded-xl border border-indigo-300 bg-indigo-50/50 p-3 transition-shadow ${visibleCount === 2 ? glowCls : ""}`}>
+            <p className="text-xs mb-2">
+              <span className="font-semibold text-indigo-600">Codeset Agent</span>
+              <span className="ml-2 uppercase tracking-widest text-slate-400">· Context Retrieved</span>
+            </p>
+            <div className="bg-slate-950 text-xs leading-relaxed p-3 rounded-lg font-mono border border-slate-800">
+              {HERO_AGENT_TOOL_OUTPUT.split("\n").map((line, i) => (
+                <div key={i} className="whitespace-pre-wrap text-slate-300">
+                  <InlineTokens text={line} tokenCls="bg-slate-700/80 text-slate-100" />
+                </div>
+              ))}
             </div>
           </div>
         </div>
       )}
 
-      {/* Analyzing */}
+      {/* Analyzing — agent reasoning, subtly indented */}
       {visibleCount >= 3 && (
-        <div className="flex gap-3 animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
-          <div className="flex flex-col items-center self-stretch w-[18px]">
-            <div className={`${nodeBase} bg-white border border-indigo-200`}>
-              {visibleCount >= 4
-                ? <Check size={9} className="text-indigo-500" />
-                : <Zap size={9} className="text-indigo-400 animate-spin [animation-duration:2s]" />
-              }
-            </div>
-            {visibleCount >= 4 && <TimelineConnector complete={visibleCount >= 4} />}
-          </div>
-          <div className="flex-1 pb-2">
-            <div className={`rounded-xl border border-indigo-200 bg-indigo-50/50 p-3 transition-shadow ${visibleCount === 3 ? glowCls : ""}`}>
-              <p className="text-[10px] uppercase tracking-widest text-indigo-400 mb-2">Analyzing Context</p>
-              <p className="text-sm text-gray-800 leading-relaxed">
-                <InlineTokens
-                  text="History: timezone-naive date comparison caused the null ptr; fix is to use datetime.timezone.utc. Pitfall: don't call authenticate() before db.init(). Session init currently runs before db — reorder so db.init() runs first, then use timezone.utc for created_at."
-                  tokenCls="bg-indigo-100 text-indigo-900"
-                />
-              </p>
-            </div>
+        <div className="ml-6 animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
+          <div className={`rounded-xl border border-slate-200 bg-slate-50 p-3 transition-shadow ${visibleCount === 3 ? glowCls : ""}`}>
+            <p className="text-xs mb-2">
+              <span className="font-semibold text-slate-700">Coding Agent</span>
+              <span className="ml-2 uppercase tracking-widest text-slate-400">· Reasoning</span>
+            </p>
+            <p className="text-sm text-gray-700 leading-relaxed">
+              <InlineTokens
+                text="Related file note shows migration #412 deprecated event_count — column still exists but is no longer written to. get_chart_data() still queries the old column, returning zeroes since the migration ran. Switching to events_total."
+                tokenCls="bg-slate-100 text-slate-800"
+              />
+            </p>
           </div>
         </div>
       )}
 
-      {/* Fix Applied */}
+      {/* Fix Applied — agent output, subtly indented */}
       {visibleCount >= 4 && (
-        <div className="flex gap-3 animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
-          <div className="flex flex-col items-center w-[18px]">
-            <div className={`${nodeBase} bg-white border border-emerald-200`}>
+        <div className="ml-6 animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
+          <div className={`rounded-xl border border-emerald-200 bg-emerald-50/30 p-3 transition-shadow ${glowCls}`}>
+            <p className="text-xs mb-2">
+              <span className="font-semibold text-emerald-700">Coding Agent</span>
+              <span className="ml-2 uppercase tracking-widest text-emerald-500">· Fix Applied</span>
               <CheckCircle
-                size={9}
-                className={`transition-colors duration-500 ${iconPopped ? "text-emerald-500" : "text-emerald-300"} ${iconPopped ? "animate-[pop_0.4s_ease-in-out]" : ""}`}
+                size={12}
+                className={`inline-block ml-1.5 -mt-0.5 transition-colors duration-500 ${iconPopped ? "text-emerald-500" : "text-emerald-300"} ${iconPopped ? "animate-[pop_0.4s_ease-in-out]" : ""}`}
               />
-            </div>
-          </div>
-          <div className="flex-1">
-            <div className={`rounded-xl border border-emerald-200 bg-emerald-50/30 p-3 transition-shadow ${glowCls}`}>
-              <p className="text-[10px] uppercase tracking-widest text-emerald-600 mb-2">Fix Applied</p>
-              <DiffBlock content={HERO_AGENT_FIX} />
-            </div>
+            </p>
+            <DiffBlock content={HERO_AGENT_FIX} />
           </div>
         </div>
       )}
