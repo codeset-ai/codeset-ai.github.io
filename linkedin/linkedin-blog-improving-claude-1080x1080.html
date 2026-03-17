@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080, height=1080">
+  <title>Improving Claude Code by 10% with Codeset</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 1080px; height: 1080px; overflow: hidden; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: hsl(0, 0%, 100%);
+      color: hsl(0, 0%, 3.9%);
+      display: flex;
+      flex-direction: column;
+      padding: 40px 52px 36px;
+      position: relative;
+    }
+    .brand-top {
+      position: absolute;
+      top: 65px;
+      right: 52px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      opacity: 0.9;
+    }
+    .brand-logo {
+      height: 44px;
+      width: 44px;
+      flex-shrink: 0;
+      object-fit: contain;
+    }
+    .brand-text {
+      font-size: 26px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: hsl(0, 0%, 9%);
+    }
+    .anchor {
+      font-size: 18px;
+      font-weight: 600;
+      color: hsl(239, 84%, 67%);
+      letter-spacing: -0.01em;
+      margin-bottom: 10px;
+    }
+    .headline-wrap {
+      max-width: 720px;
+    }
+    .headline {
+      font-size: 44px;
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      color: hsl(0, 0%, 3.9%);
+    }
+    .hero-stat {
+      font-size: 28px;
+      font-weight: 800;
+      color: hsl(239, 84%, 67%);
+      letter-spacing: -0.02em;
+      margin-top: 12px;
+      margin-bottom: 10px;
+    }
+    .mechanism {
+      font-size: 19px;
+      font-weight: 600;
+      color: hsl(0, 0%, 26%);
+      letter-spacing: -0.01em;
+      margin-bottom: 8px;
+    }
+    .tagline {
+      font-size: 17px;
+      font-weight: 500;
+      color: hsl(0, 0%, 45%);
+      margin-bottom: 14px;
+    }
+    .tweetable {
+      font-size: 16px;
+      font-weight: 600;
+      color: hsl(0, 0%, 45%);
+      font-style: italic;
+      margin-bottom: 16px;
+    }
+    .panel {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      background: hsl(0, 0%, 100%);
+      border: 1px solid hsl(0, 0%, 89.8%);
+      border-radius: 16px;
+      padding: 24px 28px 24px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.9);
+    }
+    .panel-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: hsl(0, 0%, 45%);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .stats {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .stat {
+      flex: 1;
+      background: hsl(0, 0%, 100%);
+      border: 1px solid hsl(220, 13%, 91%);
+      border-radius: 12px;
+      padding: 14px 16px 16px;
+      text-align: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .stat-model {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      color: hsl(0, 0%, 45%);
+      margin-bottom: 6px;
+    }
+    .stat-main {
+      font-size: 56px;
+      font-weight: 800;
+      color: hsl(239, 84%, 67%);
+      letter-spacing: -0.03em;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-delta-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 12px;
+    }
+    .stat-from {
+      font-size: 15px;
+      font-weight: 500;
+      color: hsl(0, 0%, 63%);
+      text-decoration: line-through;
+    }
+    .stat-pp {
+      font-size: 16px;
+      font-weight: 700;
+      color: hsl(239, 84%, 67%);
+      letter-spacing: -0.01em;
+    }
+    .terminal {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 15px;
+      line-height: 1.4;
+      background: #0f172a;
+      color: #cbd5e1;
+      border-radius: 12px;
+      padding: 14px 22px 16px;
+      border: 1px solid #1e293b;
+      box-shadow: inset 0 1px 0 rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .terminal .prompt { color: inherit; font-weight: 700; }
+    .terminal .comment { color: #94a3b8; }
+    .terminal .key { color: #94a3b8; }
+    .terminal .value { color: inherit; font-weight: 700; }
+    .terminal .muted { color: #94a3b8; }
+    .terminal .terminal-header { color: #94a3b8; margin-top: 6px; }
+    .terminal .terminal-section { margin-top: 10px; }
+    .terminal .terminal-section:first-of-type { margin-top: 6px; }
+    .terminal-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: hsl(0, 0%, 9%);
+      letter-spacing: 0.02em;
+      margin-bottom: 10px;
+    }
+    .terminal-reframe {
+      margin-bottom: 10px;
+    }
+    .terminal-reframe .before {
+      font-size: 20px;
+      font-weight: 700;
+      color: hsl(0, 0%, 45%);
+      margin-bottom: 4px;
+    }
+    .terminal-reframe .after {
+      font-size: 20px;
+      font-weight: 700;
+      color: hsl(239, 84%, 67%);
+    }
+  </style>
+</head>
+<body>
+  <div class="brand-top">
+    <img src="bacalhau.svg" alt="" class="brand-logo" />
+    <span class="brand-text">&lt;codeset&gt;</span>
+  </div>
+
+  <div class="headline-wrap">
+    <h1 class="headline">Coding agents are running blind</h1>
+  </div>
+  <p class="hero-stat">+10pp more tasks resolved</p>
+  <p class="mechanism">Give your agent the context your team built over years</p>
+  <p class="tagline">Use cheaper models. Get better results.</p>
+
+  <div class="panel">
+    <div class="panel-label">CODESET-GYM-PYTHON · RESOLUTION RATE</div>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-model">Haiku 4.5</div>
+        <div class="stat-main">62%</div>
+        <div class="stat-delta-row">
+          <span class="stat-from">52%</span>
+          <span class="stat-pp">+10pp</span>
+        </div>
+      </div>
+      <div class="stat">
+        <div class="stat-model">Sonnet 4.5</div>
+        <div class="stat-main">65.3%</div>
+        <div class="stat-delta-row">
+          <span class="stat-from">56%</span>
+          <span class="stat-pp">+9.3pp</span>
+        </div>
+      </div>
+      <div class="stat">
+        <div class="stat-model">Opus 4.5</div>
+        <div class="stat-main">68%</div>
+        <div class="stat-delta-row">
+          <span class="stat-from">60.7%</span>
+          <span class="stat-pp">+7.3pp</span>
+        </div>
+      </div>
+    </div>
+    <div class="terminal-reframe">
+      <div class="before">Without Codeset, your agent is guessing</div>
+      <div class="after">With Codeset, your agent has context</div>
+    </div>
+    <div class="terminal">
+      <div><span class="prompt">$</span> python retrieve_file_info.py src/payments.ts</div>
+      <div class="terminal-header">── src/payments.ts ──</div>
+      <div class="terminal-section">
+        <div class="muted">History (4 insights):</div>
+        <div class="value">  [Bug Fix] Double-charge on retry</div>
+        <div class="value">    Root cause: idempotency key not persisted</div>
+        <div class="value">    Fix: store key in DB before Stripe call</div>
+        <div class="value">  [Breaking Change] Webhook signature v2</div>
+        <div class="value">    Migration: update STRIPE_WEBHOOK_SECRET</div>
+      </div>
+      <div class="terminal-section">
+        <div class="muted">Pitfalls:</div>
+      <div class="value">  ✗ Don't call charge() inside a DB transaction</div>
+      <div class="value">  → Stripe call may succeed but rollback fires</div>
+      <div class="value">  ✗ Never log the full PaymentIntent object</div>
+      <div class="value">  → Contains raw card data (PCI violation)</div>
+      </div>
+      <div class="terminal-section">
+        <div class="muted">Callers (6 files):</div>
+        <div>  api/checkout.ts:88 &nbsp; handleCheckout()</div>
+        <div>  api/subscriptions.ts:41 &nbsp; renewSubscription()</div>
+      </div>
+      <div class="terminal-section">
+        <div class="muted">Tests → tests/payments.test.ts:</div>
+      <div>  test_successful_charge, test_idempotent_retry, test_webhook_verification, test_refund_flow</div>
+      </div>
+      <div class="terminal-section">
+        <div class="muted">Co-changes: src/webhooks.ts, src/subscriptions.ts</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
