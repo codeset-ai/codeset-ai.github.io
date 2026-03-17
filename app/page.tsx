@@ -636,7 +636,7 @@ export default function Home() {
 
               <div className="mt-3">
                 <p className="text-xs text-gray-500">
-                  <span className="text-gray-800 font-semibold">{priceLabel}, one-time.</span>
+                  <span className="text-gray-800 font-semibold">{priceLabel} per repo, one-time.</span>
                   {" "}No subscription. Ready in ~30 minutes.
                 </p>
               </div>
@@ -658,6 +658,7 @@ export default function Home() {
                 <span className="hidden sm:inline">
                   With the information provided by Codeset, Haiku 4.5 delivers better performance than baseline Sonnet 4.5 and Opus 4.5, significantly reducing costs.{" "}
                 </span>
+                <br />
                 <a
                   href="/blog/improving-claude-code-with-codeset"
                   className="text-gray-400 underline hover:text-gray-600 transition-colors"
