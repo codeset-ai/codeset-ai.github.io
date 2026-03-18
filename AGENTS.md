@@ -217,7 +217,7 @@ The file is organized by directory (## headers), with each file listed as:
 You can grep for directory names, filenames, construct names, or categories (TEST, CLI, PUBLIC_API, GENERATED, SOURCE_CODE) to quickly find relevant files without reading the entire index.
 
 **MANDATORY RULE — NO EXCEPTIONS:** Before you read, edit, or even reference any file, you MUST first run:
-`python .cursor/docs/retrieve_file_info.py <file_path>`
+`python .cursor/docs/get_context.py <file_path>`
 
 This is a hard requirement for EVERY file you touch. Do not skip this step. Do not assume you already know enough about a file. Do not batch it "for later." Run it immediately, before any other action on that file.
 
@@ -231,10 +231,10 @@ The command returns critical context you cannot infer on your own:
 
 **Workflow (follow this exact order every time):**
 1. Identify which file you need to work with.
-2. Run `python .cursor/docs/retrieve_file_info.py <file_path>` and read the output.
+2. Run `python .cursor/docs/get_context.py <file_path>` and read the output.
 3. Only then proceed to read, edit, or reason about the file.
 
 If you need to work with multiple files, run the command for each one before touching any of them.
 
-**Violations:** If you read or edit a file without first running retrieve_file_info.py on it, you are violating a project-level rule. Stop, run the command, and re-evaluate your changes with the new context.
+**Violations:** If you read or edit a file without first running get_context.py on it, you are violating a project-level rule. Stop, run the command, and re-evaluate your changes with the new context.
 

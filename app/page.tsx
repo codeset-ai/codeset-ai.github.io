@@ -24,7 +24,7 @@ const FAQS = [
   },
   {
     q: "What exactly do you generate?",
-    a: "A CLAUDE.md / AGENTS.md entry point and a per-file knowledge base (files.json + retrieve_file_info.py). Your agent can query the knowledge base to get relevant insights, pitfalls, and caller information for any file.",
+    a: "A CLAUDE.md / AGENTS.md entry point and a per-file knowledge base (files.json + get_context.py). Your agent can query the knowledge base to get relevant insights, pitfalls, and caller information for any file.",
   },
   {
     q: "Is this just an automated AGENTS.md generator?",
@@ -227,7 +227,7 @@ const SAMPLE_CLAUDE_MD_MOBILE = SAMPLE_CLAUDE_MD.split("\n")
 
 const HERO_AGENT_TASK = "Fix: dashboard charts show flat lines for all metrics since last Tuesday."
 
-const HERO_AGENT_TOOL_OUTPUT = `$ python retrieve_file_info.py src/dashboard.py
+const HERO_AGENT_TOOL_OUTPUT = `$ python get_context.py src/dashboard.py
 
 # src/dashboard.py
 
@@ -387,7 +387,7 @@ function AgentChatHero({ animate = true, onComplete }: { animate?: boolean; onCo
 }
 
 // "What you get" featured card 02
-const FILE_INFO_CARD = `$ python retrieve_file_info.py src/payments.ts
+const FILE_INFO_CARD = `$ python get_context.py src/payments.ts
 
 ── src/payments.ts ──
 
