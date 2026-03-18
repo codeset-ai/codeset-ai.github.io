@@ -1,8 +1,28 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Check } from 'lucide-react';
 import { ApiService, UsageHistory, UsageTransaction } from '../../../lib/api';
 import { useAuth } from '../../../contexts/AuthContext';
+
+const TRANSACTION_TYPE_OPTIONS: { value: string; label: string; checkedClass: string }[] = [
+  { value: 'deposit', label: 'Deposit', checkedClass: 'bg-green-100 text-green-800 border-green-200' },
+  { value: 'usage', label: 'Session usage', checkedClass: 'bg-red-100 text-red-800 border-red-200' },
+  { value: 'charge', label: 'Charge', checkedClass: 'bg-red-100 text-red-800 border-red-200' },
+  { value: 'refund', label: 'Refund', checkedClass: 'bg-blue-100 text-blue-800 border-blue-200' },
+  { value: 'agent_job_usage', label: 'Agent job', checkedClass: 'bg-amber-100 text-amber-800 border-amber-200' },
+  { value: 'agent_job_refund', label: 'Agent job refund', checkedClass: 'bg-blue-100 text-blue-800 border-blue-200' },
+];
+
+function last7Days(): { start: string; end: string } {
+  const end = new Date();
+  const start = new Date();
+  start.setDate(start.getDate() - 6);
+  return {
+    start: start.toISOString().slice(0, 10),
+    end: end.toISOString().slice(0, 10),
+  };
+}
 
 export default function UsagePage() {
   const { user } = useAuth();
@@ -11,16 +31,25 @@ export default function UsagePage() {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(25);
+  const [startDate, setStartDate] = useState(() => last7Days().start);
+  const [endDate, setEndDate] = useState(() => last7Days().end);
+  const [transactionTypes, setTransactionTypes] = useState<string[]>([]);
 
   useEffect(() => {
     loadUsageData();
-  }, [currentPage]);
+  }, [currentPage, startDate, endDate, transactionTypes]);
 
   const loadUsageData = async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await ApiService.getUsageHistory(currentPage, itemsPerPage);
+      const data = await ApiService.getUsageHistory(
+        currentPage,
+        itemsPerPage,
+        startDate,
+        endDate,
+        transactionTypes.length ? transactionTypes : undefined,
+      );
       setUsageData(data);
     } catch (err) {
       console.error('Error loading usage data:', err);
@@ -67,7 +96,7 @@ export default function UsagePage() {
     );
   }
 
-  if (loading) {
+  if (loading && !usageData) {
     return (
       <div className="p-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">Usage History</h1>
@@ -101,6 +130,64 @@ export default function UsagePage() {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Usage History</h1>
+      <p className="text-sm text-gray-500 mb-6">
+        Summary and transaction list below are limited to 10,000 transactions.
+      </p>
+
+      <div className="flex flex-wrap items-center gap-4 mb-6">
+        <label className="flex items-center gap-2 text-sm text-gray-700">
+          From
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => {
+              setStartDate(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+          />
+        </label>
+        <label className="flex items-center gap-2 text-sm text-gray-700">
+          To
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => {
+              setEndDate(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+          />
+        </label>
+        <div className="flex flex-wrap items-center gap-2 ml-4 border-l border-gray-200 pl-4">
+          <span className="text-sm text-gray-700">Type:</span>
+          {TRANSACTION_TYPE_OPTIONS.map(({ value, label, checkedClass }) => {
+            const checked = transactionTypes.includes(value);
+            return (
+              <label
+                key={value}
+                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium cursor-pointer transition-colors ${
+                  checked ? checkedClass : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={(e) => {
+                    setTransactionTypes((prev) =>
+                      e.target.checked ? [...prev, value] : prev.filter((t) => t !== value)
+                    );
+                    setCurrentPage(1);
+                  }}
+                  className="sr-only"
+                />
+                {checked && <Check className="h-3.5 w-3.5 shrink-0" strokeWidth={2.5} />}
+                {label}
+              </label>
+            );
+          })}
+        </div>
+      </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -146,16 +233,23 @@ export default function UsagePage() {
 
           <div>
             <div className="text-lg font-medium text-gray-900">
-              {formatDuration(usageData.summary.total_session_duration_minutes)}
+              {formatDuration(usageData.summary.total_session_duration_minutes ?? 0)}
             </div>
             <div className="text-sm text-gray-600">Total Session Time</div>
           </div>
 
           <div>
             <div className="text-lg font-medium text-gray-900">
-              {formatDuration(usageData.summary.average_session_duration_minutes)}
+              {formatDuration(usageData.summary.average_session_duration_minutes ?? 0)}
             </div>
             <div className="text-sm text-gray-600">Average Session Duration</div>
+          </div>
+
+          <div>
+            <div className="text-lg font-medium text-gray-900">
+              {usageData.summary.total_agent_jobs ?? 0}
+            </div>
+            <div className="text-sm text-gray-600">Agent jobs</div>
           </div>
         </div>
       </div>
@@ -166,7 +260,12 @@ export default function UsagePage() {
           <h2 className="text-lg font-semibold text-gray-900">Transaction History</h2>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto relative">
+          {loading && usageData && (
+            <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-10 rounded-b-lg">
+              <span className="text-sm text-gray-600">Loading...</span>
+            </div>
+          )}
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
@@ -197,6 +296,10 @@ export default function UsagePage() {
                           ? 'bg-green-100 text-green-800'
                           : transaction.type === 'refund'
                           ? 'bg-blue-100 text-blue-800'
+                          : transaction.type === 'agent_job_refund'
+                          ? 'bg-blue-100 text-blue-800'
+                          : transaction.type === 'agent_job_usage'
+                          ? 'bg-amber-100 text-amber-800'
                           : 'bg-red-100 text-red-800'
                       }`}
                     >
@@ -204,7 +307,11 @@ export default function UsagePage() {
                         ? 'Deposit'
                         : transaction.type === 'refund'
                         ? 'Refund'
-                        : 'Session Usage'}
+                        : transaction.type === 'agent_job_usage'
+                        ? 'Agent job'
+                        : transaction.type === 'agent_job_refund'
+                        ? 'Agent job refund'
+                        : 'Session usage'}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-900">

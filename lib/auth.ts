@@ -7,6 +7,7 @@ interface User {
   created_at: string;
   last_login_at?: string;
   is_active: boolean;
+  terms_accepted_at?: string | null;
 }
 
 interface ApiKey {
@@ -149,11 +150,30 @@ export class AuthService {
     }
   }
 
+  static async acceptTerms(): Promise<User | null> {
+    const token = this.getStoredToken();
+    if (!token) return null;
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/me/accept-terms`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) return null;
+      return response.json();
+    } catch {
+      return null;
+    }
+  }
+
   static logout(): void {
     this.clearTokens();
   }
 
-  static getGitHubOAuthUrl(): string {
+  static getGitHubOAuthUrl(state?: string): string {
     const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID;
     if (!clientId) {
       throw new Error('GitHub client ID not configured');
@@ -163,7 +183,7 @@ export class AuthService {
       client_id: clientId,
       redirect_uri: `${window.location.origin}/auth/callback`,
       scope: 'user:email',
-      state: Math.random().toString(36).substring(7),
+      state: state ?? Math.random().toString(36).substring(7),
     });
 
     return `https://github.com/login/oauth/authorize?${params.toString()}`;

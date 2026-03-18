@@ -1,10 +1,11 @@
 "use client"
 
 import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { User, Key, Home, CreditCard, BarChart3, LogOut, BookOpen } from 'lucide-react';
+import { User, LogOut, BookOpen } from 'lucide-react';
+import TermsAcceptModal from '@/components/TermsAcceptModal';
 
 export default function DashboardLayout({
   children,
@@ -13,12 +14,23 @@ export default function DashboardLayout({
 }) {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!loading && !user) {
       router.push('/');
     }
   }, [user, loading, router]);
+
+  useEffect(() => {
+    if (!pathname?.startsWith('/dashboard')) return;
+    document.title = 'codeset | Dashboard';
+    const id = setTimeout(() => { document.title = 'codeset | Dashboard'; }, 100);
+    return () => {
+      clearTimeout(id);
+      document.title = 'codeset';
+    };
+  }, [pathname]);
 
   if (loading) {
     return (
@@ -32,13 +44,21 @@ export default function DashboardLayout({
     return null;
   }
 
+  const needsTermsAccept = !user.terms_accepted_at;
+  const isAgentTab = pathname?.startsWith('/dashboard/agent');
+  const isPlatformTab = pathname === '/dashboard/platform' || pathname === '/dashboard/api-keys' || pathname === '/dashboard/datasets' || pathname === '/dashboard/pricing';
+  const isCreditsTab = pathname === '/dashboard/credits';
+  const isUsageTab = pathname === '/dashboard/usage';
+
   return (
+    <>
     <div className="min-h-screen bg-gray-50 font-mono">
-      {/* Header */}
+      {/* Top bar */}
       <div className="bg-white border-b border-gray-200 px-4 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Link href="/" className="text-lg font-semibold">
+            <Link href="/" className="flex items-center gap-2.5 text-lg font-semibold">
+              <img src="/bacalhau.svg" alt="" className="h-12 w-12 flex-shrink-0 object-contain mt-0.5" />
               &lt;codeset&gt;
             </Link>
             <span className="text-gray-400">/</span>
@@ -69,48 +89,104 @@ export default function DashboardLayout({
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <nav className="space-y-2">
+      {/* Product switcher */}
+      <div className="bg-white border-b border-gray-200 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center gap-2 pt-3">
+            <Link
+              href="/dashboard/agent"
+              className={`px-4 py-2 text-sm font-medium rounded-t-md transition-colors ${
+                isAgentTab
+                  ? 'bg-black text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              Codeset
+            </Link>
+            <Link
+              href="/dashboard/platform"
+              className={`px-4 py-2 text-sm font-medium rounded-t-md transition-colors ${
+                isPlatformTab
+                  ? 'bg-black text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              Codeset Platform
+            </Link>
+            <Link
+              href="/dashboard/credits"
+              className={`px-4 py-2 text-sm font-medium rounded-t-md transition-colors ${
+                isCreditsTab
+                  ? 'bg-black text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              Credits
+            </Link>
+            <Link
+              href="/dashboard/usage"
+              className={`px-4 py-2 text-sm font-medium rounded-t-md transition-colors ${
+                isUsageTab
+                  ? 'bg-black text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              Usage History
+            </Link>
+          </div>
+          {isPlatformTab && (
+            <div className="flex items-center gap-6 py-3 border-t border-gray-100">
               <Link
-                href="/dashboard"
-                className="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-gray-700 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                href="/dashboard/platform"
+                className={`text-sm font-medium transition-colors ${
+                  pathname === '/dashboard/platform'
+                    ? 'text-black underline underline-offset-4'
+                    : 'text-gray-500 hover:text-black'
+                }`}
               >
-                <Home size={16} />
-                <span>Overview</span>
+                Overview
+              </Link>
+              <Link
+                href="/dashboard/datasets"
+                className={`text-sm font-medium transition-colors ${
+                  pathname === '/dashboard/datasets'
+                    ? 'text-black underline underline-offset-4'
+                    : 'text-gray-500 hover:text-black'
+                }`}
+              >
+                Datasets
               </Link>
               <Link
                 href="/dashboard/api-keys"
-                className="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-gray-700 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                className={`text-sm font-medium transition-colors ${
+                  pathname === '/dashboard/api-keys'
+                    ? 'text-black underline underline-offset-4'
+                    : 'text-gray-500 hover:text-black'
+                }`}
               >
-                <Key size={16} />
-                <span>API Keys</span>
+                API Keys
               </Link>
               <Link
-                href="/dashboard/credits"
-                className="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-gray-700 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                href="/dashboard/pricing"
+                className={`text-sm font-medium transition-colors ${
+                  pathname === '/dashboard/pricing'
+                    ? 'text-black underline underline-offset-4'
+                    : 'text-gray-500 hover:text-black'
+                }`}
               >
-                <CreditCard size={16} />
-                <span>Credits</span>
+                Pricing
               </Link>
-              <Link
-                href="/dashboard/usage"
-                className="flex items-center space-x-3 px-4 py-3 text-sm font-medium text-gray-700 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
-              >
-                <BarChart3 size={16} />
-                <span>Usage History</span>
-              </Link>
-            </nav>
-          </div>
-
-          {/* Main Content */}
-          <div className="lg:col-span-3">
-            {children}
-          </div>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Content */}
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {children}
+      </div>
     </div>
+    {needsTermsAccept && <TermsAcceptModal />}
+    </>
   );
 }

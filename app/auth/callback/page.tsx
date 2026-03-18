@@ -9,7 +9,6 @@ function AuthCallbackContent() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [error, setError] = useState<string>('');
   const [processed, setProcessed] = useState(false);
-  const [attempts, setAttempts] = useState(0);
   const searchParams = useSearchParams();
   const router = useRouter();
   const { refreshUser } = useAuth();
@@ -46,28 +45,38 @@ function AuthCallbackContent() {
       const attemptOAuth = async (retryCount = 0): Promise<void> => {
         try {
           console.log(`OAuth attempt ${retryCount + 1}...`);
-          const oauthResult = await AuthService.githubOAuth(code, state || undefined);
+          await AuthService.githubOAuth(code, state || undefined);
 
           setStatus('success');
 
-          // Give the token a moment to be valid, then update user data and redirect
           setTimeout(async () => {
             console.log('Refreshing user data after delay...');
             await refreshUser();
             console.log('User data refreshed, redirecting...');
-            router.push('/dashboard');
+
+            const pending = sessionStorage.getItem('codeset_pending_agent_job');
+            if (pending) {
+              try {
+                const { repo, trigger } = JSON.parse(pending);
+                const params = new URLSearchParams({ repo });
+                if (trigger) params.set('trigger', 'true');
+                router.push(`/dashboard/agent?${params}`);
+              } catch {
+                router.push('/dashboard/agent');
+              }
+            } else {
+              router.push('/dashboard');
+            }
           }, 500);
         } catch (err) {
           console.error(`OAuth attempt ${retryCount + 1} failed:`, err);
 
-          // Retry once if it's the first attempt
           if (retryCount === 0) {
             console.log('Retrying OAuth in 1 second...');
             setTimeout(() => attemptOAuth(1), 1000);
             return;
           }
 
-          // After retries failed, show error
           console.error('All OAuth attempts failed');
           setError(err instanceof Error ? err.message : 'Authentication failed');
           setStatus('error');

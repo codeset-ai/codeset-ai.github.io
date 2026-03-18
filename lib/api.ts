@@ -32,11 +32,15 @@ interface UserCredits {
 interface PricingInfo {
   cost_per_minute_cents: number;
   cost_per_minute_dollars: number;
+  agent_job_cost_cents?: number;
+  agent_job_cost_dollars?: number;
 }
 
 interface MoneyDepositRequest {
   amount_cents: number;
   currency: string;
+  success_url?: string;
+  cancel_url?: string;
 }
 
 interface MoneyDepositResponse {
@@ -47,12 +51,32 @@ interface MoneyDepositResponse {
 
 interface UsageTransaction {
   id: string;
-  type: 'deposit'|'session_usage'|'refund';
+  type: 'deposit'|'session_usage'|'refund'|'agent_job_usage'|'agent_job_refund';
   amount_cents: number;
   description: string;
   created_at: string;
   session_id?: string;
   duration_minutes?: number;
+  job_id?: string;
+}
+
+interface UsageHistoryPagination {
+  current_page: number;
+  total_pages: number;
+  total_items: number;
+  items_per_page: number;
+  has_previous: boolean;
+  has_next: boolean;
+}
+
+interface UsageHistorySummary {
+  total_sessions: number;
+  total_deposits?: number;
+  total_agent_jobs?: number;
+  average_session_cost_cents: number;
+  average_agent_job_cost_cents?: number;
+  total_session_duration_minutes?: number;
+  average_session_duration_minutes?: number;
 }
 
 interface UsageHistory {
@@ -60,11 +84,8 @@ interface UsageHistory {
   total_deposits_cents: number;
   total_usage_cents: number;
   transactions: UsageTransaction[];
-  summary: {
-    total_sessions: number; average_session_cost_cents: number;
-    total_session_duration_minutes: number;
-    average_session_duration_minutes: number;
-  };
+  summary: UsageHistorySummary;
+  pagination: UsageHistoryPagination;
 }
 
 interface Dataset {
@@ -103,6 +124,56 @@ interface SampleListResponse {
   page: number;
   page_size: number;
   has_more: boolean;
+}
+
+interface GitHubRepoItem {
+  full_name: string;
+
+  private: boolean;
+  html_url: string;
+}
+
+interface GitHubReposResponse {
+  repos: GitHubRepoItem[];
+}
+
+interface AgentJobCreateRequest {
+  repo: string;
+  ref?: string;
+  agent_id?: string;
+}
+
+interface AgentJobCreateResponse {
+  job_id: string;
+  status: string;
+}
+
+interface AgentJobListItem {
+  job_id: string;
+  repo: string;
+  status: string;
+  created_at: string;
+  progress_pct?: number;
+  progress_stage?: string;
+  completed_at?: string;
+  error_message?: string;
+}
+
+interface AgentJobListResponse {
+  jobs: AgentJobListItem[];
+  has_more: boolean;
+  next_cursor?: string;
+}
+
+interface AgentJobResponse {
+  job_id: string;
+  status: string;
+  created_at: string;
+  progress_pct?: number;
+  progress_stage?: string;
+  result_available: boolean;
+  completed_at?: string;
+  error_message?: string;
 }
 
 export class ApiService {
@@ -246,14 +317,29 @@ export class ApiService {
     return response.json();
   }
 
-  static async getUsageHistory(page: number = 1, limit: number = 25):
-      Promise<UsageHistory> {
+  static async getUsageHistory(
+      page: number = 1,
+      limit: number = 25,
+      startDate?: string,
+      endDate?: string,
+      transactionTypes?: string[],
+  ): Promise<UsageHistory> {
     const token = AuthService.getStoredToken();
     if (!token) {
       throw new Error('No authentication token found');
     }
 
-    const response = await fetch(`${API_BASE_URL}/billing/usage`, {
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: String(limit),
+      max_items: '10000',
+    });
+    if (startDate) params.set('start_date', startDate);
+    if (endDate) params.set('end_date', endDate);
+    if (transactionTypes?.length) {
+      transactionTypes.forEach((t) => params.append('transaction_types', t));
+    }
+    const response = await fetch(`${API_BASE_URL}/billing/usage?${params}`, {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
@@ -262,7 +348,7 @@ export class ApiService {
     if (response.status === 401) {
       const refreshResult = await AuthService.refreshToken();
       if (refreshResult) {
-        return this.getUsageHistory(page, limit);
+        return this.getUsageHistory(page, limit, startDate, endDate, transactionTypes);
       }
       throw new Error('Authentication failed');
     }
@@ -318,6 +404,140 @@ export class ApiService {
 
     return response.json();
   }
+
+  static async getRepos(): Promise<GitHubReposResponse> {
+    const token = AuthService.getStoredToken();
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+    const response = await fetch(`${API_BASE_URL}/repos`, {
+      headers: {'Authorization': `Bearer ${token}`},
+    });
+    if (response.status === 401) {
+      const refreshResult = await AuthService.refreshToken();
+      if (refreshResult) return this.getRepos();
+      throw new Error('Authentication failed');
+    }
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const code = errorData.detail?.code ?? errorData.code;
+      const message = errorData.detail?.message ?? errorData.message ??
+          'Failed to get repos';
+      const err = new Error(message) as Error & {code?: string};
+      if (code) err.code = code;
+      throw err;
+    }
+    return response.json();
+  }
+
+  static async createAgentJob(repo: string, ref?: string):
+      Promise<AgentJobCreateResponse> {
+    const token = AuthService.getStoredToken();
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+    const body: AgentJobCreateRequest = {repo, agent_id: 'claude_code'};
+    if (ref) body.ref = ref;
+    const response = await fetch(`${API_BASE_URL}/agent-jobs`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+    if (response.status === 401) {
+      const refreshResult = await AuthService.refreshToken();
+      if (refreshResult) return this.createAgentJob(repo, ref);
+      throw new Error('Authentication failed');
+    }
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const code = errorData.detail?.code || errorData.code;
+      const message = errorData.detail?.message || errorData.message ||
+          'Failed to create agent job';
+      const err = new Error(message) as Error & {code?: string};
+      if (code) err.code = code;
+      throw err;
+    }
+    return response.json();
+  }
+
+  static async getAgentJob(jobId: string): Promise<AgentJobResponse> {
+    const token = AuthService.getStoredToken();
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+    const response = await fetch(`${API_BASE_URL}/agent-jobs/${jobId}`, {
+      headers: {'Authorization': `Bearer ${token}`},
+    });
+    if (response.status === 401) {
+      const refreshResult = await AuthService.refreshToken();
+      if (refreshResult) return this.getAgentJob(jobId);
+      throw new Error('Authentication failed');
+    }
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+          errorData.detail?.message || errorData.message ||
+          'Failed to get agent job');
+    }
+    return response.json();
+  }
+
+  static async listAgentJobs(limit?: number, cursor?: string):
+      Promise<AgentJobListResponse> {
+    const token = AuthService.getStoredToken();
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+    const url = new URL(`${API_BASE_URL}/agent-jobs`);
+    if (limit != null) url.searchParams.set('limit', String(limit));
+    if (cursor) url.searchParams.set('cursor', cursor);
+    const response = await fetch(url.toString(), {
+      headers: {'Authorization': `Bearer ${token}`},
+    });
+    if (response.status === 401) {
+      const refreshResult = await AuthService.refreshToken();
+      if (refreshResult) return this.listAgentJobs(limit, cursor);
+      throw new Error('Authentication failed');
+    }
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+          errorData.detail?.message || errorData.message ||
+          'Failed to list agent jobs');
+    }
+    return response.json();
+  }
+
+  static async getAgentJobResultBlob(jobId: string, agentIds?: string[]):
+      Promise<{blob: Blob; filename: string}> {
+    const token = AuthService.getStoredToken();
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+    const url = new URL(`${API_BASE_URL}/agent-jobs/${jobId}/result`);
+    if (agentIds?.length) {
+      agentIds.forEach((id) => url.searchParams.append('agent_id', id));
+    }
+    const response = await fetch(url.toString(), {
+      headers: {'Authorization': `Bearer ${token}`},
+    });
+    if (response.status === 401) {
+      const refreshResult = await AuthService.refreshToken();
+      if (refreshResult) return this.getAgentJobResultBlob(jobId, agentIds);
+      throw new Error('Authentication failed');
+    }
+    if (!response.ok) {
+      throw new Error('Result not available');
+    }
+    const blob = await response.blob();
+    const disposition = response.headers.get('Content-Disposition');
+    const filenameMatch = disposition?.match(/filename="?([^";]+)"?/);
+    const filename = filenameMatch?.[1]?.trim() || `${jobId}.tar.gz`;
+    return {blob, filename};
+  }
 }
 
 export type{
@@ -333,5 +553,12 @@ export type{
   UsageHistory,
   Dataset,
   Sample,
-  SampleListResponse
+  SampleListResponse,
+  GitHubRepoItem,
+  GitHubReposResponse,
+  AgentJobCreateRequest,
+  AgentJobCreateResponse,
+  AgentJobListItem,
+  AgentJobListResponse,
+  AgentJobResponse,
 };

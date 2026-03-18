@@ -2,14 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { ApiService, UserCredits, PricingInfo } from '@/lib/api';
-import { CreditCard, DollarSign, TrendingUp, TrendingDown, Plus, RefreshCw } from 'lucide-react';
+import { ApiService, UserCredits } from '@/lib/api';
+import { DollarSign, TrendingUp, TrendingDown, Plus, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function CreditsPage() {
   const searchParams = useSearchParams();
   const [credits, setCredits] = useState<UserCredits | null>(null);
-  const [pricing, setPricing] = useState<PricingInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [showDepositDialog, setShowDepositDialog] = useState(false);
   const [depositAmount, setDepositAmount] = useState(10);
@@ -18,12 +17,8 @@ export default function CreditsPage() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [creditsData, pricingData] = await Promise.all([
-        ApiService.getUserCredits(),
-        ApiService.getPricingInfo()
-      ]);
+      const creditsData = await ApiService.getUserCredits();
       setCredits(creditsData);
-      setPricing(pricingData);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to load credits data');
     } finally {
@@ -84,8 +79,8 @@ export default function CreditsPage() {
   };
 
   const handleDeposit = async () => {
-    if (depositAmount < 5) {
-      toast.error('Minimum deposit is $5.00');
+    if (depositAmount < 1) {
+      toast.error('Minimum deposit is $1.00');
       return;
     }
 
@@ -143,7 +138,7 @@ export default function CreditsPage() {
     );
   }
 
-  if (!credits || !pricing) {
+  if (!credits) {
     return (
       <div className="text-center py-12">
         <p className="text-gray-500">Failed to load credits data</p>
@@ -227,37 +222,6 @@ export default function CreditsPage() {
         </div>
       </div>
 
-      {/* Pricing Information */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Pricing</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="flex items-center space-x-4">
-            <div className="flex-shrink-0">
-              <CreditCard className="text-gray-400" size={24} />
-            </div>
-            <div>
-              <h4 className="font-medium text-gray-900">Per-Minute Usage</h4>
-              <p className="text-2xl font-semibold text-gray-900">
-                {formatCurrency(pricing.cost_per_minute_cents)}/min
-              </p>
-              <p className="text-sm text-gray-600">
-                You're only charged for actual compute time
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h4 className="font-medium text-gray-900 mb-2">How billing works</h4>
-            <ul className="text-sm text-gray-600 space-y-1">
-              <li>• Pay only for active session time</li>
-              <li>• No monthly fees or subscriptions</li>
-              <li>• Unused credits never expire</li>
-              <li>• Billing is calculated per minute</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
       {/* Low Balance Warning */}
       {credits.balance < 500 && ( // Less than $5.00
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
@@ -321,7 +285,7 @@ export default function CreditsPage() {
                     <input
                       type="number"
                       id="customAmount"
-                      min="5"
+                      min="1"
                       max="10000"
                       value={depositAmount}
                       onChange={(e) => setDepositAmount(Number(e.target.value))}
@@ -351,7 +315,7 @@ export default function CreditsPage() {
               </button>
               <button
                 onClick={handleDeposit}
-                disabled={depositAmount < 5}
+                disabled={depositAmount < 1}
                 className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Add {formatCurrency(depositAmount * 100)}

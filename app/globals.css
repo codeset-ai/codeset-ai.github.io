@@ -93,6 +93,18 @@ body {
   }
 }
 
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.55); }
+  70%  { transform: scale(0.88); }
+  100% { transform: scale(1); }
+}
+
 /* Ensure blog code blocks match homepage exactly */
 .blog-code-block .hljs {
   background: #1f2937 !important;

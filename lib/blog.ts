@@ -3,6 +3,7 @@ import path from 'path'
 import matter from 'gray-matter'
 import { remark } from 'remark'
 import html from 'remark-html'
+import remarkGfm from 'remark-gfm'
 
 const postsDirectory = path.join(process.cwd(), 'blog-posts')
 
@@ -11,6 +12,7 @@ export interface BlogPost {
   title: string
   date: string
   excerpt: string
+  tldr?: string
   content: string
 }
 
@@ -29,6 +31,7 @@ export function getAllPosts(): BlogPost[] {
         title: matterResult.data.title,
         date: matterResult.data.date,
         excerpt: matterResult.data.excerpt,
+        tldr: matterResult.data.tldr,
         content: matterResult.content,
       }
     })
@@ -43,7 +46,8 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
     const matterResult = matter(fileContents)
 
     const processedContent = await remark()
-      .use(html)
+      .use(remarkGfm)
+      .use(html, { allowDangerousHtml: true })
       .process(matterResult.content)
     const contentHtml = processedContent.toString()
 
@@ -52,6 +56,7 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
       title: matterResult.data.title,
       date: matterResult.data.date,
       excerpt: matterResult.data.excerpt,
+      tldr: matterResult.data.tldr,
       content: contentHtml,
     }
   } catch (error) {
