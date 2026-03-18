@@ -104,6 +104,8 @@ This likely reflects the agent making fewer iterations in obtaining relevant con
 
 Across both benchmarks and all three model tiers, the direction is consistent: structured codebase context improves agent performance, and the gains are large enough to shift which model tier makes economic sense.
 
+The full evaluation artifacts — task results, per-sample outputs, and raw scores — are available at [github.com/codeset-ai/codeset-release-evals](https://github.com/codeset-ai/codeset-release-evals).
+
 ---
 
 Codeset is available today. Paste your GitHub URL, connect your account, and supercharge your agents in under 30 minutes. **$5 per repo, one-time payment.**
