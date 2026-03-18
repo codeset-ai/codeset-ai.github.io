@@ -11,11 +11,24 @@ const ibmPlexMono = IBM_Plex_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "codeset",
+  title: "codeset — Onboard your coding agent",
   description:
-    "Training and evaluating agentic models with large-scale datasets of reproducible, sandboxed environments.",
+    "Give Claude Code, Cursor, and other coding agents the codebase knowledge your team spent years building. Extracted from your codebase and commit history with AI.",
   icons: {
     icon: '/favicon-bacalhau.png',
+  },
+  openGraph: {
+    title: "codeset — Onboard your coding agent",
+    description:
+      "Give Claude Code, Cursor, and other coding agents the codebase knowledge your team spent years building. Extracted from your codebase and commit history with AI.",
+    url: "https://codeset.ai",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "codeset — Onboard your coding agent",
+    description:
+      "Give Claude Code, Cursor, and other coding agents the codebase knowledge your team spent years building. Extracted from your codebase and commit history with AI.",
   },
 }
 
