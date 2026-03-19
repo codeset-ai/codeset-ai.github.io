@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import {
   ApiService,
   GitHubRepoItem,
@@ -46,6 +46,7 @@ const DOWNLOAD_AGENT_OPTIONS = [
 export function AgentPageContent() {
   const { user } = useAuth();
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   const [repos, setRepos] = useState<GitHubRepoItem[]>([]);
   const [reposLoading, setReposLoading] = useState(false);
@@ -134,12 +135,21 @@ export function AgentPageContent() {
   useEffect(() => {
     const repoParam = searchParams.get('repo');
     const refParam = searchParams.get('ref');
+    const hasTrigger = searchParams.get('trigger') === 'true';
+    const hasAutorun = searchParams.get('autorun') === 'true';
     if (repoParam) setRepoInput(repoParam);
     if (refParam) setRef(refParam);
-    if (searchParams.get('autorun') === 'true') setAutorun(true);
-    if (searchParams.get('trigger') === 'true') setTriggerRun(true);
+    if (hasAutorun) setAutorun(true);
+    if (hasTrigger) setTriggerRun(true);
     sessionStorage.removeItem('codeset_pending_agent_job');
-  }, [searchParams]);
+    if (hasTrigger || hasAutorun) {
+      const params = new URLSearchParams();
+      if (repoParam) params.set('repo', repoParam);
+      if (refParam) params.set('ref', refParam);
+      const qs = params.size ? `?${params}` : '';
+      router.replace(`/dashboard/agent${qs}`);
+    }
+  }, [searchParams, router]);
 
   useEffect(() => {
     if (user) {
