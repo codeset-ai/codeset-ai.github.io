@@ -468,14 +468,14 @@ export function AgentPageContent() {
           <button
             type="button"
             onClick={() => setRepoVisibility('public')}
-            className={`px-3 py-1.5 transition-colors ${repoVisibility === 'public' ? 'bg-gray-900 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+            className={`px-3 py-1.5 transition-colors ${repoVisibility === 'public' ? 'bg-[#6366F1] text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
           >
             Public Repo
           </button>
           <button
             type="button"
             onClick={() => setRepoVisibility('private')}
-            className={`px-3 py-1.5 border-l border-gray-200 transition-colors ${repoVisibility === 'private' ? 'bg-gray-900 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+            className={`px-3 py-1.5 border-l border-gray-200 transition-colors ${repoVisibility === 'private' ? 'bg-[#6366F1] text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
           >
             Private Repo
           </button>
@@ -565,17 +565,27 @@ export function AgentPageContent() {
             )}
           </div>
           )}
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
-              Ref / branch (optional)
-            </label>
-            <input
-              type="text"
-              value={ref}
-              onChange={(e) => setRef(e.target.value)}
-              placeholder="e.g. main"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
-            />
+          <div className="md:col-span-2">
+            <details className="group">
+              <summary className="cursor-pointer list-none text-xs text-gray-400 hover:text-gray-500 select-none">
+                <span className="inline-flex items-center gap-1">
+                  <span className="transition-transform group-open:rotate-90">▶</span>
+                  Advanced options
+                </span>
+              </summary>
+              <div className="mt-2">
+                <label className="mb-1 block text-xs text-gray-500">
+                  Ref / branch (optional)
+                </label>
+                <input
+                  type="text"
+                  value={ref}
+                  onChange={(e) => setRef(e.target.value)}
+                  placeholder="e.g. main"
+                  className="w-full rounded-md border border-gray-200 px-3 py-1.5 text-sm text-gray-600 focus:border-[#6366F1] focus:outline-none focus:ring-1 focus:ring-[#6366F1]"
+                />
+              </div>
+            </details>
           </div>
         </div>
           {pricing?.agent_job_cost_cents != null && (
