@@ -61,6 +61,9 @@ export function AgentPageContent() {
   const [downloadLoading, setDownloadLoading] = useState(false);
   const [jobs, setJobs] = useState<AgentJobListItem[]>([]);
   const [jobsLoading, setJobsLoading] = useState(false);
+  const [jobsCursor, setJobsCursor] = useState<string | null>(null);
+  const [jobsHasMore, setJobsHasMore] = useState(false);
+  const [jobsLoadMoreLoading, setJobsLoadMoreLoading] = useState(false);
   const [jobDetails, setJobDetails] = useState<Record<string, AgentJobResponse>>({});
   const [pricing, setPricing] = useState<PricingInfo | null>(null);
   const [userCredits, setUserCredits] = useState<UserCredits | null>(null);
@@ -106,12 +109,35 @@ export function AgentPageContent() {
       setJobsLoading(true);
       const data = await ApiService.listAgentJobs(20);
       setJobs(data.jobs || []);
+      setJobsCursor(data.next_cursor ?? null);
+      setJobsHasMore(data.has_more);
     } catch {
       setJobs([]);
+      setJobsCursor(null);
+      setJobsHasMore(false);
     } finally {
       setJobsLoading(false);
     }
   }, []);
+
+  const loadMoreJobs = async () => {
+    if (!jobsCursor || !jobsHasMore) return;
+    try {
+      setJobsLoadMoreLoading(true);
+      const data = await ApiService.listAgentJobs(20, jobsCursor);
+      setJobs((prev) => {
+        const existingIds = new Set(prev.map((j) => j.job_id));
+        const newJobs = (data.jobs || []).filter((j) => !existingIds.has(j.job_id));
+        return [...prev, ...newJobs];
+      });
+      setJobsCursor(data.next_cursor ?? null);
+      setJobsHasMore(data.has_more);
+    } catch {
+      // silent — button stays visible for retry
+    } finally {
+      setJobsLoadMoreLoading(false);
+    }
+  };
 
   const loadPricing = useCallback(async () => {
     try {
@@ -916,6 +942,18 @@ export function AgentPageContent() {
                 })}
               </tbody>
             </table>
+            {jobsHasMore && (
+              <div className="mt-3 flex justify-center">
+                <button
+                  onClick={loadMoreJobs}
+                  disabled={jobsLoadMoreLoading}
+                  className="flex items-center gap-2 rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+                >
+                  {jobsLoadMoreLoading && <Loader2 size={14} className="animate-spin" />}
+                  Load more
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
