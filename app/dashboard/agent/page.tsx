@@ -75,6 +75,7 @@ export function AgentPageContent() {
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [selectedJobDetailsLoading, setSelectedJobDetailsLoading] = useState(false);
+  const [repoVisibility, setRepoVisibility] = useState<'public' | 'private'>('public');
 
   const formatCurrency = (cents: number) =>
     new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
@@ -423,7 +424,7 @@ export function AgentPageContent() {
     <div className="space-y-8">
 
       <div className="relative rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-        {GITHUB_APP_INSTALL_URL && (
+        {repoVisibility === 'private' && GITHUB_APP_INSTALL_URL && (
           <a
             href={GITHUB_APP_INSTALL_URL}
             target="_blank"
@@ -437,6 +438,22 @@ export function AgentPageContent() {
         <h2 className="mb-4 text-lg font-semibold text-gray-900">
           Extract Knowledge Base
         </h2>
+        <div className="mb-4 inline-flex rounded-md border border-gray-200 text-sm font-medium overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setRepoVisibility('public')}
+            className={`px-3 py-1.5 transition-colors ${repoVisibility === 'public' ? 'bg-gray-900 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+          >
+            Public Repo
+          </button>
+          <button
+            type="button"
+            onClick={() => setRepoVisibility('private')}
+            className={`px-3 py-1.5 border-l border-gray-200 transition-colors ${repoVisibility === 'private' ? 'bg-gray-900 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+          >
+            Private Repo
+          </button>
+        </div>
         <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
           <div className="md:col-span-2">
             <label className="mb-1 block text-sm font-medium text-gray-700">
@@ -462,6 +479,7 @@ export function AgentPageContent() {
               </p>
             )}
           </div>
+          {repoVisibility === 'private' && (
           <div className="md:col-span-2">
             <label
               htmlFor="agent-repo-select"
@@ -520,6 +538,7 @@ export function AgentPageContent() {
               </div>
             )}
           </div>
+          )}
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">
               Ref / branch (optional)
