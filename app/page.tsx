@@ -419,11 +419,9 @@ Co-changes: src/webhooks.ts, src/subscriptions.ts`
 
 const HERO_HEADING = "Onboard your favorite \ncoding agent"
 
-function TerminalHeading({ onDone }: { onDone: () => void }) {
+function TerminalHeading() {
   const [displayed, setDisplayed] = useState("")
   const [cursorVisible, setCursorVisible] = useState(true)
-  const onDoneRef = useRef(onDone)
-  onDoneRef.current = onDone
 
   useEffect(() => {
     let i = 0
@@ -432,7 +430,6 @@ function TerminalHeading({ onDone }: { onDone: () => void }) {
       setDisplayed(HERO_HEADING.slice(0, i))
       if (i >= HERO_HEADING.length) {
         clearInterval(interval)
-        onDoneRef.current()
         setTimeout(() => setCursorVisible(false), 800)
       }
     }, 45)
@@ -440,7 +437,7 @@ function TerminalHeading({ onDone }: { onDone: () => void }) {
   }, [])
 
   return (
-    <h1 className="text-2xl sm:text-4xl md:text-5xl font-medium tracking-tight mb-5 leading-[1.1]">
+    <h1 className="text-2xl sm:text-4xl md:text-5xl font-medium tracking-tight mb-5 leading-[1.1] min-h-[calc(2*1.1*1em)] sm:min-h-[calc(2*1.1*2.25rem)] md:min-h-[calc(2*1.1*3rem)]">
       {displayed.split("\n").map((line, i, arr) => (
         <span key={i}>
           {line}
@@ -540,7 +537,6 @@ export default function Home() {
   const { user, login } = useAuth()
   const router = useRouter()
   const [openFaq, setOpenFaq] = useState<number | null>(null)
-  const [headingDone, setHeadingDone] = useState(false)
   const [demoDone, setDemoDone] = useState(false)
   const [pricing, setPricing] = useState<PricingInfo | null>(null)
   const [isMobile, setIsMobile] = useState(false)
@@ -589,11 +585,9 @@ export default function Home() {
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-8 md:gap-20 items-start">
           {/* Left */}
           <div>
-            <TerminalHeading onDone={() => setHeadingDone(true)} />
+            <TerminalHeading />
 
-            <div
-              className={`transition-all duration-500 ${headingDone ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"}`}
-            >
+            <div>
               <div className="max-w-xl">
                 <div className="text-sm text-gray-500 mb-6 leading-relaxed">
                   <p className="mb-2">Give Claude Code, Codex, and other agents the codebase knowledge your team spent years building.</p>
