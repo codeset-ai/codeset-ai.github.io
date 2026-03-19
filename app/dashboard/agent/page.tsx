@@ -774,11 +774,13 @@ export function AgentPageContent() {
               Follow these steps to set up your downloaded config.
             </p>
           </DialogHeader>
-          <div className="space-y-4 py-2 text-sm">
-            <div>
-              <p className="font-medium text-gray-900 mb-2">
-                1. Extract the archive into your repository
-              </p>
+          <div className="space-y-3 py-2 text-sm">
+            {/* Step 1 */}
+            <div className="rounded-lg border border-gray-200 p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-100 text-xs font-semibold text-indigo-700">1</span>
+                <p className="font-medium text-gray-900">Extract the archive into your repository</p>
+              </div>
               <div className="flex items-center gap-2 rounded-md bg-gray-900 px-3 py-2 font-mono text-xs text-gray-100">
                 <span className="flex-1 break-all">
                   tar xfz ~/Downloads/{tutorialFilename} -C /path/to/your/repo
@@ -792,21 +794,23 @@ export function AgentPageContent() {
                   {copiedCommand ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
                 </button>
               </div>
-              <p className="mt-2 text-gray-500">
+              <p className="text-gray-500">
                 Replace <code className="font-mono">/path/to/your/repo</code> with the root of your local repository.
               </p>
+              <div className="flex items-start gap-2 rounded-md border border-yellow-200 bg-yellow-50 px-3 py-2 text-yellow-800">
+                <span className="mt-0.5 text-yellow-500">⚠</span>
+                <p>
+                  The archive contains <strong>hidden files</strong> (e.g. <code className="font-mono">.claude</code>). These will be extracted automatically — make sure to <strong>commit them to your repo</strong>.
+                </p>
+              </div>
             </div>
-            <div className="flex items-start gap-2 rounded-md border border-yellow-200 bg-yellow-50 px-3 py-2 text-yellow-800">
-              <span className="mt-0.5 text-yellow-500">⚠</span>
-              <p>
-                The archive contains <strong>hidden files</strong> (e.g. <code className="font-mono">.claude</code>). These will be extracted automatically — make sure to <strong>commit them to your repo</strong>.
-              </p>
-            </div>
-            <div>
-              <p className="font-medium text-gray-900 mb-2">
-                2. Use your coding agent as normal
-              </p>
-              <p className="text-gray-500 mb-2">
+            {/* Step 2 */}
+            <div className="rounded-lg border border-gray-200 p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-100 text-xs font-semibold text-indigo-700">2</span>
+                <p className="font-medium text-gray-900">Use your coding agent as normal</p>
+              </div>
+              <p className="text-gray-500">
                 Open your repo in the coding agent — it will automatically pick up the configuration. Try starting with this prompt:
               </p>
               <div className="flex items-start gap-2 rounded-md bg-gray-900 px-3 py-2 font-mono text-xs text-gray-100">
