@@ -699,6 +699,7 @@ export function AgentPageContent() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Download result</DialogTitle>
+            <p className="text-sm text-gray-500 pt-1">Select which agents you want to download the configuration for. You can select as many as you want.</p>
           </DialogHeader>
           <div className="flex items-start gap-2 rounded-md border border-yellow-200 bg-yellow-50 px-3 py-2 text-sm text-yellow-800">
             <span className="mt-0.5 text-yellow-500">⚠</span>
@@ -835,8 +836,8 @@ export function AgentPageContent() {
                       <td className="py-2 pr-4">
                         <span className="inline-flex items-center gap-2">
                           <span className="relative flex h-2 w-2 shrink-0">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75" />
-                            <span className="relative inline-flex h-2 w-2 rounded-full bg-indigo-500" />
+                            <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${status === 'pending' ? 'bg-yellow-400' : 'bg-indigo-400'}`} />
+                            <span className={`relative inline-flex h-2 w-2 rounded-full ${status === 'pending' ? 'bg-yellow-500' : 'bg-indigo-500'}`} />
                           </span>
                           {status}
                         </span>
