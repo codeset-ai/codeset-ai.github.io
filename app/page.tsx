@@ -36,7 +36,7 @@ const FAQS = [
   },
   {
     q: "How long does it take?",
-    a: "About 30 minutes. You connect to GitHub, select the repo, and wait for the files to get ready.",
+    a: "About 45 minutes for a medium-sized repo. Runtime scales with the size of the repo. You connect to GitHub, select the repo, and wait for the files to get ready.",
   },
 ]
 
@@ -620,7 +620,7 @@ export default function Home() {
               <div className="mt-3">
                 <p className="text-xs text-gray-500">
                   <span className="text-gray-800 font-semibold">{priceLabel} per repo, one-time.</span>
-                  {" "}No subscription. Ready in ~30 minutes.
+                  {" "}No subscription. Ready in ~45 minutes for a medium-sized repo.
                 </p>
               </div>
               <div className="hidden sm:grid grid-cols-3 gap-2 sm:gap-3 mt-6 mb-2">
@@ -813,7 +813,7 @@ export default function Home() {
               {
                 step: "02",
                 title: "We analyze your codebase",
-                desc: "Our pipeline mines your commit history, traces every function caller, extracts pitfalls, and maps test coverage. Under 30 minutes.",
+                desc: "Our pipeline mines your commit history, traces every function caller, extracts pitfalls, and maps test coverage.",
               },
               {
                 step: "03",

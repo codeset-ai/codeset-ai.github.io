@@ -108,6 +108,6 @@ The full evaluation artifacts — task results, per-sample outputs, and raw scor
 
 ---
 
-Codeset is available today. Paste your GitHub URL, connect your account, and supercharge your agents in under 30 minutes. **$5 per repo, one-time payment.**
+Codeset is available today. Paste your GitHub URL, connect your account, and onboard all your agents. **$5 per repo, one-time payment.**
 
 [Analyze your repo →](https://codeset.ai)

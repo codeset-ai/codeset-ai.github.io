@@ -68,6 +68,7 @@ export function AgentPageContent() {
   const [confirmMode, setConfirmMode] = useState<'run' | 'pay'>('run');
   const [pendingShortfall, setPendingShortfall] = useState(0);
   const [topUpLoading, setTopUpLoading] = useState(false);
+  const [showRunStarted, setShowRunStarted] = useState(false);
   const downloadOpenedRef = useRef<Set<string>>(new Set());
   const [downloadDialogJobId, setDownloadDialogJobId] = useState<string | null>(null);
   const [downloadAgentIds, setDownloadAgentIds] = useState<string[]>([]);
@@ -309,6 +310,7 @@ export function AgentPageContent() {
       setJobStatus(initial);
       setJobDetails((prev) => ({ ...prev, [res.job_id]: initial }));
       loadJobs();
+      setShowRunStarted(true);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to create job';
       const code = (err as Error & { code?: string }).code;
@@ -328,6 +330,11 @@ export function AgentPageContent() {
       if (ref.trim()) params.set('ref', ref.trim());
       const successUrl = `${window.location.origin}/dashboard/agent?${params}`;
       const cancelUrl = `${window.location.origin}/dashboard/agent?repo=${encodeURIComponent(repoToRun)}`;
+      // Store pending job so credits page can redirect back if the backend doesn't honour success_url
+      sessionStorage.setItem(
+        'codeset_pending_agent_job',
+        JSON.stringify({ repo: repoToRun, autorun: true, ...(ref.trim() ? { ref: ref.trim() } : {}) })
+      );
       const response = await ApiService.createDepositSession({
         amount_cents: Math.max(shortfall, 100),
         currency: 'usd',
@@ -563,7 +570,7 @@ export function AgentPageContent() {
         </button>
         {currentJobId && !currentJobTerminal && (
           <p className="mt-3 text-sm text-gray-500">
-            Analysis running — this takes up to 30 minutes. You can close this tab and come back.
+            Analysis running — this takes ~45 minutes for a medium-sized repo. You can close this tab and come back.
           </p>
         )}
       </div>
@@ -582,7 +589,7 @@ export function AgentPageContent() {
                     : <>We&apos;ll analyze <strong className="text-gray-900">{repoToRun}</strong> and deduct <strong className="text-gray-900">{formatCurrency(pricing?.agent_job_cost_cents ?? 0)}</strong> from your balance.</>
                   }
                 </p>
-                <p className="text-gray-500">Ready in ~30 minutes. You can close the tab while it runs.</p>
+                <p className="text-gray-500">Ready in ~45 minutes for a medium-sized repo. You can close the tab while it runs.</p>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -616,6 +623,25 @@ export function AgentPageContent() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={showRunStarted} onOpenChange={setShowRunStarted}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Run started!</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-gray-600">
+            The analysis has started. It takes ~45 minutes for a medium-sized repo. You can close this tab and come back later.
+          </p>
+          <DialogFooter>
+            <button
+              onClick={() => setShowRunStarted(false)}
+              className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+            >
+              Got it
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog
         open={!!downloadDialogJobId}

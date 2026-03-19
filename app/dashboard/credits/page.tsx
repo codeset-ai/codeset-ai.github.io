@@ -1,13 +1,14 @@
 "use client"
 
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { ApiService, UserCredits } from '@/lib/api';
 import { DollarSign, TrendingUp, TrendingDown, Plus, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function CreditsPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [credits, setCredits] = useState<UserCredits | null>(null);
   const [loading, setLoading] = useState(true);
   const [showDepositDialog, setShowDepositDialog] = useState(false);
@@ -31,6 +32,22 @@ export default function CreditsPage() {
     const paymentStatus = searchParams.get('payment');
     if (paymentStatus === 'success') {
       toast.success('Payment successful! Refreshing your balance...');
+      // Check if there's a pending agent job to redirect to
+      const pending = sessionStorage.getItem('codeset_pending_agent_job');
+      if (pending) {
+        try {
+          const { repo, autorun, ref } = JSON.parse(pending);
+          if (repo && autorun) {
+            sessionStorage.removeItem('codeset_pending_agent_job');
+            const params = new URLSearchParams({ repo, autorun: 'true' });
+            if (ref) params.set('ref', ref);
+            router.push(`/dashboard/agent?${params}`);
+            return;
+          }
+        } catch {
+          // ignore malformed entry
+        }
+      }
       // Remove the query parameter from URL
       window.history.replaceState({}, '', '/dashboard/credits');
 
