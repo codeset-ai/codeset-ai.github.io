@@ -340,7 +340,7 @@ function AgentChatHero({ animate = true, onComplete }: { animate?: boolean; onCo
         <div className={`rounded-xl border border-indigo-300 bg-indigo-50/50 p-3 transition-shadow ${visibleCount === 2 ? glowCls : ""}`}>
           <p className="text-xs mb-2">
             <span className="font-semibold text-indigo-600">Coding Agent</span>
-            <span className="ml-2 uppercase tracking-widest text-slate-400">· Retrieves Codeset-generated context</span>
+            <span className="ml-2 uppercase tracking-widest text-slate-400">· Retrieves Codeset-extracted context</span>
           </p>
           <div className="bg-slate-950 text-xs leading-relaxed p-3 rounded-lg font-mono border border-slate-800">
             {HERO_AGENT_TOOL_OUTPUT.split("\n").map((line, i) => (
@@ -612,7 +612,7 @@ export default function Home() {
                     </li>
                   </ul>
                   <p className="mt-3">
-                  Codeset generates the repository context your coding agents need to understand your codebase.
+                  Codeset extracts the repository context your coding agents need to understand your codebase.
                   </p>
                 </div>
 
@@ -796,7 +796,7 @@ export default function Home() {
                   </ul>
                 </div>
                 <p className="text-xs text-gray-600 leading-relaxed border-t border-gray-800 pt-4 min-w-0 break-words">
-                  Generated automatically from your git history and AST.
+                  Extracted automatically from your git history and AST.
                   No manual annotation. No maintenance.
                 </p>
               </div>

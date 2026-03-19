@@ -71,7 +71,7 @@ We evaluated how good Codeset is at actually helping agents like Claude Code sol
 
 ### What we tested
 
-We ran six configurations: Claude Code with three models (Haiku 4.5, Sonnet 4.5, Opus 4.5), each with and without Codeset context. The Codeset context was generated once per sample, targeting the base commit before any work is performed.
+We ran six configurations: Claude Code with three models (Haiku 4.5, Sonnet 4.5, Opus 4.5), each with and without Codeset context. The Codeset context was extracted once per sample, targeting the base commit before any work is performed.
 
 CHART_RESULTS_PLACEHOLDER
 
