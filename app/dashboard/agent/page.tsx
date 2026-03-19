@@ -12,7 +12,7 @@ import {
 } from '@/lib/api';
 import { parseRepo } from '@/lib/repo';
 import { useAuth } from '@/contexts/AuthContext';
-import { Bot, Download, AlertCircle, Loader2, ExternalLink, Info } from 'lucide-react';
+import { Bot, Download, AlertCircle, Loader2, ExternalLink, Info, CheckCircle2, XCircle } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -793,7 +793,15 @@ export function AgentPageContent() {
                     >
                       <td className="py-2 pr-4 font-mono text-xs">{j.job_id}</td>
                       <td className="py-2 pr-4">{j.repo}</td>
-                      <td className="py-2 pr-4">{status}</td>
+                      <td className="py-2 pr-4">
+                        <span className="inline-flex items-center gap-2">
+                          <span className="relative flex h-2 w-2 shrink-0">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75" />
+                            <span className="relative inline-flex h-2 w-2 rounded-full bg-indigo-500" />
+                          </span>
+                          {status}
+                        </span>
+                      </td>
                       <td className="py-2 pr-4 text-gray-600 min-w-[120px]">
                         {d?.error_message ? (
                           <span className="text-red-600 text-xs">{d.error_message}</span>
@@ -873,7 +881,21 @@ export function AgentPageContent() {
                     >
                       <td className="py-2 pr-4 font-mono text-xs">{j.job_id}</td>
                       <td className="py-2 pr-4">{j.repo}</td>
-                      <td className="py-2 pr-4">{j.status}</td>
+                      <td className="py-2 pr-4">
+                        {j.status === 'completed' ? (
+                          <span className="inline-flex items-center gap-1.5 text-green-600">
+                            <CheckCircle2 size={15} />
+                            completed
+                          </span>
+                        ) : j.status === 'error' ? (
+                          <span className="inline-flex items-center gap-1.5 text-red-600">
+                            <XCircle size={15} />
+                            error
+                          </span>
+                        ) : (
+                          j.status
+                        )}
+                      </td>
                       <td className="py-2 pr-4 text-gray-500">
                         {new Date(j.created_at).toLocaleString()}
                       </td>
