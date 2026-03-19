@@ -12,7 +12,7 @@ import {
 } from '@/lib/api';
 import { parseRepo } from '@/lib/repo';
 import { useAuth } from '@/contexts/AuthContext';
-import { Bot, Download, AlertCircle, Loader2, ExternalLink, Info, CheckCircle2, XCircle } from 'lucide-react';
+import { Bot, Download, AlertCircle, Loader2, ExternalLink, Info, CheckCircle2, XCircle, Copy, Check } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -79,6 +79,9 @@ export function AgentPageContent() {
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [selectedJobDetailsLoading, setSelectedJobDetailsLoading] = useState(false);
   const [repoVisibility, setRepoVisibility] = useState<'public' | 'private'>('public');
+  const [tutorialFilename, setTutorialFilename] = useState<string | null>(null);
+  const [copiedCommand, setCopiedCommand] = useState(false);
+  const [copiedPrompt, setCopiedPrompt] = useState(false);
 
   const formatCurrency = (cents: number) =>
     new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
@@ -431,12 +434,27 @@ export function AgentPageContent() {
       a.click();
       URL.revokeObjectURL(url);
       setDownloadDialogJobId(null);
+      setTutorialFilename(filename);
     } catch {
       setDownloadDialogJobId(null);
       setDownloadError('Download failed or result not available.');
     } finally {
       setDownloadLoading(false);
     }
+  };
+
+  const TUTORIAL_PROMPT = 'Codeset just wired you up. Explore the new context and tell me what you can do now.';
+
+  const handleCopyTutorialCommand = () => {
+    navigator.clipboard.writeText(`tar xfz ~/Downloads/${tutorialFilename} -C /path/to/your/repo`);
+    setCopiedCommand(true);
+    setTimeout(() => setCopiedCommand(false), 2000);
+  };
+
+  const handleCopyTutorialPrompt = () => {
+    navigator.clipboard.writeText(TUTORIAL_PROMPT);
+    setCopiedPrompt(true);
+    setTimeout(() => setCopiedPrompt(false), 2000);
   };
 
   const showReposWarning =
@@ -743,6 +761,74 @@ export function AgentPageContent() {
                 <Download size={16} />
               )}
               Download
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!tutorialFilename} onOpenChange={(open) => !open && setTutorialFilename(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Setup Tutorial</DialogTitle>
+            <p className="text-sm text-gray-500 pt-1">
+              Follow these steps to set up your downloaded config.
+            </p>
+          </DialogHeader>
+          <div className="space-y-4 py-2 text-sm">
+            <div>
+              <p className="font-medium text-gray-900 mb-2">
+                1. Extract the archive into your repository
+              </p>
+              <div className="flex items-center gap-2 rounded-md bg-gray-900 px-3 py-2 font-mono text-xs text-gray-100">
+                <span className="flex-1 break-all">
+                  tar xfz ~/Downloads/{tutorialFilename} -C /path/to/your/repo
+                </span>
+                <button
+                  type="button"
+                  onClick={handleCopyTutorialCommand}
+                  title="Copy command"
+                  className="shrink-0 text-gray-400 hover:text-white transition-colors"
+                >
+                  {copiedCommand ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
+                </button>
+              </div>
+              <p className="mt-2 text-gray-500">
+                Replace <code className="font-mono">/path/to/your/repo</code> with the root of your local repository.
+              </p>
+            </div>
+            <div className="flex items-start gap-2 rounded-md border border-yellow-200 bg-yellow-50 px-3 py-2 text-yellow-800">
+              <span className="mt-0.5 text-yellow-500">⚠</span>
+              <p>
+                The archive contains <strong>hidden files</strong> (e.g. <code className="font-mono">.claude</code>). These will be extracted automatically — make sure to <strong>commit them to your repo</strong>.
+              </p>
+            </div>
+            <div>
+              <p className="font-medium text-gray-900 mb-2">
+                2. Use your coding agent as normal
+              </p>
+              <p className="text-gray-500 mb-2">
+                Open your repo in the coding agent — it will automatically pick up the configuration. Try starting with this prompt:
+              </p>
+              <div className="flex items-start gap-2 rounded-md bg-gray-900 px-3 py-2 font-mono text-xs text-gray-100">
+                <span className="flex-1">{TUTORIAL_PROMPT}</span>
+                <button
+                  type="button"
+                  onClick={handleCopyTutorialPrompt}
+                  title="Copy prompt"
+                  className="shrink-0 mt-0.5 text-gray-400 hover:text-white transition-colors"
+                >
+                  {copiedPrompt ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
+                </button>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <button
+              type="button"
+              onClick={() => setTutorialFilename(null)}
+              className="rounded-md bg-[#6366F1] px-4 py-2 text-sm font-medium text-white hover:brightness-110"
+            >
+              Got it
             </button>
           </DialogFooter>
         </DialogContent>
