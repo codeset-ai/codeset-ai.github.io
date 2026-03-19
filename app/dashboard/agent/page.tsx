@@ -12,7 +12,7 @@ import {
 } from '@/lib/api';
 import { parseRepo } from '@/lib/repo';
 import { useAuth } from '@/contexts/AuthContext';
-import { Bot, Download, AlertCircle, Loader2, ExternalLink } from 'lucide-react';
+import { Bot, Download, AlertCircle, Loader2, ExternalLink, Info } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -740,9 +740,15 @@ export function AgentPageContent() {
 
       {runningDisplayList.length > 0 && (
         <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-          <h2 className="mb-3 text-lg font-semibold text-gray-900">
-            Running jobs
-          </h2>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-900">Running jobs</h2>
+            <div className="group relative">
+              <Info size={16} className="text-gray-400 hover:text-gray-600 cursor-default" />
+              <div className="pointer-events-none absolute right-0 top-6 z-10 w-64 rounded-md border border-gray-200 bg-white p-3 text-xs text-gray-600 shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
+                Jobs typically take <strong>~45 min</strong> for medium-sized repos, with runtime scaling with the size of the repo. You can close this tab while it runs.
+              </div>
+            </div>
+          </div>
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
               <thead>
