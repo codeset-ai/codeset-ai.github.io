@@ -192,7 +192,7 @@ export default function ApiKeysPage() {
         </div>
         <button
           onClick={() => setShowNewKeyDialog(true)}
-          className="flex items-center space-x-2 px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors"
+          className="flex items-center space-x-2 px-4 py-2 bg-[#6366F1] text-white rounded-md hover:brightness-110 transition-colors"
         >
           <Plus size={16} />
           <span>Create API Key</span>
@@ -257,7 +257,7 @@ export default function ApiKeysPage() {
             </p>
             <button
               onClick={() => setShowNewKeyDialog(true)}
-              className="inline-flex items-center space-x-2 px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors"
+              className="inline-flex items-center space-x-2 px-4 py-2 bg-[#6366F1] text-white rounded-md hover:brightness-110 transition-colors"
             >
               <Plus size={16} />
               <span>Create API Key</span>
@@ -323,7 +323,7 @@ export default function ApiKeysPage() {
                   value={newKeyName}
                   onChange={(e) => setNewKeyName(e.target.value)}
                   placeholder="e.g., Production API, Development"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent"
                 />
                 <p className="mt-1 text-sm text-gray-500">
                   Choose a descriptive name to identify this API key.
@@ -343,7 +343,7 @@ export default function ApiKeysPage() {
               <button
                 onClick={handleCreateKey}
                 disabled={isCreating || !newKeyName.trim()}
-                className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-[#6366F1] text-white rounded-md hover:brightness-110 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isCreating ? 'Creating...' : 'Create API Key'}
               </button>

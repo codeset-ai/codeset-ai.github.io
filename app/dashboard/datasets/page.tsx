@@ -128,7 +128,7 @@ export default function DashboardDatasetsPage() {
 
       {loadingDatasets ? (
         <div className="flex items-center gap-2 text-gray-600">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-black" />
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#6366F1]" />
           <span>Loading datasets...</span>
         </div>
       ) : datasets.length === 0 ? (
@@ -153,7 +153,7 @@ export default function DashboardDatasetsPage() {
                   }}
                   className={`p-4 rounded-lg border-2 text-left transition-colors ${
                     selectedDataset === dataset.name
-                      ? 'border-black bg-gray-50'
+                      ? 'border-[#6366F1] bg-gray-50'
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
@@ -196,7 +196,7 @@ export default function DashboardDatasetsPage() {
                     placeholder="Search by instance ID..."
                     value={searchQuery}
                     onChange={(e) => handleSearchChange(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-sm"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#6366F1] focus:border-transparent text-sm"
                   />
                 </div>
               </div>
@@ -204,7 +204,7 @@ export default function DashboardDatasetsPage() {
               {loadingSamples ? (
                 <div className="p-8 text-center">
                   <div className="flex items-center justify-center gap-2 text-gray-600">
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-black" />
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#6366F1]" />
                     <span>Loading samples...</span>
                   </div>
                 </div>
@@ -303,7 +303,7 @@ export default function DashboardDatasetsPage() {
                               onClick={() => handlePageChange(pageNum)}
                               className={`px-3 py-1 text-sm rounded ${
                                 currentPage === pageNum
-                                  ? 'bg-black text-white'
+                                  ? 'bg-[#6366F1] text-white'
                                   : 'border border-gray-300 hover:bg-gray-100'
                               }`}
                             >

@@ -10,8 +10,8 @@ const TRANSACTION_TYPE_OPTIONS: { value: string; label: string; checkedClass: st
   { value: 'usage', label: 'Session usage', checkedClass: 'bg-red-100 text-red-800 border-red-200' },
   { value: 'charge', label: 'Charge', checkedClass: 'bg-red-100 text-red-800 border-red-200' },
   { value: 'refund', label: 'Refund', checkedClass: 'bg-blue-100 text-blue-800 border-blue-200' },
-  { value: 'agent_job_usage', label: 'Agent job', checkedClass: 'bg-amber-100 text-amber-800 border-amber-200' },
-  { value: 'agent_job_refund', label: 'Agent job refund', checkedClass: 'bg-blue-100 text-blue-800 border-blue-200' },
+  { value: 'agent_job_usage', label: 'Extraction', checkedClass: 'bg-amber-100 text-amber-800 border-amber-200' },
+  { value: 'agent_job_refund', label: 'Extraction refund', checkedClass: 'bg-blue-100 text-blue-800 border-blue-200' },
 ];
 
 function last7Days(): { start: string; end: string } {
@@ -249,7 +249,7 @@ export default function UsagePage() {
             <div className="text-lg font-medium text-gray-900">
               {usageData.summary.total_agent_jobs ?? 0}
             </div>
-            <div className="text-sm text-gray-600">Agent jobs</div>
+            <div className="text-sm text-gray-600">Extractions</div>
           </div>
         </div>
       </div>
@@ -308,9 +308,9 @@ export default function UsagePage() {
                         : transaction.type === 'refund'
                         ? 'Refund'
                         : transaction.type === 'agent_job_usage'
-                        ? 'Agent job'
+                        ? 'Extraction'
                         : transaction.type === 'agent_job_refund'
-                        ? 'Agent job refund'
+                        ? 'Extraction refund'
                         : 'Session usage'}
                     </span>
                   </td>

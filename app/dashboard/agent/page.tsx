@@ -421,7 +421,6 @@ export function AgentPageContent() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold text-gray-900">Agent</h1>
 
       <div className="relative rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
         {GITHUB_APP_INSTALL_URL && (
@@ -436,7 +435,7 @@ export function AgentPageContent() {
           </a>
         )}
         <h2 className="mb-4 text-lg font-semibold text-gray-900">
-          Run agent
+          Extract Knowledge Base
         </h2>
         <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
           <div className="md:col-span-2">
@@ -452,7 +451,7 @@ export function AgentPageContent() {
               className={`w-full rounded-md border px-3 py-2 text-sm font-mono focus:outline-none focus:ring-1 ${
                 repoValidationError
                   ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-                  : 'border-gray-300 focus:border-black focus:ring-black'
+                  : 'border-gray-300 focus:border-[#6366F1] focus:ring-[#6366F1]'
               }`}
               aria-invalid={!!repoValidationError}
               aria-describedby={repoValidationError ? 'repo-validation-error' : undefined}
@@ -559,20 +558,15 @@ export function AgentPageContent() {
         <button
           onClick={handleRunAgentClick}
           disabled={createLoading || topUpLoading}
-          className="mt-4 flex items-center gap-2 rounded-md bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
+          className="mt-4 flex items-center gap-2 rounded-md bg-[#6366F1] px-4 py-2 text-sm font-medium text-white hover:brightness-110 disabled:opacity-50"
         >
           {createLoading || topUpLoading ? (
             <Loader2 size={16} className="animate-spin" />
           ) : (
             <Bot size={16} />
           )}
-          Run agent
+          Extract Knowledge Base
         </button>
-        {currentJobId && !currentJobTerminal && (
-          <p className="mt-3 text-sm text-gray-500">
-            Analysis running — this takes ~45 minutes for a medium-sized repo. You can close this tab and come back.
-          </p>
-        )}
       </div>
 
       <AlertDialog open={showRunConfirm} onOpenChange={setShowRunConfirm}>
@@ -635,7 +629,7 @@ export function AgentPageContent() {
           <DialogFooter>
             <button
               onClick={() => setShowRunStarted(false)}
-              className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+              className="rounded-md bg-[#6366F1] px-4 py-2 text-sm font-medium text-white hover:brightness-110"
             >
               Got it
             </button>
@@ -664,7 +658,7 @@ export function AgentPageContent() {
                   type="checkbox"
                   checked={downloadAgentIds.includes(opt.value)}
                   onChange={() => toggleDownloadAgent(opt.value)}
-                  className="h-4 w-4 rounded border-gray-300 accent-black focus:ring-black focus:ring-offset-0"
+                  className="h-4 w-4 rounded border-gray-300 accent-[#6366F1] focus:ring-[#6366F1] focus:ring-offset-0"
                 />
                 <span>{opt.label}</span>
               </label>
@@ -682,7 +676,7 @@ export function AgentPageContent() {
               type="button"
               onClick={handleDownloadConfirm}
               disabled={downloadLoading || !downloadAgentIds.length}
-              className="flex items-center gap-2 rounded-md bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
+              className="flex items-center gap-2 rounded-md bg-[#6366F1] px-4 py-2 text-sm font-medium text-white hover:brightness-110 disabled:opacity-50"
             >
               {downloadLoading ? (
                 <Loader2 size={16} className="animate-spin" />
@@ -782,7 +776,7 @@ export function AgentPageContent() {
                           <div className="space-y-1">
                             <div className="h-2 w-full min-w-[100px] overflow-hidden rounded-full bg-gray-200">
                               <div
-                                className="h-full rounded-full bg-black transition-[width] duration-300"
+                                className="h-full rounded-full bg-[#6366F1] transition-[width] duration-300"
                                 style={{ width: `${Math.min(100, Math.max(0, d.progress_pct))}%` }}
                               />
                             </div>

@@ -184,7 +184,7 @@ export default function CreditsPage() {
           </button>
           <button
             onClick={() => setShowDepositDialog(true)}
-            className="flex items-center space-x-2 px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors"
+            className="flex items-center space-x-2 px-4 py-2 bg-[#6366F1] text-white rounded-md hover:brightness-110 transition-colors"
           >
             <Plus size={16} />
             <span>Add Credits</span>
@@ -282,7 +282,7 @@ export default function CreditsPage() {
                       onClick={() => setDepositAmount(amount)}
                       className={`px-3 py-2 text-sm rounded-md border ${
                         depositAmount === amount
-                          ? 'bg-black text-white border-black'
+                          ? 'bg-[#6366F1] text-white border-[#6366F1]'
                           : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                       }`}
                     >
@@ -306,7 +306,7 @@ export default function CreditsPage() {
                       max="10000"
                       value={depositAmount}
                       onChange={(e) => setDepositAmount(Number(e.target.value))}
-                      className="pl-8 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                      className="pl-8 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent"
                       placeholder="0.00"
                     />
                   </div>
@@ -333,7 +333,7 @@ export default function CreditsPage() {
               <button
                 onClick={handleDeposit}
                 disabled={depositAmount < 1}
-                className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-[#6366F1] text-white rounded-md hover:brightness-110 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Add {formatCurrency(depositAmount * 100)}
               </button>

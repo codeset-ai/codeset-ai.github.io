@@ -35,7 +35,7 @@ export default function DashboardLayout({
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#6366F1]"></div>
       </div>
     );
   }
@@ -97,7 +97,7 @@ export default function DashboardLayout({
               href="/dashboard/agent"
               className={`px-4 py-2 text-sm font-medium rounded-t-md transition-colors ${
                 isAgentTab
-                  ? 'bg-black text-white'
+                  ? 'bg-[#6366F1] text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
@@ -107,7 +107,7 @@ export default function DashboardLayout({
               href="/dashboard/platform"
               className={`px-4 py-2 text-sm font-medium rounded-t-md transition-colors ${
                 isPlatformTab
-                  ? 'bg-black text-white'
+                  ? 'bg-[#6366F1] text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
@@ -117,7 +117,7 @@ export default function DashboardLayout({
               href="/dashboard/credits"
               className={`px-4 py-2 text-sm font-medium rounded-t-md transition-colors ${
                 isCreditsTab
-                  ? 'bg-black text-white'
+                  ? 'bg-[#6366F1] text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
@@ -127,7 +127,7 @@ export default function DashboardLayout({
               href="/dashboard/usage"
               className={`px-4 py-2 text-sm font-medium rounded-t-md transition-colors ${
                 isUsageTab
-                  ? 'bg-black text-white'
+                  ? 'bg-[#6366F1] text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
