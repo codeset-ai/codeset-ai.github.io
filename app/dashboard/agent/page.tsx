@@ -700,9 +700,12 @@ export function AgentPageContent() {
           <DialogHeader>
             <DialogTitle>Download result</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-gray-500">
-            The tar archive contains hidden files (e.g. <code className="font-mono">.claude</code>). Make sure to also add these to your repo.
-          </p>
+          <div className="flex items-start gap-2 rounded-md border border-yellow-200 bg-yellow-50 px-3 py-2 text-sm text-yellow-800">
+            <span className="mt-0.5 text-yellow-500">⚠</span>
+            <p>
+              The tar archive contains <strong>hidden files</strong> (e.g. <code className="font-mono">.claude</code>). Make sure to <strong>also add these to your repo</strong>.
+            </p>
+          </div>
           <div className="space-y-3 py-2">
             {DOWNLOAD_AGENT_OPTIONS.map((opt) => (
               <label
