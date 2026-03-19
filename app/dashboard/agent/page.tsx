@@ -703,7 +703,7 @@ export function AgentPageContent() {
           <div className="flex items-start gap-2 rounded-md border border-yellow-200 bg-yellow-50 px-3 py-2 text-sm text-yellow-800">
             <span className="mt-0.5 text-yellow-500">⚠</span>
             <p>
-              The tar archive contains <strong>hidden files</strong> (e.g. <code className="font-mono">.claude</code>). Make sure to <strong>also add these to your repo</strong>.
+              The tar archive contains <strong>hidden files</strong> <span className="whitespace-nowrap">(e.g. <code className="font-mono">.claude</code>).</span> Make sure to <strong>also add these to your repo</strong>.
             </p>
           </div>
           <div className="space-y-3 py-2">
