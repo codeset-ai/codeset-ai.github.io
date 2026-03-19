@@ -1,6 +1,6 @@
 ---
-title: "Improving Claude Code by 10pp with Codeset"
-date: "2026-03-18"
+title: "We made Haiku as good as Opus. Improving Claude Code with Codeset."
+date: "2026-03-19"
 tldr: "Codeset improved Claude Haiku 4.5's task resolution rate from 52% to 62%, Sonnet 4.5's from 56% to 65.3%, and Opus 4.5's from 60.7% to 68% on codeset-gym-python (150 tasks). Results hold on SWE-Bench Pro, where Sonnet 4.5 improved from 53% to 55.7% on 300 randomly sampled tasks."
 ---
 
@@ -87,12 +87,12 @@ CHART_RESULTS_PLACEHOLDER
 
 The improvement is consistent across all three model tiers — Codeset is not compensating for a weak model. It adds on top of whatever capability the model already brings.
 
-**Structured context lets you drop a model tier without losing performance.** This holds at every level of the stack:
+**Structured context lets you drop a model tier without losing performance.** The headline result: Haiku 4.5 with Codeset (62%) matched and exceeded raw Opus 4.5 (60.7%) — the cheapest model in the Claude 4.5 family, when given structured context, beats the most capable model running blind. This holds at every level of the stack:
 
-- Haiku with Codeset (62%) outperformed raw Sonnet (56%) — at less than one-third the inference cost ($0.61 vs $1.66 per task).
+- Haiku with Codeset (62%) outperformed raw Opus (60.7%) — at roughly one-tenth the inference cost ($0.61 vs $5.58 per task).
 - Sonnet with Codeset (65.3%) outperformed raw Opus (60.7%) — the mid-tier model with context beats the most capable model without it.
 
-For teams running Claude Code at scale, the implication is significant: you can run a cheaper model configured with Codeset and exceed the resolution rate of a more expensive model running blind.
+For teams running Claude Code at scale, the implication is significant: you can run Haiku configured with Codeset and exceed the resolution rate of Opus running blind — at a fraction of the cost.
 
 ### SWE-Bench Pro
 
