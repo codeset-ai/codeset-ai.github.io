@@ -556,12 +556,6 @@ export default function Home() {
       .catch(() => setPricing(null))
   }, [])
 
-  useEffect(() => {
-    if (user) {
-      router.replace('/dashboard/agent')
-    }
-  }, [user, router])
-
 
   const priceLabel =
     pricing?.agent_job_cost_dollars != null
