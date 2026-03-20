@@ -31,6 +31,12 @@ function ResultsChart() {
   return (
     <div className="not-prose border border-gray-200 rounded-lg overflow-hidden p-5 my-2">
       <svg viewBox="0 0 780 300" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: 'auto', display: 'block', fontFamily: 'ui-monospace, monospace' }}>
+        {/* Y-axis label */}
+        <text x={10} y={135} textAnchor="middle" fontSize={11} fill="#6b7280" transform="rotate(-90, 10, 135)">Resolution Rate (%)</text>
+
+        {/* Dataset label at top of axis */}
+        <text x={48} y={18} textAnchor="start" fontSize={10} fill="#9ca3af" fontStyle="italic">codeset-gym-python</text>
+
         {/* Gridlines + Y-axis labels */}
         {[70, 60, 50, 40].map((tick) => (
           <g key={tick}>
