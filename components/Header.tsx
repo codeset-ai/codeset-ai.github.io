@@ -36,7 +36,7 @@ export default function Header() {
           ) : (
             <button
               onClick={login}
-              className="shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-black bg-gray-100 border border-gray-200 rounded-md hover:bg-gray-200 transition-colors whitespace-nowrap"
+              className="shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white bg-[#6366F1] rounded-md hover:brightness-110 transition-all whitespace-nowrap"
             >
               Sign In
             </button>
