@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080, height=1080">
+  <title>Codeset — repo context for your agent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Diagram icons: Lucide (ISC) https://lucide.dev — inlined so stroke uses brand color -->
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 1080px; height: 1080px; overflow: hidden; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: hsl(0, 0%, 100%);
+      color: hsl(0, 0%, 12%);
+      display: flex;
+      flex-direction: column;
+      padding: 64px 56px 200px 72px;
+      position: relative;
+    }
+    .brand {
+      position: absolute;
+      bottom: 40px;
+      right: 48px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 22px;
+    }
+    .brand-logo {
+      height: 72px;
+      width: auto;
+      max-width: none;
+      flex-shrink: 0;
+      object-fit: contain;
+      display: block;
+    }
+    .brand-text {
+      font-size: 40px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: hsl(0, 0%, 9%);
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      max-width: 920px;
+    }
+    h1 {
+      font-size: 64px;
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -0.038em;
+      color: hsl(0, 0%, 6%);
+      margin-bottom: 36px;
+    }
+    .lead {
+      font-size: 28px;
+      font-weight: 500;
+      line-height: 1.42;
+      letter-spacing: -0.02em;
+      color: hsl(0, 0%, 38%);
+      max-width: 720px;
+      margin-bottom: 22px;
+    }
+    .diagram-wrap {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-top: 4px;
+    }
+    .diagram-title {
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      text-transform: none;
+      color: hsl(0, 0%, 14%);
+      margin-bottom: 22px;
+      line-height: 1.15;
+    }
+    .diagram-title .codeset-mark {
+      font-weight: 800;
+      color: hsl(0, 0%, 6%);
+      letter-spacing: -0.04em;
+    }
+    .diagram-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 14px;
+      max-width: 900px;
+    }
+    .diagram-cell {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 16px 20px 18px;
+      border-radius: 14px;
+      border: 1px solid hsl(239, 35%, 90%);
+      background: hsl(239, 84%, 99%);
+    }
+    .diagram-cell .diagram-icon {
+      flex-shrink: 0;
+      width: 70px;
+      height: 70px;
+      display: block;
+      color: hsl(239, 55%, 48%);
+    }
+    .cell-body {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .diagram-cell .label {
+      font-size: 30px;
+      font-weight: 600;
+      line-height: 1.22;
+      letter-spacing: -0.025em;
+      color: hsl(0, 0%, 22%);
+      padding-top: 2px;
+    }
+    .punchline {
+      font-size: 26px;
+      font-weight: 700;
+      line-height: 1.22;
+      letter-spacing: -0.025em;
+      color: hsl(239, 62%, 46%);
+    }
+  </style>
+</head>
+<body>
+  <div class="brand">
+    <img src="../public/bacalhau.svg" alt="" class="brand-logo" width="83" height="48" />
+    <span class="brand-text">&lt;codeset&gt;</span>
+  </div>
+
+  <div class="main">
+    <h1>Turn your codebase into context AI can use</h1>
+    <p class="lead">Codeset gives Claude Code and Codex the context you’d give a new teammate.</p>
+    <div class="diagram-wrap" aria-hidden="true">
+      <p class="diagram-title">What <span class="codeset-mark">&lt;codeset&gt;</span> gives your code agent</p>
+      <div class="diagram-grid">
+        <div class="diagram-cell">
+          <svg class="diagram-icon lucide lucide-file-stack" xmlns="http://www.w3.org/2000/svg" width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 7h-3a2 2 0 0 1-2-2V2" />
+            <path d="M21 6v6.5c0 .8-.7 1.5-1.5 1.5h-7c-.8 0-1.5-.7-1.5-1.5v-9c0-.8.7-1.5 1.5-1.5H17Z" />
+            <path d="M7 8v8.8c0 .3.2.6.4.8.2.2.5.4.8.4H15" />
+            <path d="M3 12v8.8c0 .3.2.6.4.8.2.2.5.4.8.4H11" />
+          </svg>
+          <div class="cell-body">
+            <p class="label">The files worth opening first</p>
+            <p class="punchline">Skip the codebase safari.</p>
+          </div>
+        </div>
+        <div class="diagram-cell">
+          <svg class="diagram-icon lucide lucide-history" xmlns="http://www.w3.org/2000/svg" width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+            <path d="M3 3v5h5" />
+            <path d="M12 7v5l4 2" />
+          </svg>
+          <div class="cell-body">
+            <p class="label">Grounding from past issues and how they were fixed</p>
+            <p class="punchline">Don’t replay yesterday’s outage.</p>
+          </div>
+        </div>
+        <div class="diagram-cell">
+          <svg class="diagram-icon lucide lucide-triangle-alert" xmlns="http://www.w3.org/2000/svg" width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
+            <path d="M12 9v4" />
+            <path d="M12 17h.01" />
+          </svg>
+          <div class="cell-body">
+            <p class="label">Pitfalls and sharp edges, spelled out</p>
+            <p class="punchline">See the cliff before you ship.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
