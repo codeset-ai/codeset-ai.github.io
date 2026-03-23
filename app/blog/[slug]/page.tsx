@@ -76,7 +76,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                         <span className="text-gray-300">▾</span>
                       </summary>
                       <div className="px-4 pb-4 pt-1">
-                        <TableOfContents headings={headings} />
+                        <TableOfContents headings={headings} showLabel={false} />
                       </div>
                     </details>
                   </div>

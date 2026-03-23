@@ -5,7 +5,7 @@ import type { TocHeading } from "@/lib/headings"
 
 export type { TocHeading }
 
-export default function TableOfContents({ headings }: { headings: TocHeading[] }) {
+export default function TableOfContents({ headings, showLabel = true }: { headings: TocHeading[], showLabel?: boolean }) {
   const [activeId, setActiveId] = useState<string>("")
 
   useEffect(() => {
@@ -32,9 +32,11 @@ export default function TableOfContents({ headings }: { headings: TocHeading[] }
 
   return (
     <nav>
-      <p className="text-[10px] font-medium text-gray-400 uppercase tracking-widest mb-3">
-        On this page
-      </p>
+      {showLabel && (
+        <p className="text-[10px] font-medium text-gray-400 uppercase tracking-widest mb-3">
+          On this page
+        </p>
+      )}
       <ul className="space-y-1.5">
         {headings.map(({ id, text, level }) => (
           <li key={id} style={{ paddingLeft: level === 3 ? "0.75rem" : "0" }}>
