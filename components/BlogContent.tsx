@@ -8,76 +8,88 @@ interface BlogContentProps {
   content: string
 }
 
-// Y range: 40%–75% over 200px → 5.714px/pp. Bottom anchor at y=230.
-const CHART_BOTTOM = 230
-const CHART_SCALE = 200 / 35 // px per percentage point
+const CHART_MIN = 40
+const CHART_MAX = 75
 
-function pct(val: number) {
-  return CHART_BOTTOM - (val - 40) * CHART_SCALE
+function barWidth(val: number) {
+  return ((val - CHART_MIN) / (CHART_MAX - CHART_MIN)) * 100
 }
 
 function ResultsChart() {
-  const barW = 78
-  // Groups: Haiku x=60, Sonnet x=294, Opus x=528
-  const bars = [
-    { x: 60,  val: 52,   fill: '#d1d5db', label: '52%',   labelFill: '#6b7280', fw: 'normal' },
-    { x: 148, val: 62,   fill: '#111827', label: '62%',   labelFill: '#111827', fw: '600'    },
-    { x: 294, val: 56,   fill: '#d1d5db', label: '56%',   labelFill: '#6b7280', fw: 'normal' },
-    { x: 382, val: 65.3, fill: '#111827', label: '65.3%', labelFill: '#111827', fw: '600'    },
-    { x: 528, val: 60.7, fill: '#d1d5db', label: '60.7%', labelFill: '#6b7280', fw: 'normal' },
-    { x: 616, val: 68,   fill: '#111827', label: '68%',   labelFill: '#111827', fw: '600'    },
+  const groups = [
+    { model: 'Claude Haiku 4.5',  baseline: 52,   codeset: 62,   delta: '+10pp' },
+    { model: 'Claude Sonnet 4.5', baseline: 56,   codeset: 65.3, delta: '+9.3pp' },
+    { model: 'Claude Opus 4.5',   baseline: 60.7, codeset: 68,   delta: '+7.3pp' },
   ]
 
   return (
-    <div className="not-prose border border-gray-200 rounded-lg overflow-hidden p-5 my-2">
-      <svg viewBox="0 0 780 300" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: 'auto', display: 'block', fontFamily: 'ui-monospace, monospace' }}>
-        {/* Y-axis label */}
-        <text x={10} y={135} textAnchor="middle" fontSize={11} fill="#6b7280" transform="rotate(-90, 10, 135)">Resolution Rate (%)</text>
-
-        {/* Dataset label at top of axis */}
-        <text x={48} y={18} textAnchor="start" fontSize={10} fill="#9ca3af" fontStyle="italic">codeset-gym-python</text>
-
-        {/* Gridlines + Y-axis labels */}
-        {[70, 60, 50, 40].map((tick) => (
-          <g key={tick}>
-            <line x1={48} y1={pct(tick)} x2={730} y2={pct(tick)} stroke={tick === 40 ? '#e5e7eb' : '#f3f4f6'} strokeWidth={1} />
-            <text x={42} y={pct(tick) + 4} textAnchor="end" fontSize={11} fill="#9ca3af">{tick}%</text>
-          </g>
+    <div className="not-prose border border-gray-200 rounded-lg p-4 sm:p-5 my-2 font-mono">
+      <p className="text-[10px] text-gray-400 italic mb-5">codeset-gym-python · 150 tasks</p>
+      <div className="space-y-5">
+        {groups.map(({ model, baseline, codeset, delta }) => (
+          <div key={model}>
+            <div className="flex items-baseline justify-between mb-2">
+              <span className="text-xs font-medium text-gray-700">{model}</span>
+              <span className="text-[10px] font-semibold text-green-700 bg-green-50 px-1.5 py-0.5 rounded">{delta}</span>
+            </div>
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="w-14 text-right text-[9px] text-gray-400 shrink-0">baseline</span>
+                <div className="flex-1 h-5 bg-gray-100 rounded overflow-hidden">
+                  <div className="h-full bg-gray-300 rounded" style={{ width: `${barWidth(baseline)}%` }} />
+                </div>
+                <span className="text-[10px] text-gray-500 w-10 shrink-0">{baseline}%</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-14 text-right text-[9px] text-gray-400 shrink-0">codeset</span>
+                <div className="flex-1 h-5 bg-gray-100 rounded overflow-hidden">
+                  <div className="h-full bg-gray-900 rounded" style={{ width: `${barWidth(codeset)}%` }} />
+                </div>
+                <span className="text-[10px] text-gray-900 font-semibold w-10 shrink-0">{codeset}%</span>
+              </div>
+            </div>
+          </div>
         ))}
-
-        {/* Bars */}
-        {bars.map((b) => {
-          const top = pct(b.val)
-          const h = CHART_BOTTOM - top
-          return (
-            <g key={b.x}>
-              <rect x={b.x} y={top} width={barW} height={h} fill={b.fill} rx={2} />
-              <text x={b.x + barW / 2} y={top - 7} textAnchor="middle" fontSize={12} fontWeight={b.fw} fill={b.labelFill}>{b.label}</text>
-            </g>
-          )
-        })}
-
-        {/* Group labels */}
-        <text x={143} y={252} textAnchor="middle" fontSize={12} fill="#374151" fontWeight={500}>Haiku</text>
-        <text x={377} y={252} textAnchor="middle" fontSize={12} fill="#374151" fontWeight={500}>Sonnet</text>
-        <text x={611} y={252} textAnchor="middle" fontSize={12} fill="#374151" fontWeight={500}>Opus</text>
-
-        {/* Legend */}
-        <rect x={282} y={270} width={10} height={10} fill="#d1d5db" rx={1} />
-        <text x={297} y={280} fontSize={11} fill="#6b7280">Baseline</text>
-        <rect x={382} y={270} width={10} height={10} fill="#111827" rx={1} />
-        <text x={397} y={280} fontSize={11} fill="#6b7280">with Codeset</text>
-      </svg>
+      </div>
+      <div className="flex items-center gap-5 mt-5 pt-4 border-t border-gray-100">
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 rounded-sm bg-gray-300" />
+          <span className="text-[10px] text-gray-500">Baseline</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 rounded-sm bg-gray-900" />
+          <span className="text-[10px] text-gray-500">with Codeset</span>
+        </div>
+      </div>
     </div>
   )
 }
 
 
+function processTableHtml(tableHtml: string): string {
+  const headers: string[] = []
+  const thRegex = /<th[^>]*>([\s\S]*?)<\/th>/g
+  let m
+  while ((m = thRegex.exec(tableHtml)) !== null) {
+    headers.push(m[1].replace(/<[^>]+>/g, '').trim())
+  }
+  if (headers.length === 0) return tableHtml
+
+  return tableHtml.replace(/<tr>([\s\S]*?)<\/tr>/g, (rowHtml) => {
+    if (/<th/.test(rowHtml)) return rowHtml
+    let col = 0
+    return rowHtml.replace(/<td>/g, () => {
+      const label = headers[col] ?? ''
+      col++
+      return `<td data-label="${label}">`
+    })
+  })
+}
+
 export default function BlogContent({ content }: BlogContentProps) {
   const contentWithIds = addHeadingIds(content)
-  // Split by code blocks first, then by chart markers
   const processContent = (html: string) => {
-    const parts = html.split(/(<pre><code[^>]*>[\s\S]*?<\/code><\/pre>|<p>CHART_RESULTS_PLACEHOLDER<\/p>)/g)
+    const parts = html.split(/(<pre><code[^>]*>[\s\S]*?<\/code><\/pre>|<p>CHART_RESULTS_PLACEHOLDER<\/p>|<table[\s\S]*?<\/table>)/g)
 
     return parts.map((part, index) => {
       // Code block
@@ -97,16 +109,15 @@ export default function BlogContent({ content }: BlogContentProps) {
               <span className="w-3 h-3 bg-yellow-500 rounded-full"></span>
               <span className="w-3 h-3 bg-green-500 rounded-full"></span>
             </div>
-            <div className="overflow-x-auto bg-gray-800">
-              <SyntaxHighlighter
-                language="python"
-                style={atomOneDark}
-                customStyle={{ background: '#1f2937', padding: '1.5rem', margin: 0, fontSize: '0.875rem', lineHeight: '1.5' }}
-                codeTagProps={{ style: { background: 'transparent !important', color: '#f9fafb !important' } }}
-              >
-                {codeContent.trim()}
-              </SyntaxHighlighter>
-            </div>
+            <SyntaxHighlighter
+              language="python"
+              style={atomOneDark}
+              wrapLongLines={true}
+              customStyle={{ background: '#1f2937', padding: '1.5rem', margin: 0, fontSize: '0.875rem', lineHeight: '1.5' }}
+              codeTagProps={{ style: { background: 'transparent !important', color: '#f9fafb !important' } }}
+            >
+              {codeContent.trim()}
+            </SyntaxHighlighter>
           </div>
         )
       }
@@ -114,6 +125,11 @@ export default function BlogContent({ content }: BlogContentProps) {
       // Chart marker
       if (part === '<p>CHART_RESULTS_PLACEHOLDER</p>') {
         return <ResultsChart key={index} />
+      }
+
+      // Table — inject data-label attributes for mobile card layout
+      if (/<table/.test(part)) {
+        return <div key={index} dangerouslySetInnerHTML={{ __html: processTableHtml(part) }} />
       }
 
       // Regular HTML content
