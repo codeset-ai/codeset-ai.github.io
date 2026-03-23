@@ -105,6 +105,13 @@ body {
   100% { transform: scale(1); }
 }
 
+/* Make prose tables scrollable on mobile */
+.prose table {
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Ensure blog code blocks match homepage exactly */
 .blog-code-block .hljs {
   background: #1f2937 !important;

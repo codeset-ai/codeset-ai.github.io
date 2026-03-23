@@ -91,20 +91,22 @@ export default function BlogContent({ content }: BlogContentProps) {
           .replace(/&#x27;/g, "'")
 
         return (
-          <div key={index} className="not-prose bg-gray-900 border border-gray-200 rounded-lg shadow-lg font-mono text-left text-sm overflow-hidden my-6 blog-code-block">
+          <div key={index} className="not-prose border border-gray-200 rounded-lg shadow-lg font-mono text-left text-sm my-6 blog-code-block overflow-hidden">
             <div className="bg-gray-100 px-4 py-2 flex items-center gap-2">
               <span className="w-3 h-3 bg-red-500 rounded-full"></span>
               <span className="w-3 h-3 bg-yellow-500 rounded-full"></span>
               <span className="w-3 h-3 bg-green-500 rounded-full"></span>
             </div>
-            <SyntaxHighlighter
-              language="python"
-              style={atomOneDark}
-              customStyle={{ background: '#1f2937', padding: '1.5rem', margin: 0, fontSize: '0.875rem', lineHeight: '1.5' }}
-              codeTagProps={{ style: { background: 'transparent !important', color: '#f9fafb !important' } }}
-            >
-              {codeContent.trim()}
-            </SyntaxHighlighter>
+            <div className="overflow-x-auto bg-gray-800">
+              <SyntaxHighlighter
+                language="python"
+                style={atomOneDark}
+                customStyle={{ background: '#1f2937', padding: '1.5rem', margin: 0, fontSize: '0.875rem', lineHeight: '1.5' }}
+                codeTagProps={{ style: { background: 'transparent !important', color: '#f9fafb !important' } }}
+              >
+                {codeContent.trim()}
+              </SyntaxHighlighter>
+            </div>
           </div>
         )
       }
