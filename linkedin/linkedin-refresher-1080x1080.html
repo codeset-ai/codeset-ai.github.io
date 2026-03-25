@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080, height=1080">
+  <title>Codeset — Refresher</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 1080px; height: 810px; overflow: hidden; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: hsl(0, 0%, 100%);
+      color: hsl(0, 0%, 3.9%);
+      display: flex;
+      flex-direction: column;
+      padding: 40px 52px 36px;
+      position: relative;
+    }
+    .brand-top {
+      position: absolute;
+      top: 40px;
+      right: 52px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      opacity: 0.9;
+    }
+    .brand-logo { height: 44px; width: 44px; flex-shrink: 0; object-fit: contain; }
+    .brand-text { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; color: hsl(0,0%,9%); }
+
+    .anchor {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      color: hsl(239, 84%, 67%);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 6px;
+      margin-bottom: 12px;
+    }
+    .headline {
+      font-size: 52px;
+      font-weight: 800;
+      line-height: 1.06;
+      letter-spacing: -0.033em;
+      color: hsl(0, 0%, 3.9%);
+      max-width: 740px;
+      margin-bottom: 10px;
+    }
+    .subline {
+      font-size: 20px;
+      font-weight: 500;
+      color: hsl(0, 0%, 42%);
+      letter-spacing: -0.01em;
+      margin-bottom: 22px;
+    }
+
+    /* main panel */
+    .panel {
+      display: flex;
+      flex-direction: column;
+      background: hsl(0, 0%, 100%);
+      border: 1px solid hsl(0, 0%, 89.8%);
+      border-radius: 16px;
+      padding: 22px 28px 24px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.9);
+    }
+    .panel-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: hsl(0, 0%, 45%);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    /* stats */
+    .stats {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .stat {
+      flex: 1;
+      background: hsl(0, 0%, 100%);
+      border: 1px solid hsl(220, 13%, 91%);
+      border-radius: 12px;
+      padding: 14px 16px 16px;
+      text-align: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .stat-model {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      color: hsl(0, 0%, 45%);
+      margin-bottom: 6px;
+    }
+    .stat-main {
+      font-size: 56px;
+      font-weight: 800;
+      color: hsl(239, 84%, 67%);
+      letter-spacing: -0.03em;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-delta-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 12px;
+    }
+    .stat-from {
+      font-size: 15px;
+      font-weight: 500;
+      color: hsl(0, 0%, 63%);
+      text-decoration: line-through;
+    }
+    .stat-pp {
+      font-size: 16px;
+      font-weight: 700;
+      color: hsl(239, 84%, 67%);
+    }
+
+    /* key insight */
+    .insight {
+      padding: 14px 20px;
+      background: hsl(239, 84%, 97%);
+      border: 1px solid hsl(239, 60%, 88%);
+      border-radius: 12px;
+      margin-bottom: 14px;
+    }
+    .insight-main {
+      font-size: 18px;
+      font-weight: 700;
+      color: hsl(239, 62%, 38%);
+      letter-spacing: -0.015em;
+    }
+    .insight-sub {
+      font-size: 15px;
+      font-weight: 500;
+      color: hsl(239, 40%, 55%);
+      margin-top: 3px;
+      letter-spacing: -0.01em;
+    }
+
+    /* what you get */
+    .chips {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .chip {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 16px 18px;
+      border: 1px solid hsl(0, 0%, 90%);
+      border-radius: 12px;
+      background: hsl(0, 0%, 99%);
+    }
+    .chip-icon {
+      font-size: 28px;
+      line-height: 1;
+    }
+    .chip-text {
+      font-size: 17px;
+      font-weight: 700;
+      color: hsl(0, 0%, 16%);
+      line-height: 1.25;
+      letter-spacing: -0.015em;
+    }
+    .chip-sub {
+      font-size: 14px;
+      font-weight: 500;
+      color: hsl(0, 0%, 50%);
+      line-height: 1.3;
+      letter-spacing: -0.01em;
+    }
+
+    /* promo banner */
+    .promo {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 28px;
+      background: #0f172a;
+      border-radius: 12px;
+      gap: 16px;
+    }
+    .promo-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .promo-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: #64748b;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .promo-code {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 36px;
+      font-weight: 600;
+      color: hsl(239, 84%, 75%);
+      letter-spacing: 0.04em;
+      line-height: 1.1;
+    }
+    .promo-right {
+      text-align: right;
+    }
+    .promo-right .free {
+      font-size: 22px;
+      font-weight: 800;
+      color: #f1f5f9;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+    .promo-right .detail {
+      font-size: 14px;
+      font-weight: 500;
+      color: #94a3b8;
+      margin-top: 4px;
+      letter-spacing: -0.01em;
+    }
+  </style>
+</head>
+<body>
+  <div class="brand-top">
+    <img src="../public/bacalhau.svg" alt="" class="brand-logo" />
+    <span class="brand-text">&lt;codeset&gt;</span>
+  </div>
+
+  <div class="anchor">In case you missed it</div>
+  <h1 class="headline">Haiku beat Opus.<br>At 1/10th the cost.</h1>
+  <p class="subline">Give your agent the context your team built over years.</p>
+
+  <div class="panel">
+    <div class="panel-label">CODESET-GYM-PYTHON · RESOLUTION RATE</div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-model">Haiku 4.5</div>
+        <div class="stat-main">62%</div>
+        <div class="stat-delta-row">
+          <span class="stat-from">52%</span>
+          <span class="stat-pp">+10pp</span>
+        </div>
+      </div>
+      <div class="stat">
+        <div class="stat-model">Sonnet 4.5</div>
+        <div class="stat-main">65.3%</div>
+        <div class="stat-delta-row">
+          <span class="stat-from">56%</span>
+          <span class="stat-pp">+9.3pp</span>
+        </div>
+      </div>
+      <div class="stat">
+        <div class="stat-model">Opus 4.5</div>
+        <div class="stat-main">68%</div>
+        <div class="stat-delta-row">
+          <span class="stat-from">60.7%</span>
+          <span class="stat-pp">+7.3pp</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight">
+      <div class="insight-main">Haiku 4.5 + Codeset (62%) &gt; raw Opus 4.5 (60.7%)</div>
+      <div class="insight-sub">Better results. One-tenth the inference cost. On SWE-Bench Pro, cost per task dropped 15.6%.</div>
+    </div>
+
+    <div class="chips">
+      <div class="chip">
+        <div class="chip-icon">🐛</div>
+        <div>
+          <div class="chip-text">Past bugs &amp; root causes</div>
+          <div class="chip-sub">Embedded in your files</div>
+        </div>
+      </div>
+      <div class="chip">
+        <div class="chip-icon">⚠️</div>
+        <div>
+          <div class="chip-text">Pitfalls, spelled out</div>
+          <div class="chip-sub">See the cliff before you ship</div>
+        </div>
+      </div>
+      <div class="chip">
+        <div class="chip-icon">🔗</div>
+        <div>
+          <div class="chip-text">Co-change relationships</div>
+          <div class="chip-sub">Files that break together</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="promo">
+      <div class="promo-left">
+        <div class="promo-label">Promo code · free repo analysis</div>
+        <div class="promo-code">CODESETLAUNCH</div>
+      </div>
+      <div class="promo-right">
+        <div class="free">Try it free</div>
+        <div class="detail">$5 normally · one-time · under an hour</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

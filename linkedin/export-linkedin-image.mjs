@@ -17,13 +17,14 @@ const defaultPng = 'linkedin/linkedin-blog-improving-claude-1080x1080.png';
 
 const htmlRel = process.argv[2] || defaultHtml;
 const outRel = process.argv[3] || htmlRel.replace(/\.html$/i, '.png');
+const height = parseInt(process.argv[4] || '1080', 10);
 
 const htmlPath = path.join(repoRoot, htmlRel);
 const outPath = path.join(repoRoot, outRel);
 
 const browser = await puppeteer.launch();
 const page = await browser.newPage();
-await page.setViewport({width: 1080, height: 1080, deviceScaleFactor: 1});
+await page.setViewport({width: 1080, height, deviceScaleFactor: 1});
 await page.goto(`file://${htmlPath}`, {waitUntil: 'networkidle0'});
 await page.screenshot({path: outPath, type: 'png'});
 await browser.close();
