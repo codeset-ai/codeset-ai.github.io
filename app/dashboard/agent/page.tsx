@@ -465,9 +465,9 @@ export function AgentPageContent() {
   if (!user) return null;
 
   return (
-    <div className="space-y-8">
+    <div className="min-w-0 space-y-8">
 
-      <div className="relative rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+      <div className="relative rounded-lg border border-gray-200 bg-white p-3 shadow-sm sm:p-4">
         {repoVisibility === 'private' && GITHUB_APP_INSTALL_URL && (
           <a
             href={GITHUB_APP_INSTALL_URL}
@@ -479,7 +479,11 @@ export function AgentPageContent() {
             Install app
           </a>
         )}
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">
+        <h2
+          className={`mb-4 text-lg font-semibold text-gray-900 ${
+            repoVisibility === 'private' && GITHUB_APP_INSTALL_URL ? 'pr-16 sm:pr-4' : ''
+          }`}
+        >
           Extract Knowledge Base
         </h2>
         <div className="mb-4 inline-flex rounded-md border border-gray-200 text-sm font-medium overflow-hidden">
@@ -753,14 +757,15 @@ export function AgentPageContent() {
               type="button"
               onClick={handleDownloadConfirm}
               disabled={downloadLoading || !downloadAgentIds.length}
-              className="flex items-center gap-2 rounded-md bg-[#6366F1] px-4 py-2 text-sm font-medium text-white hover:brightness-110 disabled:opacity-50"
+              aria-label="Download"
+              className="flex items-center gap-2 rounded-md bg-[#6366F1] px-3 py-2 text-sm font-medium text-white hover:brightness-110 disabled:opacity-50 sm:px-4"
             >
               {downloadLoading ? (
                 <Loader2 size={16} className="animate-spin" />
               ) : (
                 <Download size={16} />
               )}
-              Download
+              <span className="hidden sm:inline">Download</span>
             </button>
           </DialogFooter>
         </DialogContent>
@@ -856,7 +861,13 @@ export function AgentPageContent() {
               ) : (
                 <>
                   <div className="grid gap-2 font-mono text-xs text-gray-600">
-                    <p><span className="font-medium text-gray-900">Job ID:</span> {selectedJobId}</p>
+                    <p>
+                      <span className="font-medium text-gray-900">Job ID:</span>{' '}
+                      <span title={selectedJobId}>
+                        <span className="sm:hidden">{selectedJobId.slice(0, 5)}</span>
+                        <span className="hidden sm:inline">{selectedJobId}</span>
+                      </span>
+                    </p>
                     <p>
                       <span className="font-medium text-gray-900">Repo:</span>{' '}
                       {[...runningDisplayList, ...completedJobsDisplay].find((j) => j.job_id === selectedJobId)?.repo ?? '—'}
@@ -888,26 +899,26 @@ export function AgentPageContent() {
       </Dialog>
 
       {runningDisplayList.length > 0 && (
-        <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-          <div className="mb-3 flex items-center justify-between">
+        <div className="min-w-0 rounded-lg border border-gray-200 bg-white p-3 shadow-sm sm:p-4">
+          <div className="mb-3 flex items-center justify-between gap-2">
             <h2 className="text-lg font-semibold text-gray-900">Running jobs</h2>
-            <div className="group relative">
+            <div className="group relative shrink-0">
               <Info size={16} className="text-gray-400 hover:text-gray-600 cursor-default" />
-              <div className="pointer-events-none absolute right-0 top-6 z-10 w-64 rounded-md border border-gray-200 bg-white p-3 text-xs text-gray-600 shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="pointer-events-none absolute left-0 top-6 z-10 w-[min(16rem,calc(100vw-2rem))] rounded-md border border-gray-200 bg-white p-3 text-xs text-gray-600 shadow-md opacity-0 transition-opacity sm:left-auto sm:right-0 group-hover:opacity-100">
                 Jobs typically take <strong>~45 min</strong> for medium-sized repos, with runtime scaling with the size of the repo. You can close this tab while it runs.
               </div>
             </div>
           </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
+          <div className="max-w-full overflow-x-auto">
+            <table className="w-full table-fixed text-sm">
               <thead>
                 <tr className="border-b border-gray-200 text-left text-gray-600">
-                  <th className="pb-2 pr-4">Job ID</th>
-                  <th className="pb-2 pr-4">Repo</th>
-                  <th className="pb-2 pr-4">Status</th>
-                  <th className="pb-2 pr-4">Progress</th>
-                  <th className="pb-2 pr-4">Created</th>
-                  <th className="pb-2"></th>
+                  <th className="pb-2 pr-2 sm:pr-4">Job ID</th>
+                  <th className="pb-2 pr-2 sm:pr-4">Repo</th>
+                  <th className="pb-2 pr-2 sm:pr-4">Status</th>
+                  <th className="pb-2 pr-2 sm:pr-4">Progress</th>
+                  <th className="hidden pb-2 pr-2 sm:table-cell sm:pr-4">Created</th>
+                  <th className="w-16 pb-2 sm:w-24"></th>
                 </tr>
               </thead>
               <tbody>
@@ -921,9 +932,12 @@ export function AgentPageContent() {
                       className="border-b border-gray-100 cursor-pointer hover:bg-gray-50"
                       onClick={() => setSelectedJobId(j.job_id)}
                     >
-                      <td className="py-2 pr-4 font-mono text-xs">{j.job_id}</td>
-                      <td className="py-2 pr-4">{j.repo}</td>
-                      <td className="py-2 pr-4">
+                      <td className="py-2 pr-2 align-top font-mono text-[11px] sm:pr-4 sm:text-xs sm:break-all" title={j.job_id}>
+                        <span className="sm:hidden">{j.job_id.slice(0, 5)}</span>
+                        <span className="hidden sm:inline break-all">{j.job_id}</span>
+                      </td>
+                      <td className="break-all py-2 pr-2 align-top sm:pr-4" title={j.repo}>{j.repo}</td>
+                      <td className="py-2 pr-2 align-top sm:pr-4">
                         <span className="inline-flex items-center gap-2">
                           <span className="relative flex h-2 w-2 shrink-0">
                             <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${status === 'pending' ? 'bg-yellow-400' : 'bg-indigo-400'}`} />
@@ -932,38 +946,42 @@ export function AgentPageContent() {
                           {status}
                         </span>
                       </td>
-                      <td className="py-2 pr-4 text-gray-600 min-w-[120px]">
+                      <td className="min-w-0 py-2 pr-2 align-top text-gray-600 sm:pr-4 sm:min-w-[120px]">
                         {d?.error_message ? (
-                          <span className="text-red-600 text-xs">{d.error_message}</span>
+                          <span className="break-words text-xs text-red-600">{d.error_message}</span>
                         ) : d?.progress_pct != null ? (
                           <div className="space-y-1">
-                            <div className="h-2 w-full min-w-[100px] overflow-hidden rounded-full bg-gray-200">
+                            <div className="h-2 w-full min-w-0 overflow-hidden rounded-full bg-gray-200 sm:min-w-[100px]">
                               <div
                                 className="h-full rounded-full bg-[#6366F1] transition-[width] duration-300"
                                 style={{ width: `${Math.min(100, Math.max(0, d.progress_pct))}%` }}
                               />
                             </div>
                             {d.progress_stage ? (
-                              <span className="text-xs text-gray-500">{d.progress_stage}</span>
+                              <span className="break-words text-xs text-gray-500">{d.progress_stage}</span>
                             ) : null}
                           </div>
                         ) : (
                           '—'
                         )}
                       </td>
-                      <td className="py-2 pr-4 text-gray-500">
+                      <td className="hidden py-2 pr-2 text-gray-500 sm:table-cell sm:pr-4">
                         {new Date(j.created_at).toLocaleString()}
                       </td>
-                      <td className="py-2" onClick={(e) => e.stopPropagation()}>
+                      <td className="py-2 align-top" onClick={(e) => e.stopPropagation()}>
                         {isComplete && (
-                          <button
-                            onClick={() => openDownloadDialog(j.job_id)}
-                            disabled={downloadLoading}
-                            className="flex items-center gap-1 text-gray-600 hover:text-black disabled:opacity-50"
-                          >
-                            <Download size={14} />
-                            Download
-                          </button>
+                          <div className="flex justify-center sm:justify-start">
+                            <button
+                              type="button"
+                              onClick={() => openDownloadDialog(j.job_id)}
+                              disabled={downloadLoading}
+                              aria-label="Download"
+                              className="flex items-center gap-1 text-gray-600 hover:text-black disabled:opacity-50"
+                            >
+                              <Download size={14} />
+                              <span className="hidden sm:inline">Download</span>
+                            </button>
+                          </div>
                         )}
                       </td>
                     </tr>
@@ -975,7 +993,7 @@ export function AgentPageContent() {
         </div>
       )}
 
-      <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+      <div className="min-w-0 rounded-lg border border-gray-200 bg-white p-3 shadow-sm sm:p-4">
         <h2 className="mb-3 text-lg font-semibold text-gray-900">
           Job history
         </h2>
@@ -987,15 +1005,15 @@ export function AgentPageContent() {
         ) : completedJobsDisplay.length === 0 ? (
           <p className="text-sm text-gray-500">No jobs yet.</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
+          <div className="max-w-full overflow-x-auto">
+            <table className="w-full table-fixed text-sm">
               <thead>
                 <tr className="border-b border-gray-200 text-left text-gray-600">
-                  <th className="pb-2 pr-4">Job ID</th>
-                  <th className="pb-2 pr-4">Repo</th>
-                  <th className="pb-2 pr-4">Status</th>
-                  <th className="pb-2 pr-4">Created</th>
-                  <th className="pb-2"></th>
+                  <th className="pb-2 pr-2 sm:pr-4">Job ID</th>
+                  <th className="pb-2 pr-2 sm:pr-4">Repo</th>
+                  <th className="pb-2 pr-2 sm:pr-4">Status</th>
+                  <th className="hidden pb-2 pr-2 sm:table-cell sm:pr-4">Created</th>
+                  <th className="w-16 pb-2 sm:w-24"></th>
                 </tr>
               </thead>
               <tbody>
@@ -1009,36 +1027,43 @@ export function AgentPageContent() {
                       className="border-b border-gray-100 cursor-pointer hover:bg-gray-50"
                       onClick={() => setSelectedJobId(j.job_id)}
                     >
-                      <td className="py-2 pr-4 font-mono text-xs">{j.job_id}</td>
-                      <td className="py-2 pr-4">{j.repo}</td>
-                      <td className="py-2 pr-4">
+                      <td className="py-2 pr-2 align-top font-mono text-[11px] sm:pr-4 sm:text-xs sm:break-all" title={j.job_id}>
+                        <span className="sm:hidden">{j.job_id.slice(0, 5)}</span>
+                        <span className="hidden sm:inline break-all">{j.job_id}</span>
+                      </td>
+                      <td className="break-all py-2 pr-2 align-top sm:pr-4" title={j.repo}>{j.repo}</td>
+                      <td className="py-2 pr-2 align-top sm:pr-4">
                         {j.status === 'completed' ? (
                           <span className="inline-flex items-center gap-1.5 text-green-600">
-                            <CheckCircle2 size={15} />
+                            <CheckCircle2 size={15} className="shrink-0" />
                             completed
                           </span>
                         ) : j.status === 'error' ? (
                           <span className="inline-flex items-center gap-1.5 text-red-600">
-                            <XCircle size={15} />
+                            <XCircle size={15} className="shrink-0" />
                             error
                           </span>
                         ) : (
                           j.status
                         )}
                       </td>
-                      <td className="py-2 pr-4 text-gray-500">
+                      <td className="hidden py-2 pr-2 text-gray-500 sm:table-cell sm:pr-4">
                         {new Date(j.created_at).toLocaleString()}
                       </td>
-                      <td className="py-2" onClick={(e) => e.stopPropagation()}>
+                      <td className="py-2 align-top" onClick={(e) => e.stopPropagation()}>
                         {canDownload && (
-                          <button
-                            onClick={() => openDownloadDialog(j.job_id)}
-                            disabled={downloadLoading}
-                            className="flex items-center gap-1 text-gray-600 hover:text-black disabled:opacity-50"
-                          >
-                            <Download size={14} />
-                            Download
-                          </button>
+                          <div className="flex justify-center sm:justify-start">
+                            <button
+                              type="button"
+                              onClick={() => openDownloadDialog(j.job_id)}
+                              disabled={downloadLoading}
+                              aria-label="Download"
+                              className="flex items-center gap-1 text-gray-600 hover:text-black disabled:opacity-50"
+                            >
+                              <Download size={14} />
+                              <span className="hidden sm:inline">Download</span>
+                            </button>
+                          </div>
                         )}
                       </td>
                     </tr>

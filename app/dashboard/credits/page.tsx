@@ -134,8 +134,8 @@ export default function CreditsPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
+        <div className="flex flex-col gap-1 sm:gap-0">
+          <div className="min-w-0">
             <h1 className="text-2xl font-semibold text-gray-900">Credits</h1>
             <p className="text-gray-600">Manage your account balance and billing</p>
           </div>
@@ -168,23 +168,23 @@ export default function CreditsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
           <h1 className="text-2xl font-semibold text-gray-900">Credits</h1>
           <p className="text-gray-600">Manage your account balance and billing</p>
         </div>
-        <div className="flex items-center space-x-3">
+        <div className="flex flex-col gap-2 sm:flex-shrink-0 sm:flex-row sm:items-center sm:gap-3">
           <button
             onClick={handleRefresh}
             disabled={refreshing}
-            className="flex items-center space-x-2 px-4 py-2 bg-gray-100 text-gray-700 border border-gray-200 rounded-md hover:bg-gray-200 transition-colors disabled:opacity-50"
+            className="flex w-full items-center justify-center space-x-2 px-4 py-2 bg-gray-100 text-gray-700 border border-gray-200 rounded-md hover:bg-gray-200 transition-colors disabled:opacity-50 sm:w-auto"
           >
             <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
             <span>Refresh</span>
           </button>
           <button
             onClick={() => setShowDepositDialog(true)}
-            className="flex items-center space-x-2 px-4 py-2 bg-[#6366F1] text-white rounded-md hover:brightness-110 transition-colors"
+            className="flex w-full items-center justify-center space-x-2 px-4 py-2 bg-[#6366F1] text-white rounded-md hover:brightness-110 transition-colors sm:w-auto"
           >
             <Plus size={16} />
             <span>Add Credits</span>
@@ -320,20 +320,20 @@ export default function CreditsPage() {
               </div>
             </div>
 
-            <div className="flex justify-end space-x-3 mt-6">
+            <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:space-x-3 sm:gap-0">
               <button
                 onClick={() => {
                   setShowDepositDialog(false);
                   setDepositAmount(10);
                 }}
-                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+                className="w-full px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors sm:w-auto"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDeposit}
                 disabled={depositAmount < 1}
-                className="px-4 py-2 bg-[#6366F1] text-white rounded-md hover:brightness-110 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-4 py-2 bg-[#6366F1] text-white rounded-md hover:brightness-110 transition-colors disabled:opacity-50 disabled:cursor-not-allowed sm:w-auto"
               >
                 Add {formatCurrency(depositAmount * 100)}
               </button>

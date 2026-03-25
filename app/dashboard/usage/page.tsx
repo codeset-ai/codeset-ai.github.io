@@ -88,7 +88,7 @@ export default function UsagePage() {
 
   if (!user) {
     return (
-      <div className="p-6">
+      <div className="min-w-0">
         <div className="text-center text-gray-600">
           Please log in to view your usage history.
         </div>
@@ -98,8 +98,8 @@ export default function UsagePage() {
 
   if (loading && !usageData) {
     return (
-      <div className="p-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Usage History</h1>
+      <div className="min-w-0 space-y-6">
+        <h1 className="text-2xl font-bold text-gray-900">Usage History</h1>
         <div className="text-center text-gray-600">Loading usage data...</div>
       </div>
     );
@@ -107,8 +107,8 @@ export default function UsagePage() {
 
   if (error) {
     return (
-      <div className="p-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Usage History</h1>
+      <div className="min-w-0 space-y-6">
+        <h1 className="text-2xl font-bold text-gray-900">Usage History</h1>
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <div className="text-red-800 font-medium">Error loading usage history</div>
           <div className="text-red-600 text-sm mt-1">{error}</div>
@@ -128,39 +128,43 @@ export default function UsagePage() {
   }
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Usage History</h1>
-      <p className="text-sm text-gray-500 mb-6">
-        Summary and transaction list below are limited to 10,000 transactions.
-      </p>
+    <div className="min-w-0 space-y-6">
+      <div className="min-w-0 space-y-2">
+        <h1 className="text-2xl font-bold text-gray-900">Usage History</h1>
+        <p className="text-sm text-gray-500">
+          Summary and transaction list below are limited to 10,000 transactions.
+        </p>
+      </div>
 
-      <div className="flex flex-wrap items-center gap-4 mb-6">
-        <label className="flex items-center gap-2 text-sm text-gray-700">
-          From
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => {
-              setStartDate(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
-          />
-        </label>
-        <label className="flex items-center gap-2 text-sm text-gray-700">
-          To
-          <input
-            type="date"
-            value={endDate}
-            onChange={(e) => {
-              setEndDate(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
-          />
-        </label>
-        <div className="flex flex-wrap items-center gap-2 ml-4 border-l border-gray-200 pl-4">
-          <span className="text-sm text-gray-700">Type:</span>
+      <div className="flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-center">
+        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
+          <label className="flex min-w-0 items-center gap-2 text-sm text-gray-700">
+            <span className="w-10 shrink-0 sm:w-auto">From</span>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => {
+                setStartDate(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="min-w-0 flex-1 rounded-lg border border-gray-300 px-2 py-2 text-sm sm:w-auto sm:flex-initial sm:min-w-[10rem] sm:px-3"
+            />
+          </label>
+          <label className="flex min-w-0 items-center gap-2 text-sm text-gray-700">
+            <span className="w-10 shrink-0 sm:w-auto">To</span>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => {
+                setEndDate(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="min-w-0 flex-1 rounded-lg border border-gray-300 px-2 py-2 text-sm sm:w-auto sm:flex-initial sm:min-w-[10rem] sm:px-3"
+            />
+          </label>
+        </div>
+        <div className="flex flex-wrap items-center gap-2 border-gray-200 lg:border-l lg:pl-4">
+          <span className="w-full text-sm font-medium text-gray-700 lg:w-auto">Type</span>
           {TRANSACTION_TYPE_OPTIONS.map(({ value, label, checkedClass }) => {
             const checked = transactionTypes.includes(value);
             return (
@@ -190,29 +194,29 @@ export default function UsagePage() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4 md:gap-6">
+        <div className="rounded-lg border border-gray-200 bg-white p-4 sm:p-6">
           <div className="text-2xl font-bold text-green-600">
             {formatCurrency(usageData.current_balance_cents)}
           </div>
           <div className="text-sm text-gray-600 mt-1">Current Balance</div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
+        <div className="rounded-lg border border-gray-200 bg-white p-4 sm:p-6">
           <div className="text-2xl font-bold text-blue-600">
             {formatCurrency(usageData.total_deposits_cents)}
           </div>
           <div className="text-sm text-gray-600 mt-1">Total Deposits</div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
+        <div className="rounded-lg border border-gray-200 bg-white p-4 sm:p-6">
           <div className="text-2xl font-bold text-red-600">
             {formatCurrency(usageData.total_usage_cents)}
           </div>
           <div className="text-sm text-gray-600 mt-1">Total Usage</div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
+        <div className="rounded-lg border border-gray-200 bg-white p-4 sm:p-6">
           <div className="text-2xl font-bold text-purple-600">
             {usageData.summary.total_sessions}
           </div>
@@ -221,7 +225,7 @@ export default function UsagePage() {
       </div>
 
       {/* Usage Statistics */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6 mb-8">
+      <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Usage Statistics</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
@@ -255,43 +259,43 @@ export default function UsagePage() {
       </div>
 
       {/* Transaction History */}
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="p-6 border-b border-gray-200">
+      <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+        <div className="border-b border-gray-200 p-4 sm:p-6">
           <h2 className="text-lg font-semibold text-gray-900">Transaction History</h2>
         </div>
 
-        <div className="overflow-x-auto relative">
+        <div className="relative overflow-x-auto">
           {loading && usageData && (
             <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-10 rounded-b-lg">
               <span className="text-sm text-gray-600">Loading...</span>
             </div>
           )}
-          <table className="min-w-full divide-y divide-gray-200">
+          <table className="w-full table-fixed divide-y divide-gray-200 sm:table-auto">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="w-[36%] px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 sm:w-auto sm:px-6">
                   Type
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="hidden px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 sm:table-cell sm:px-6">
                   Description
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="w-[28%] px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 sm:w-auto sm:px-6">
                   Amount
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="hidden px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 sm:table-cell sm:px-6">
                   Duration
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="w-[36%] px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 sm:w-auto sm:px-6">
                   Date
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-200 bg-white">
               {usageData.transactions.map((transaction) => (
                 <tr key={transaction.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="whitespace-normal px-3 py-3 sm:whitespace-nowrap sm:px-6 sm:py-4">
                     <span
-                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      className={`inline-flex max-w-full px-2 py-1 text-xs font-semibold rounded-full ${
                         transaction.type === 'deposit'
                           ? 'bg-green-100 text-green-800'
                           : transaction.type === 'refund'
@@ -314,10 +318,10 @@ export default function UsagePage() {
                         : 'Session usage'}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-900">
-                    {transaction.description}
+                  <td className="hidden max-w-[12rem] px-3 py-3 text-xs text-gray-900 sm:table-cell sm:max-w-none sm:px-6 sm:py-4 sm:text-sm">
+                    <span className="break-words">{transaction.description}</span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <td className="whitespace-nowrap px-3 py-3 text-xs font-medium sm:px-6 sm:py-4 sm:text-sm">
                     <span
                       className={
                         transaction.amount_cents >= 0
@@ -329,10 +333,10 @@ export default function UsagePage() {
                       {formatCurrency(transaction.amount_cents)}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="hidden whitespace-nowrap px-3 py-3 text-xs text-gray-500 sm:table-cell sm:px-6 sm:py-4 sm:text-sm">
                     {transaction.duration_minutes ? formatDuration(transaction.duration_minutes) : '-'}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="whitespace-normal px-3 py-3 text-xs text-gray-500 sm:whitespace-nowrap sm:px-6 sm:py-4 sm:text-sm">
                     {formatDate(transaction.created_at)}
                   </td>
                 </tr>
@@ -342,21 +346,24 @@ export default function UsagePage() {
         </div>
 
         {usageData.transactions.length === 0 && (
-          <div className="p-6 text-center text-gray-500">
+          <div className="p-4 text-center text-gray-500 sm:p-6">
             No usage history available yet.
           </div>
         )}
 
         {/* Pagination */}
         {usageData.pagination && usageData.pagination.total_pages > 1 && (
-          <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-700">
+          <div className="border-t border-gray-200 bg-gray-50 px-3 py-4 sm:px-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="text-center text-sm text-gray-700 sm:text-left">
                 Showing page {usageData.pagination.current_page} of {usageData.pagination.total_pages}
-                ({usageData.pagination.total_items} total items)
+                <span className="hidden sm:inline"> </span>
+                <span className="block sm:inline">
+                  ({usageData.pagination.total_items} total items)
+                </span>
               </div>
 
-              <div className="flex items-center space-x-2">
+              <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-end">
                 <button
                   onClick={() => handlePageChange(usageData.pagination.current_page - 1)}
                   disabled={!usageData.pagination.has_previous}
@@ -370,7 +377,7 @@ export default function UsagePage() {
                 </button>
 
                 {/* Page numbers */}
-                <div className="flex items-center space-x-1">
+                <div className="flex flex-wrap items-center justify-center gap-1">
                   {Array.from({ length: Math.min(5, usageData.pagination.total_pages) }, (_, i) => {
                     // Calculate start page to center around current page
                     const totalPages = usageData.pagination.total_pages;
