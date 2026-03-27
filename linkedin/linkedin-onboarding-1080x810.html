@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080, height=810">
+  <title>Codeset — The Onboarding</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 1080px; height: 810px; overflow: hidden; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #fff;
+      color: hsl(0,0%,4%);
+      display: flex;
+      flex-direction: column;
+      padding: 40px 52px 36px;
+      position: relative;
+    }
+    .brand-top { position: absolute; top: 40px; right: 52px; display: flex; align-items: center; gap: 8px; }
+    .brand-logo { height: 44px; width: 44px; object-fit: contain; flex-shrink: 0; }
+    .brand-text { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; color: hsl(0,0%,9%); }
+
+    .anchor { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; color: hsl(239,84%,67%); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 6px; margin-bottom: 12px; }
+    .headline { font-size: 50px; font-weight: 800; line-height: 1.06; letter-spacing: -0.03em; margin-bottom: 8px; }
+    .subline { font-size: 18px; font-weight: 500; color: hsl(0,0%,42%); margin-bottom: 22px; letter-spacing: -0.01em; }
+
+    .cards { display: flex; flex-direction: column; gap: 14px; flex: 1; min-height: 0; margin-bottom: 18px; }
+    .card { flex: 1; background: hsl(239,84%,98%); border: 1px solid hsl(239,55%,90%); border-left: 4px solid hsl(239,84%,67%); border-radius: 14px; padding: 22px 28px; display: flex; align-items: center; gap: 22px; }
+    .card-icon { font-size: 44px; line-height: 1; flex-shrink: 0; }
+    .card-body { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+    .card-quote { font-size: 23px; font-weight: 700; color: hsl(239,62%,32%); letter-spacing: -0.02em; line-height: 1.25; }
+    .card-quote::before { content: '"'; }
+    .card-quote::after { content: '"'; }
+    .card-why { font-size: 15px; font-weight: 500; color: hsl(239,35%,52%); line-height: 1.4; letter-spacing: -0.01em; }
+
+    .footer { font-size: 18px; font-weight: 600; color: hsl(0,0%,22%); letter-spacing: -0.015em; line-height: 1.35; padding: 16px 20px; background: hsl(0,0%,97%); border: 1px solid hsl(0,0%,90%); border-radius: 10px; }
+    .footer span { color: hsl(239,84%,55%); }
+  </style>
+</head>
+<body>
+  <div class="brand-top">
+    <img src="../public/bacalhau.svg" alt="" class="brand-logo" />
+    <span class="brand-text">&lt;codeset&gt;</span>
+  </div>
+
+  <div class="anchor">The Onboarding Problem</div>
+  <h1 class="headline">What you'd tell a new dev on day 1.</h1>
+  <p class="subline">Your AI agent never gets this briefing. Codeset gives it automatically.</p>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon">💳</div>
+      <div class="card-body">
+        <div class="card-quote">Be careful with payments.ts — double-charge incident last year</div>
+        <div class="card-why">Root cause: idempotency key not persisted. 3 hours to debug in prod.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔐</div>
+      <div class="card-body">
+        <div class="card-quote">Don't touch the auth middleware without running the full test suite</div>
+        <div class="card-why">Mocked tests passed while the real integration was broken. Got burned once.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🗃️</div>
+      <div class="card-body">
+        <div class="card-quote">Database migrations always need a rollback script</div>
+        <div class="card-why">Skipped once. 3 hours of downtime and a late-night rollback by hand.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    That's institutional knowledge. It lives in your team's heads — not your codebase.<br>
+    <span>Codeset extracts it from your git history and puts it where your agent reads it.</span>
+  </div>
+
+  <div style="margin-top:12px; display:flex; align-items:center; justify-content:space-between; padding:12px 20px; background:#0f172a; border-radius:10px;">
+    <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:600; color:#94a3b8; letter-spacing:0.1em; text-transform:uppercase;">Promo code · free repo analysis</span>
+    <span style="font-family:'IBM Plex Mono',monospace; font-size:20px; font-weight:600; color:hsl(239,84%,75%); letter-spacing:0.04em;">CODESETLAUNCH</span>
+  </div>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080, height=810">
+  <title>Codeset — The Problem</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 1080px; height: 810px; overflow: hidden; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #fff;
+      color: hsl(0,0%,4%);
+      display: flex;
+      flex-direction: column;
+      padding: 40px 52px 36px;
+      position: relative;
+    }
+    .brand-top { position: absolute; top: 40px; right: 52px; display: flex; align-items: center; gap: 8px; }
+    .brand-logo { height: 44px; width: 44px; object-fit: contain; flex-shrink: 0; }
+    .brand-text { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; color: hsl(0,0%,9%); }
+
+    .anchor { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; color: hsl(4,86%,55%); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 6px; margin-bottom: 12px; }
+    .headline { font-size: 52px; font-weight: 800; line-height: 1.06; letter-spacing: -0.033em; margin-bottom: 10px; }
+    .subline { font-size: 18px; font-weight: 500; color: hsl(0,0%,42%); margin-bottom: 20px; max-width: 700px; letter-spacing: -0.01em; line-height: 1.4; }
+
+    .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; flex: 1; min-height: 0; }
+
+    .col { border-radius: 14px; padding: 18px 20px; display: flex; flex-direction: column; }
+    .col-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px; }
+
+    .col.without { background: #fff; border: 1px solid hsl(0,0%,88%); }
+    .col.without .col-label { color: hsl(0,0%,52%); }
+    .without .term { flex: 1; background: hsl(0,0%,95%); border-radius: 10px; padding: 16px 18px; font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: hsl(0,0%,45%); line-height: 1.55; display: flex; flex-direction: column; }
+    .without .empty { margin-top: auto; padding-top: 24px; display: flex; flex-direction: column; gap: 8px; }
+    .without .empty-line { display: flex; align-items: center; gap: 8px; color: hsl(0,0%,55%); font-size: 14px; font-weight: 500; }
+    .without .empty-line::before { content: '—'; color: hsl(0,0%,72%); }
+    .without .empty-note { margin-top: 16px; color: hsl(4,86%,55%); font-style: italic; font-size: 13px; font-weight: 600; }
+
+    .col.with { background: #0f172a; }
+    .col.with .col-label { color: hsl(239,84%,67%); }
+    .with .term { flex: 1; font-family: 'IBM Plex Mono', monospace; font-size: 15px; color: #cbd5e1; line-height: 1.55; display: flex; flex-direction: column; }
+    .t-prompt { color: #475569; }
+    .t-path { color: #64748b; margin-top: 6px; }
+    .t-sec { margin-top: 12px; }
+    .t-sec-label { color: #94a3b8; }
+    .t-val { color: #e2e8f0; font-weight: 600; }
+    .t-sub { color: #94a3b8; padding-left: 10px; }
+    .t-warn { color: #fbbf24; }
+    .t-warn-sub { color: #94a3b8; padding-left: 10px; }
+  </style>
+</head>
+<body>
+  <div class="brand-top">
+    <img src="../public/bacalhau.svg" alt="" class="brand-logo" />
+    <span class="brand-text">&lt;codeset&gt;</span>
+  </div>
+
+  <div class="anchor">The Problem</div>
+  <h1 class="headline">Your agent is flying blind.</h1>
+  <p class="subline">It opens a file and has no idea what happened the last time someone touched it.</p>
+
+  <div class="compare">
+    <div class="col without">
+      <div class="col-label">Without Codeset</div>
+      <div class="term">
+        <div><span class="t-prompt">$</span> cat src/payments.ts</div>
+        <div style="margin-top:8px">export async function charge(</div>
+        <div>  amount: number,</div>
+        <div>  customerId: string</div>
+        <div>): Promise&lt;PaymentResult&gt; {</div>
+        <div>  // ... 142 lines</div>
+        <div>}</div>
+        <div class="empty">
+          <div class="empty-line">No history</div>
+          <div class="empty-line">No pitfalls</div>
+          <div class="empty-line">No co-change data</div>
+          <div class="empty-line">No edit checklist</div>
+          <div class="empty-note">Your agent is guessing.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col with">
+      <div class="col-label">With Codeset</div>
+      <div class="term">
+        <div><span class="t-prompt">$</span> python get_context.py src/payments.ts</div>
+        <div class="t-path">── src/payments.ts ──────────────────</div>
+
+        <div class="t-sec">
+          <div class="t-sec-label">History (4 insights):</div>
+          <div class="t-val">  [Bug Fix] Double-charge on retry</div>
+          <div class="t-sub">    Root cause: idempotency key not persisted</div>
+          <div class="t-sub">    Fix: store key in DB before Stripe call</div>
+          <div class="t-val">  [Breaking] Webhook signature v2</div>
+          <div class="t-sub">    Migration: update STRIPE_WEBHOOK_SECRET</div>
+        </div>
+
+        <div class="t-sec">
+          <div class="t-sec-label">Pitfalls (2):</div>
+          <div class="t-warn">  ✗ Don't call charge() inside a DB transaction</div>
+          <div class="t-warn-sub">    → Stripe succeeds but rollback fires</div>
+          <div class="t-warn">  ✗ Never log the full PaymentIntent</div>
+          <div class="t-warn-sub">    → Contains raw card data (PCI)</div>
+        </div>
+
+        <div class="t-sec">
+          <div class="t-sec-label">Co-changes:</div>
+          <div>  src/webhooks.ts, src/subscriptions.ts</div>
+        </div>
+
+        <div class="t-sec">
+          <div class="t-sec-label">Tests → tests/payments.test.ts:</div>
+          <div>  test_charge, test_idempotent_retry,</div>
+          <div>  test_webhook_verification</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:12px; display:flex; align-items:center; justify-content:space-between; padding:12px 20px; background:#0f172a; border-radius:10px;">
+    <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:600; color:#94a3b8; letter-spacing:0.1em; text-transform:uppercase;">Promo code · free repo analysis</span>
+    <span style="font-family:'IBM Plex Mono',monospace; font-size:20px; font-weight:600; color:hsl(239,84%,75%); letter-spacing:0.04em;">CODESETLAUNCH</span>
+  </div>
+</body>
+</html>

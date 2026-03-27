@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080, height=810">
+  <title>Codeset — Community</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 1080px; height: 810px; overflow: hidden; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #fff;
+      color: hsl(0,0%,4%);
+      display: flex;
+      flex-direction: column;
+      padding: 40px 52px 36px;
+      position: relative;
+    }
+    .brand-top { position: absolute; top: 40px; right: 52px; display: flex; align-items: center; gap: 8px; }
+    .brand-logo { height: 44px; width: 44px; object-fit: contain; flex-shrink: 0; }
+    .brand-text { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; color: hsl(0,0%,9%); }
+
+    .main { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; }
+
+    .anchor { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; color: hsl(239,84%,67%); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 24px; }
+
+    .question { font-size: 56px; font-weight: 800; line-height: 1.06; letter-spacing: -0.035em; color: hsl(0,0%,5%); margin-bottom: 20px; max-width: 880px; }
+    .question em { font-style: normal; color: hsl(239,84%,60%); }
+
+    .body-text { font-size: 20px; font-weight: 500; color: hsl(0,0%,40%); line-height: 1.55; letter-spacing: -0.01em; max-width: 780px; margin-bottom: 32px; }
+    .body-text strong { color: hsl(0,0%,22%); font-weight: 600; }
+
+    .features { display: flex; gap: 12px; margin-bottom: 32px; }
+    .feat { padding: 10px 16px; background: hsl(239,84%,97%); border: 1px solid hsl(239,55%,90%); border-radius: 8px; font-size: 14px; font-weight: 600; color: hsl(239,62%,38%); letter-spacing: -0.01em; white-space: nowrap; }
+
+    .promo { display: flex; align-items: center; justify-content: space-between; padding: 18px 26px; background: #0f172a; border-radius: 12px; gap: 16px; }
+    .promo-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; color: #94a3b8; letter-spacing: 0.1em; text-transform: uppercase; }
+    .promo-code { font-family: 'IBM Plex Mono', monospace; font-size: 30px; font-weight: 600; color: hsl(239,84%,75%); letter-spacing: 0.04em; margin-top: 3px; }
+    .promo-right { text-align: right; }
+    .promo-cta { font-size: 17px; font-weight: 700; color: #f1f5f9; letter-spacing: -0.015em; }
+    .promo-detail { font-size: 13px; font-weight: 500; color: #cbd5e1; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <div class="brand-top">
+    <img src="../public/bacalhau.svg" alt="" class="brand-logo" />
+    <span class="brand-text">&lt;codeset&gt;</span>
+  </div>
+
+  <div class="main">
+    <div class="anchor">A question for you</div>
+
+    <div class="question">What would make this a <em>no-brainer</em> for your team?</div>
+
+    <p class="body-text">We're a small team. We launched a few days ago and we read every piece of feedback.<br>
+    <strong>Which part matters most to you?</strong></p>
+
+    <div class="features">
+      <div class="feat">Cost reduction</div>
+      <div class="feat">Accuracy improvement</div>
+      <div class="feat">Pitfalls &amp; sharp edges</div>
+      <div class="feat">Past bugs with root causes</div>
+      <div class="feat">Co-change relationships</div>
+    </div>
+
+    <div class="promo">
+      <div>
+        <div class="promo-label">Promo code · free repo analysis</div>
+        <div class="promo-code">CODESETLAUNCH</div>
+      </div>
+      <div class="promo-right">
+        <div class="promo-cta">Try it free. Tell us what you think.</div>
+        <div class="promo-detail">Contact form at codeset.ai · we respond to every one</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

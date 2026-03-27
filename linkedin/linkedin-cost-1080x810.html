@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080, height=810">
+  <title>Codeset — The Cost</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 1080px; height: 810px; overflow: hidden; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #fff;
+      color: hsl(0,0%,4%);
+      display: flex;
+      flex-direction: column;
+      padding: 40px 52px 36px;
+      position: relative;
+    }
+    .brand-top { position: absolute; top: 40px; right: 52px; display: flex; align-items: center; gap: 8px; }
+    .brand-logo { height: 44px; width: 44px; object-fit: contain; flex-shrink: 0; }
+    .brand-text { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; color: hsl(0,0%,9%); }
+
+    .anchor { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; color: hsl(239,84%,67%); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 6px; margin-bottom: 14px; }
+    .headline { font-size: 48px; font-weight: 800; line-height: 1.06; letter-spacing: -0.03em; margin-bottom: 10px; }
+    .subline { font-size: 18px; font-weight: 500; color: hsl(0,0%,42%); margin-bottom: 22px; letter-spacing: -0.01em; }
+
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .stat-card { background: hsl(239,84%,97%); border: 1px solid hsl(239,60%,88%); border-radius: 16px; padding: 32px 36px; display: flex; flex-direction: column; justify-content: center; gap: 0; }
+    .card-mono { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; color: hsl(239,40%,55%); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 20px; }
+    .before-after { display: flex; align-items: center; gap: 20px; margin-bottom: 18px; }
+    .ba-before { font-size: 40px; font-weight: 700; color: hsl(0,0%,72%); text-decoration: line-through; letter-spacing: -0.03em; line-height: 1; }
+    .ba-arrow { font-size: 28px; color: hsl(239,60%,72%); font-weight: 600; }
+    .ba-after { font-size: 80px; font-weight: 800; color: hsl(239,84%,62%); letter-spacing: -0.045em; line-height: 1; }
+    .delta { display: inline-flex; padding: 9px 20px; background: hsl(239,84%,62%); color: #fff; border-radius: 8px; font-size: 22px; font-weight: 800; letter-spacing: -0.015em; margin-bottom: 16px; }
+    .card-foot { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: hsl(239,40%,55%); letter-spacing: 0.02em; }
+
+    .context { font-size: 15px; font-weight: 500; color: hsl(0,0%,48%); letter-spacing: -0.01em; margin-bottom: 16px; }
+    .context strong { color: hsl(0,0%,22%); font-weight: 600; }
+
+    .promo { display: flex; align-items: center; justify-content: space-between; padding: 18px 26px; background: #0f172a; border-radius: 12px; gap: 16px; }
+    .promo-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; color: #94a3b8; letter-spacing: 0.1em; text-transform: uppercase; }
+    .promo-code { font-family: 'IBM Plex Mono', monospace; font-size: 30px; font-weight: 600; color: hsl(239,84%,75%); letter-spacing: 0.04em; line-height: 1.1; margin-top: 3px; }
+    .promo-right { text-align: right; }
+    .promo-free { font-size: 20px; font-weight: 800; color: #f8fafc; letter-spacing: -0.02em; }
+    .promo-detail { font-size: 13px; font-weight: 500; color: #cbd5e1; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <div class="brand-top">
+    <img src="../public/bacalhau.svg" alt="" class="brand-logo" />
+    <span class="brand-text">&lt;codeset&gt;</span>
+  </div>
+
+  <div class="anchor">SWE-Bench Pro · Results</div>
+  <h1 class="headline">Two numbers you should know.</h1>
+  <p class="subline">Claude Sonnet 4.5, with and without Codeset.</p>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="card-mono">Cost per task · SWE-Bench Pro</div>
+      <div class="before-after">
+        <span class="ba-before">$2.70</span>
+        <span class="ba-arrow">→</span>
+        <span class="ba-after">$2.28</span>
+      </div>
+      <div class="delta">−15.6% lower cost</div>
+      <div class="card-foot">Claude Sonnet 4.5 · same model, better context</div>
+    </div>
+    <div class="stat-card">
+      <div class="card-mono">Task resolution · SWE-Bench Pro</div>
+      <div class="before-after">
+        <span class="ba-before">53.0%</span>
+        <span class="ba-arrow">→</span>
+        <span class="ba-after">55.7%</span>
+      </div>
+      <div class="delta">+2.7pp accuracy</div>
+      <div class="card-foot">Claude Sonnet 4.5 · codeset-gym-python benchmark</div>
+    </div>
+  </div>
+
+  <p class="context">Better accuracy <strong>and</strong> lower cost — because fewer wasted tokens, fewer wrong files opened, fewer mistakes to fix.</p>
+
+  <div class="promo">
+    <div>
+      <div class="promo-label">Promo code · free repo analysis</div>
+      <div class="promo-code">CODESETLAUNCH</div>
+    </div>
+    <div class="promo-right">
+      <div class="promo-free">Try it free</div>
+      <div class="promo-detail">$5 normally · one-time · under an hour</div>
+    </div>
+  </div>
+</body>
+</html>

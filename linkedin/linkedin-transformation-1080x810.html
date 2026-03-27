@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080, height=810">
+  <title>Codeset — The Transformation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 1080px; height: 810px; overflow: hidden; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #fff;
+      color: hsl(0,0%,4%);
+      display: flex;
+      flex-direction: column;
+      padding: 40px 52px 36px;
+      position: relative;
+    }
+    .brand-top { position: absolute; top: 40px; right: 52px; display: flex; align-items: center; gap: 8px; }
+    .brand-logo { height: 44px; width: 44px; object-fit: contain; flex-shrink: 0; }
+    .brand-text { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; color: hsl(0,0%,9%); }
+
+    .anchor { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; color: hsl(239,84%,67%); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 6px; margin-bottom: 12px; }
+    .headline { font-size: 50px; font-weight: 800; line-height: 1.06; letter-spacing: -0.03em; margin-bottom: 20px; }
+
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; flex: 1; min-height: 0; }
+
+    .side { border-radius: 16px; padding: 28px 32px; display: flex; flex-direction: column; justify-content: space-between; }
+
+    .side.before { background: hsl(0,0%,96%); border: 1px solid hsl(0,0%,89%); }
+    .side.after { background: #0f172a; }
+
+    .side-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 20px; }
+    .before .side-label { color: hsl(0,0%,55%); }
+    .after .side-label { color: hsl(239,84%,67%); }
+
+    .side-quote { font-size: 28px; font-weight: 800; line-height: 1.18; letter-spacing: -0.025em; }
+    .before .side-quote { color: hsl(0,0%,28%); }
+    .after .side-quote { color: #f1f5f9; }
+
+    .side-desc { font-size: 16px; font-weight: 500; line-height: 1.45; letter-spacing: -0.01em; margin-top: 12px; }
+    .before .side-desc { color: hsl(0,0%,55%); }
+    .after .side-desc { color: #94a3b8; }
+
+    .side-stat { }
+    .stat-model { font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 500; margin-bottom: 4px; }
+    .before .stat-model { color: hsl(0,0%,58%); }
+    .after .stat-model { color: #64748b; }
+
+    .stat-num { font-size: 72px; font-weight: 800; line-height: 1; letter-spacing: -0.04em; }
+    .before .stat-num { color: hsl(0,0%,72%); }
+    .after .stat-num { color: hsl(239,84%,67%); }
+
+    .stat-delta { font-size: 18px; font-weight: 700; margin-top: 4px; }
+    .before .stat-delta { color: hsl(0,0%,65%); text-decoration: line-through; }
+    .after .stat-delta { color: hsl(239,84%,75%); }
+
+    .bottom-line { margin-top: 16px; font-size: 18px; font-weight: 700; color: hsl(0,0%,28%); letter-spacing: -0.015em; text-align: center; padding: 14px 20px; background: hsl(0,0%,97%); border: 1px solid hsl(0,0%,90%); border-radius: 10px; }
+    .bottom-line span { color: hsl(239,84%,55%); }
+  </style>
+</head>
+<body>
+  <div class="brand-top">
+    <img src="../public/bacalhau.svg" alt="" class="brand-logo" />
+    <span class="brand-text">&lt;codeset&gt;</span>
+  </div>
+
+  <div class="anchor">Before &amp; After</div>
+  <h1 class="headline">Same model. Completely different results.</h1>
+
+  <div class="split">
+    <div class="side before">
+      <div>
+        <div class="side-label">Before Codeset</div>
+        <div class="side-quote">A brilliant contractor on day 1.</div>
+        <div class="side-desc">Technically capable. No idea where the bodies are buried. Starts from zero every single time.</div>
+      </div>
+      <div class="side-stat">
+        <div class="stat-model">Haiku 4.5 · codeset-gym-python</div>
+        <div class="stat-num">52%</div>
+        <div class="stat-delta">baseline</div>
+      </div>
+    </div>
+
+    <div class="side after">
+      <div>
+        <div class="side-label">After Codeset</div>
+        <div class="side-quote">A senior who's been in the codebase for years.</div>
+        <div class="side-desc">Knows the landmines. Knows what broke last quarter. Knows which files always break together.</div>
+      </div>
+      <div class="side-stat">
+        <div class="stat-model">Haiku 4.5 · codeset-gym-python</div>
+        <div class="stat-num">62%</div>
+        <div class="stat-delta">+10pp · outperforms raw Opus 4.5</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-line">
+    Haiku 4.5 + Codeset beats raw Opus 4.5. <span>At roughly 1/10th the cost per benchmark task.</span>
+    &nbsp;·&nbsp; <span style="font-family:'IBM Plex Mono',monospace; font-size:15px; letter-spacing:0.02em;">CODESETLAUNCH</span> for a free repo analysis.
+  </div>
+</body>
+</html>
