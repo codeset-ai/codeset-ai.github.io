@@ -2,59 +2,56 @@
 
 import Script from "next/script";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 
 import { useCookieConsent } from "@/contexts/CookieConsentContext";
+import { pushGtagConsentUpdate } from "@/lib/analyticsConsent";
+
+type GtagFn = (...args: unknown[]) => void;
+
+function getGtag(): GtagFn | undefined {
+  if (typeof window === "undefined") {
+    return undefined;
+  }
+  const gtag = (window as Window & { gtag?: GtagFn }).gtag;
+  return typeof gtag === "function" ? gtag : undefined;
+}
 
 export const GA_TRACKING_ID = "G-VJXTWYKTRS";
 
 const gtagInitScript = `(function(){if(typeof window.gtag!=="function")return;window.gtag("js",new Date());window.gtag("config","${GA_TRACKING_ID}");})();`;
 
 export const pageview = (url: string) => {
-  if (typeof window.gtag !== "function") {
+  const gtag = getGtag();
+  if (!gtag) {
     return;
   }
-  window.gtag("config", GA_TRACKING_ID, {
+  gtag("config", GA_TRACKING_ID, {
     page_path: url,
   });
 };
 
 export const event = ({ action, category, label, value }: any) => {
-  if (typeof window.gtag !== "function") {
+  const gtag = getGtag();
+  if (!gtag) {
     return;
   }
-  window.gtag("event", action, {
+  gtag("event", action, {
     event_category: category,
     event_label: label,
     value: value,
   });
 };
 
-export const GoogleAnalytics = () => {
+function GoogleAnalyticsBootstrap() {
   const { analyticsGranted, ready } = useCookieConsent();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
-    if (!ready || typeof window.gtag !== "function") {
-      return;
-    }
-    window.gtag("consent", "update", {
-      ad_storage: "denied",
-      ad_user_data: "denied",
-      ad_personalization: "denied",
-      analytics_storage: analyticsGranted ? "granted" : "denied",
-    });
-  }, [ready, analyticsGranted]);
 
   useEffect(() => {
     if (!ready) {
       return;
     }
-    const qs = searchParams.toString();
-    const url = pathname + (qs ? `?${qs}` : "");
-    pageview(url);
-  }, [pathname, searchParams, ready]);
+    pushGtagConsentUpdate(analyticsGranted);
+  }, [ready, analyticsGranted]);
 
   return (
     <>
@@ -67,4 +64,30 @@ export const GoogleAnalytics = () => {
       </Script>
     </>
   );
-};
+}
+
+function GoogleAnalyticsPageviews() {
+  const { ready, analyticsGranted } = useCookieConsent();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (!ready) {
+      return;
+    }
+    const qs = searchParams.toString();
+    const url = pathname + (qs ? `?${qs}` : "");
+    pageview(url);
+  }, [pathname, searchParams, ready, analyticsGranted]);
+
+  return null;
+}
+
+export const GoogleAnalytics = () => (
+  <>
+    <GoogleAnalyticsBootstrap />
+    <Suspense fallback={null}>
+      <GoogleAnalyticsPageviews />
+    </Suspense>
+  </>
+);

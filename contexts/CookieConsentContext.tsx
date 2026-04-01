@@ -12,7 +12,10 @@ import {
 } from "react";
 
 import { Button } from "@/components/ui/button";
-import { ANALYTICS_CONSENT_STORAGE_KEY } from "@/lib/analyticsConsent";
+import {
+  ANALYTICS_CONSENT_STORAGE_KEY,
+  pushGtagConsentUpdate,
+} from "@/lib/analyticsConsent";
 
 const STORAGE_KEY = ANALYTICS_CONSENT_STORAGE_KEY;
 
@@ -107,6 +110,7 @@ export function CookieConsentProvider({ children }: { children: ReactNode }) {
     } catch {
       /* ignore */
     }
+    pushGtagConsentUpdate(true);
     setConsent("granted");
     setShowBanner(false);
   }, []);
@@ -117,6 +121,7 @@ export function CookieConsentProvider({ children }: { children: ReactNode }) {
     } catch {
       /* ignore */
     }
+    pushGtagConsentUpdate(false);
     setConsent("denied");
     setShowBanner(false);
   }, []);

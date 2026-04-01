@@ -5,7 +5,6 @@ import Script from "next/script"
 import { GoogleAnalytics } from "../components/GoogleAnalytics";
 import { CookieConsentProvider } from "@/contexts/CookieConsentContext";
 import { getGtagConsentBootstrapScript } from "@/lib/analyticsConsent";
-import { Suspense } from "react";
 
 const ibmPlexMono = IBM_Plex_Mono({
   subsets: ["latin"],
@@ -54,9 +53,7 @@ export default function RootLayout({
             {children}
           </AuthProvider>
           <Toaster position="top-right" />
-          <Suspense>
-            <GoogleAnalytics />
-          </Suspense>
+          <GoogleAnalytics />
         </CookieConsentProvider>
       </body>
     </html>
