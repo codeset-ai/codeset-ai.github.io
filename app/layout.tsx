@@ -1,8 +1,10 @@
 import type { Metadata } from 'next'
 import '../globals.css'
 import { IBM_Plex_Mono } from "next/font/google"
+import Script from "next/script"
 import { GoogleAnalytics } from "../components/GoogleAnalytics";
 import { CookieConsentProvider } from "@/contexts/CookieConsentContext";
+import { getGtagConsentBootstrapScript } from "@/lib/analyticsConsent";
 import { Suspense } from "react";
 
 const ibmPlexMono = IBM_Plex_Mono({
@@ -44,6 +46,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={ibmPlexMono.variable}>
       <body>
+        <Script id="google-consent-default" strategy="beforeInteractive">
+          {getGtagConsentBootstrapScript()}
+        </Script>
         <CookieConsentProvider>
           <AuthProvider>
             {children}

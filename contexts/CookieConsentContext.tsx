@@ -12,8 +12,7 @@ import {
 } from "react";
 
 import { Button } from "@/components/ui/button";
-
-export const ANALYTICS_CONSENT_STORAGE_KEY = "codeset_analytics_consent_v1";
+import { ANALYTICS_CONSENT_STORAGE_KEY } from "@/lib/analyticsConsent";
 
 const STORAGE_KEY = ANALYTICS_CONSENT_STORAGE_KEY;
 
