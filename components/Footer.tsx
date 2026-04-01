@@ -1,6 +1,8 @@
 import Link from "next/link"
 import { Github, Linkedin } from "lucide-react"
 
+import { CookieSettingsLink } from "@/components/CookieSettingsLink"
+
 const SOCIAL_LINKS = [
   {
     href: "https://github.com/codeset-ai",
@@ -71,6 +73,7 @@ export default function Footer() {
                 <Link href="/contact" className="text-sm text-gray-500 hover:text-black transition-colors">Contact</Link>
                 <Link href="/terms" className="text-sm text-gray-500 hover:text-black transition-colors">Terms of Service</Link>
                 <Link href="/privacy" className="text-sm text-gray-500 hover:text-black transition-colors">Privacy Policy</Link>
+                <CookieSettingsLink />
               </div>
             </div>
           </div>

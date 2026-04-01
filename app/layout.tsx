@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import '../globals.css'
 import { IBM_Plex_Mono } from "next/font/google"
 import { GoogleAnalytics } from "../components/GoogleAnalytics";
+import { CookieConsentProvider } from "@/contexts/CookieConsentContext";
 import { Suspense } from "react";
 
 const ibmPlexMono = IBM_Plex_Mono({
@@ -43,13 +44,15 @@ export default function RootLayout({
   return (
     <html lang="en" className={ibmPlexMono.variable}>
       <body>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
-        <Toaster position="top-right" />
-        <Suspense>
-          <GoogleAnalytics />
-        </Suspense>
+        <CookieConsentProvider>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+          <Toaster position="top-right" />
+          <Suspense>
+            <GoogleAnalytics />
+          </Suspense>
+        </CookieConsentProvider>
       </body>
     </html>
   )
