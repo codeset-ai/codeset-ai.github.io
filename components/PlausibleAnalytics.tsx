@@ -3,7 +3,11 @@
 import { useEffect } from "react";
 
 const domain =
-  process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN?.trim() || "plausible.codeset.ai";
+  process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN?.trim() || "codeset.ai";
+
+const endpoint =
+  process.env.NEXT_PUBLIC_PLAUSIBLE_ENDPOINT?.trim() ||
+  "https://plausible.codeset.ai/api/event";
 
 export function PlausibleAnalytics() {
   useEffect(() => {
@@ -20,6 +24,7 @@ export function PlausibleAnalytics() {
       }
       init({
         domain,
+        endpoint,
         autoCapturePageviews: true,
         bindToWindow: true,
       });
