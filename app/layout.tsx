@@ -3,6 +3,7 @@ import '../globals.css'
 import { IBM_Plex_Mono } from "next/font/google"
 import Script from "next/script"
 import { GoogleAnalytics } from "../components/GoogleAnalytics";
+import { PlausibleAnalytics } from "../components/PlausibleAnalytics";
 import { CookieConsentProvider } from "@/contexts/CookieConsentContext";
 import { getGtagConsentBootstrapScript } from "@/lib/analyticsConsent";
 
@@ -48,6 +49,7 @@ export default function RootLayout({
         <Script id="google-consent-default" strategy="beforeInteractive">
           {getGtagConsentBootstrapScript()}
         </Script>
+        <PlausibleAnalytics />
         <CookieConsentProvider>
           <AuthProvider>
             {children}
