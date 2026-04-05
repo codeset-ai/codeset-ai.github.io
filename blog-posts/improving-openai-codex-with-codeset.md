@@ -1,6 +1,6 @@
 ---
 title: "Improving OpenAI Codex with Repo-Specific Context"
-date: "2026-04-05"
+date: "2026-04-06"
 excerpt: "We ran our Codeset evaluation on OpenAI Codex running GPT-5.4. The improvement is consistent — and the structured context approach holds across AI families."
 tldr: "Codeset improved GPT-5.4's task resolution rate from 60.7% to 66% (+5.3pp) on codeset-gym-python (150 tasks, same subset as our Claude eval). On SWE-Bench Pro (400 randomly sampled tasks), resolution rate improved from 56.5% to 58.5% (+2pp). The gain is model-agnostic."
 ---
