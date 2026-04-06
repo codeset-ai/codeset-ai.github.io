@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1080, height=1080">
+  <title>Codeset on OpenAI Codex — GPT-5.4</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 1080px; height: 810px; overflow: hidden; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: hsl(0, 0%, 100%);
+      color: hsl(0, 0%, 3.9%);
+      display: flex;
+      flex-direction: column;
+      padding: 44px 52px 44px;
+      position: relative;
+    }
+
+    /* brand */
+    .brand-top {
+      position: absolute;
+      top: 68px;
+      right: 52px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand-logo { height: 42px; width: 42px; flex-shrink: 0; object-fit: contain; }
+    .brand-text { font-size: 25px; font-weight: 600; letter-spacing: -0.02em; color: hsl(0, 0%, 9%); }
+
+    /* header */
+    .anchor {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      color: hsl(239, 84%, 67%);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .headline {
+      font-size: 54px;
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.033em;
+      color: hsl(0, 0%, 3.9%);
+      max-width: 760px;
+      margin-bottom: 14px;
+    }
+    .subline {
+      font-size: 20px;
+      font-weight: 500;
+      color: hsl(0, 0%, 42%);
+      letter-spacing: -0.01em;
+      margin-bottom: 28px;
+    }
+
+    /* panel */
+    .panel {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid hsl(0, 0%, 89.8%);
+      border-radius: 16px;
+      padding: 26px 28px 28px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .panel-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: hsl(0, 0%, 45%);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    /* benchmark stat blocks */
+    .benchmarks {
+      display: flex;
+      gap: 16px;
+      flex: 1;
+      min-height: 0;
+      margin-bottom: 20px;
+    }
+    .benchmark {
+      flex: 1;
+      border: 1px solid hsl(220, 13%, 91%);
+      border-radius: 14px;
+      padding: 28px 28px 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .bench-top {}
+    .bench-name {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      color: hsl(0, 0%, 45%);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    .bench-tasks {
+      font-size: 14px;
+      font-weight: 500;
+      color: hsl(0, 0%, 60%);
+    }
+    .bench-main {
+      font-size: 130px;
+      font-weight: 800;
+      color: hsl(239, 84%, 67%);
+      letter-spacing: -0.05em;
+      line-height: 1;
+    }
+    .bench-bottom {}
+    .bench-delta-row {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+    .bench-delta {
+      font-size: 30px;
+      font-weight: 800;
+      color: hsl(239, 84%, 67%);
+      letter-spacing: -0.02em;
+    }
+    .bench-from {
+      font-size: 20px;
+      font-weight: 500;
+      color: hsl(0, 0%, 63%);
+      text-decoration: line-through;
+    }
+
+    /* promo */
+    .promo {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 22px 28px;
+      background: #0f172a;
+      border-radius: 12px;
+      gap: 24px;
+      flex-shrink: 0;
+    }
+    .promo-left { display: flex; flex-direction: column; gap: 5px; }
+    .promo-eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: #64748b;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .promo-code {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 42px;
+      font-weight: 600;
+      color: hsl(239, 84%, 78%);
+      letter-spacing: 0.04em;
+      line-height: 1;
+    }
+    .promo-right { text-align: right; }
+    .promo-free {
+      font-size: 22px;
+      font-weight: 800;
+      color: #f1f5f9;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+    }
+    .promo-detail {
+      font-size: 14px;
+      font-weight: 500;
+      color: #64748b;
+      margin-top: 5px;
+      letter-spacing: -0.01em;
+    }
+  </style>
+</head>
+<body>
+  <div class="brand-top">
+    <img src="../public/bacalhau.svg" alt="" class="brand-logo" />
+    <span class="brand-text">&lt;codeset&gt;</span>
+  </div>
+
+  <div class="anchor">New eval · OpenAI Codex · GPT-5.4</div>
+  <h1 class="headline">Codeset also<br>improves Codex.</h1>
+  <p class="subline">We ran the same eval on GPT-5.4. Results hold.</p>
+
+  <div class="panel">
+    <div class="panel-label">Resolution rate · with vs without Codeset</div>
+
+    <div class="benchmarks">
+      <div class="benchmark">
+        <div class="bench-top">
+          <div class="bench-name">codeset-gym-python</div>
+          <div class="bench-tasks">150 tasks · same subset as Claude eval</div>
+        </div>
+        <div class="bench-main">66%</div>
+        <div class="bench-bottom">
+          <div class="bench-delta-row">
+            <span class="bench-delta">+5.3pp</span>
+            <span class="bench-from">60.7%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="benchmark">
+        <div class="bench-top">
+          <div class="bench-name">SWE-Bench Pro</div>
+          <div class="bench-tasks">400 tasks · randomly sampled</div>
+        </div>
+        <div class="bench-main">58.5%</div>
+        <div class="bench-bottom">
+          <div class="bench-delta-row">
+            <span class="bench-delta">+2.0pp</span>
+            <span class="bench-from">56.5%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="promo">
+      <div class="promo-left">
+        <div class="promo-eyebrow">Free repo analysis · promo code</div>
+        <div class="promo-code">CODESETLAUNCH</div>
+      </div>
+      <div class="promo-right">
+        <div class="promo-free">Try it free</div>
+        <div class="promo-detail">$5 normally · one-time · any coding agent</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

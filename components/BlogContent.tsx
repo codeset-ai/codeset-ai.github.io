@@ -66,6 +66,63 @@ function ResultsChart() {
 }
 
 
+function CodexResultsChart() {
+  const CHART_MIN = 50
+  const CHART_MAX = 70
+  function barWidth(val: number) {
+    return ((val - CHART_MIN) / (CHART_MAX - CHART_MIN)) * 100
+  }
+
+  const benchmarks = [
+    { name: 'codeset-gym-python', tasks: '150 tasks', baseline: 60.7, codeset: 66,   delta: '+5.3pp' },
+    { name: 'SWE-Bench Pro',      tasks: '400 tasks', baseline: 56.5, codeset: 58.5, delta: '+2.0pp' },
+  ]
+
+  return (
+    <div className="not-prose border border-gray-200 rounded-lg p-4 sm:p-5 my-2 font-mono">
+      <p className="text-[10px] text-gray-400 italic mb-5">GPT-5.4 · resolution rate</p>
+      <div className="space-y-5">
+        {benchmarks.map(({ name, tasks, baseline, codeset, delta }) => (
+          <div key={name}>
+            <div className="flex items-baseline justify-between mb-2">
+              <span className="text-xs font-medium text-gray-700">
+                {name} <span className="text-gray-400 font-normal">· {tasks}</span>
+              </span>
+              <span className="text-[10px] font-semibold text-green-700 bg-green-50 px-1.5 py-0.5 rounded">{delta}</span>
+            </div>
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="w-14 text-right text-[9px] text-gray-400 shrink-0">baseline</span>
+                <div className="flex-1 h-5 bg-gray-100 rounded overflow-hidden">
+                  <div className="h-full bg-gray-300 rounded" style={{ width: `${barWidth(baseline)}%` }} />
+                </div>
+                <span className="text-[10px] text-gray-500 w-10 shrink-0">{baseline}%</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-14 text-right text-[9px] text-gray-400 shrink-0">codeset</span>
+                <div className="flex-1 h-5 bg-gray-100 rounded overflow-hidden">
+                  <div className="h-full bg-gray-900 rounded" style={{ width: `${barWidth(codeset)}%` }} />
+                </div>
+                <span className="text-[10px] text-gray-900 font-semibold w-10 shrink-0">{codeset}%</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="flex items-center gap-5 mt-5 pt-4 border-t border-gray-100">
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 rounded-sm bg-gray-300" />
+          <span className="text-[10px] text-gray-500">Baseline</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 rounded-sm bg-gray-900" />
+          <span className="text-[10px] text-gray-500">with Codeset</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function processTableHtml(tableHtml: string): string {
   const headers: string[] = []
   const thRegex = /<th[^>]*>([\s\S]*?)<\/th>/g
@@ -89,7 +146,7 @@ function processTableHtml(tableHtml: string): string {
 export default function BlogContent({ content }: BlogContentProps) {
   const contentWithIds = addHeadingIds(content)
   const processContent = (html: string) => {
-    const parts = html.split(/(<pre><code[^>]*>[\s\S]*?<\/code><\/pre>|<p>CHART_RESULTS_PLACEHOLDER<\/p>|<table[\s\S]*?<\/table>)/g)
+    const parts = html.split(/(<pre><code[^>]*>[\s\S]*?<\/code><\/pre>|<p>CHART_RESULTS_PLACEHOLDER<\/p>|<p>CHART_CODEX_PLACEHOLDER<\/p>|<table[\s\S]*?<\/table>)/g)
 
     return parts.map((part, index) => {
       // Code block
@@ -125,6 +182,9 @@ export default function BlogContent({ content }: BlogContentProps) {
       // Chart marker
       if (part === '<p>CHART_RESULTS_PLACEHOLDER</p>') {
         return <ResultsChart key={index} />
+      }
+      if (part === '<p>CHART_CODEX_PLACEHOLDER</p>') {
+        return <CodexResultsChart key={index} />
       }
 
       // Table — inject data-label attributes for mobile card layout
