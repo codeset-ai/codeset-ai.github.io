@@ -25,7 +25,7 @@ CHART_CODEX_PLACEHOLDER
 
 ## What the numbers mean
 
-The improvement is real and consistent across both benchmarks — which matters because the two benchmarks test different things. codeset-gym-python tasks come from our own curated dataset, weighted toward harder bugs. SWE-Bench Pro is an independent benchmark across multiple languages and repository types. Seeing improvement on both, using the same Codeset context pipeline, rules out dataset-specific effects.
+The improvement is real and consistent across both benchmarks — which matters because the two benchmarks test different things. codeset-gym-python tasks come from our own curated dataset of software engineering tasks. SWE-Bench Pro is an independent benchmark across multiple languages and repository types. Seeing improvement on both, using the same Codeset context pipeline, rules out dataset-specific effects.
 
 **The context gap is model-agnostic.** Claude models improved by 7–10pp. GPT-5.4 improved by 5.3pp on the same task set. The mechanism is the same in both cases: the agent enters the task with structured knowledge it would otherwise have to reconstruct from scratch — or miss entirely. Historical bug patterns, co-change relationships, known pitfalls, the exact tests to run. That knowledge exists in every codebase's git history. Codeset surfaces it. The model doesn't matter.
 
