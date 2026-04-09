@@ -8,6 +8,7 @@ import Footer from "@/components/Footer"
 import { useAuth } from "@/contexts/AuthContext"
 import { ApiService, type PricingInfo } from "@/lib/api"
 import { parseRepo } from "@/lib/repo"
+import { trackPlausibleEvent } from "@/lib/plausible"
 
 const FAQS = [
   {
@@ -471,6 +472,7 @@ function HeroForm({
     "px-6 py-3 text-sm font-medium rounded-md text-white whitespace-nowrap flex-shrink-0 transition-all duration-200 hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] bg-[#6366F1] shadow-[0_0_16px_rgba(99,102,241,0.15)] tracking-[-0.02em]"
 
   const handleSubmit = () => {
+    trackPlausibleEvent("Onboard Agent Click")
     const parsed = parseRepo(repoInput)
     if (!parsed.ok) {
       setError(parsed.error)

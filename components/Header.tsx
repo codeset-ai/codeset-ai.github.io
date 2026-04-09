@@ -5,6 +5,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { usePathname } from "next/navigation"
 import { User, LogOut, Menu, X } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
+import { trackPlausibleEvent } from "@/lib/plausible"
 
 export default function Header() {
   const { user, login, logout, loading } = useAuth()
@@ -116,7 +117,10 @@ export default function Header() {
               </div>
             ) : (
               <button
-                onClick={login}
+                onClick={() => {
+                  trackPlausibleEvent("Sign In Click")
+                  void login()
+                }}
                 className="shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white bg-[#6366F1] rounded-md hover:brightness-110 transition-all whitespace-nowrap"
               >
                 Sign In
@@ -209,6 +213,7 @@ export default function Header() {
                 type="button"
                 onClick={() => {
                   closeMobile()
+                  trackPlausibleEvent("Sign In Click")
                   void login()
                 }}
                 className="w-full rounded-lg bg-[#6366F1] px-3 py-3 text-center text-lg font-medium text-white hover:brightness-110"
